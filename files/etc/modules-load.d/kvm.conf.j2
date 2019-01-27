@@ -1,0 +1,12 @@
+
+#
+# KVM support
+#
+
+kvm
+{% if "GenuineIntel" in ansible_processor %}
+kvm_intel
+{% elif "AuthenticAMD" in ansible_processor %}
+kvm_amd
+{% endif %}
+

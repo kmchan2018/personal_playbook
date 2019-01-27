@@ -1,0 +1,51 @@
+
+
+- import_playbook: "software.dpkg.yml"
+
+
+- hosts: "all"
+  become: true
+  become_user: "root"
+
+  vars:
+
+    install_console_packages:
+      - { name: "bsdtar" }
+      - { name: "curl" }
+      - { name: "ffmpeg" }
+      - { name: "git" }
+      - { name: "htop" }
+      - { name: "mc" }
+      - { name: "net-tools" }
+      - { name: "p7zip" }
+      - { name: "p7zip-full" }
+      - { name: "rsync" }
+      - { name: "screen" }
+      - { name: "socat" }
+      - { name: "sqlite3" }
+      - { name: "sshfs" }
+      - { name: "telnet" }
+      - { name: "tmux" }
+      - { name: "unrar" }
+      - { name: "unrar-free" }
+      - { name: "vim" }
+      - { name: "vim-nox" }
+      - { name: "vlock" }
+      - { name: "whois" }
+      - { name: "vim-editorconfig", requires: { distribution: "debian", since: "stretch" } }
+      - { name: "vim-pathogen", requires: { distribution: "debian" } }
+      - { name: "vim-editorconfig", requires: { distribution: "ubuntu", since: "xenial" } }
+      - { name: "vim-pathogen", requires: { distribution: "ubuntu", since: "xenial" } }
+
+  tasks:
+
+    - name: "Install Console Software"
+      apt:
+        name: "{{ item.name }}"
+        state: "latest"
+        update_cache: true
+        cache_valid_time: 86400
+        default_release: "{{ item.release|default(ansible_distribution_release) }}"
+      loop: "{{ install_console_packages|select('distribution', distro, release, attribute='requires')|list }}"
+
+

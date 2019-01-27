@@ -1,0 +1,18 @@
+
+
+- hosts: "all"
+  become: true
+  become_user: "root"
+
+  tasks:
+
+    - name: "Configuring Hardware Sensors: Enable Kernel Modules"
+      template:
+        dest: "/etc/modules-load.d/sensor.conf"
+        src: "{{ playbook_dir }}/files/etc/modules-load.d/sensor.conf.j2"
+        owner: "root"
+        group: "root"
+        mode: "0644"
+      when: "hardware_sensor_modules|length > 0"
+
+

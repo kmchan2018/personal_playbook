@@ -1,0 +1,67 @@
+
+
+- import_playbook: "software.dpkg.yml"
+
+
+- hosts: "all"
+  become: true
+  become_user: "root"
+
+  vars:
+
+    install_piper_version: "0b8a37511963f900d9476ec55b300dba72577660"
+    install_piper_url: "https://github.com/kmchan2018/piper.git"
+    install_piper_directory: "/usr/local/lib/piper"
+
+    install_piper_dependencies:
+      - { name: "build-essential" }
+      - { name: "cmake" }
+      - { name: "libasound2-dev" }
+
+  tasks:
+
+    - name: "Install Piper"
+      when: "install_piper_enabled|default(false)"
+      block:
+
+        - name: "Install Piper: Install Dependencies"
+          apt:
+            name: "{{ item.name }}"
+            state: "latest"
+            update_cache: true
+            cache_valid_time: 86400
+            default_release: "{{ item.release|default(ansible_distribution_release) }}"
+          loop: "{{ install_piper_dependencies|select('distribution', distro, release, attribute='requires')|list }}"
+
+        - name: "Install Piper: Clone Source Repository"
+          git:
+            dest: "{{ install_piper_directory }}"
+            repo: "{{ install_piper_url }}"
+            version: "{{ install_piper_version }}"
+            clone: "yes"
+            update: "yes"
+            remote: "origin"
+            accept_hostkey: "yes"
+
+        - name: "Install Piper: Configure Source"
+          shell: "cmake ."
+          args:
+            chdir: "{{ install_piper_directory }}"
+            creates: "{{ install_piper_directory }}/Makefile"
+            warn: false
+
+        - name: "Install Piper: Compile Source"
+          shell: "make"
+          args:
+            chdir: "{{ install_piper_directory }}"
+            creates: "{{ install_piper_directory }}/piper"
+            warn: false
+
+        - name: "Install Piper: Install Source"
+          shell: "make install"
+          args:
+            chdir: "{{ install_piper_directory }}"
+            creates: "{{ install_piper_directory }}/piper"
+            warn: false
+
+

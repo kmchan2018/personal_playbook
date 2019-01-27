@@ -1,0 +1,24 @@
+
+
+- hosts: "all"
+  become: true
+  become_user: "kmchan"
+
+  tasks:
+
+    - name: "Applying Steam Settings to Account"
+      when: "account_steam_enabled|default(false)"
+      block:
+
+        - name: "Applying Steam Settings to Account: Copying Configuration Files"
+          copy:
+            dest: "/home/kmchan/{{ item.path }}"
+            src: "{{ playbook_dir }}/files/home/kmchan/{{ item.path }}"
+            owner: "kmchan"
+            group: "kmchan"
+            mode: "{{ item.mode }}"
+          loop:
+            - { topic: "steam",  path: ".local/share/applications/steam.desktop", mode: "0644" }
+            - { topic: "steam",  path: ".config/firejail/steam.profile", mode: "0644" }
+    
+

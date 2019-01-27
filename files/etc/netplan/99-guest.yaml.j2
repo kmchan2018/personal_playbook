@@ -1,0 +1,17 @@
+
+#
+# Create a bridge on the ethernet port to share the network with virtual
+# machines.
+#
+
+network:
+  version: 2
+{% if guest_networks is defined %}
+{% if guest_networks.ethernets is defined %}
+  ethernets: {{ guest_networks.ethernets|to_json }}
+{% endif %}
+{% if guest_networks.bridges is defined %}
+  bridges: {{ guest_networks.bridges|to_json }}
+{% endif %}
+{% endif %}
+

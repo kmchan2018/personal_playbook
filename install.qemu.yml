@@ -1,0 +1,38 @@
+
+- import_playbook: "software.dpkg.yml"
+
+
+- hosts: "all"
+  become: true
+  become_user: "root"
+
+  vars:
+
+    install_qemu_packages:
+      - { name: "qemu" }
+      - { name: "qemu-kvm" }
+      - { name: "qemu-system" }
+      - { name: "qemu-system-common" }
+      - { name: "qemu-system-x86" }
+      - { name: "qemu-block-extra" }
+      - { name: "qemu-utils" }
+      - { name: "qemu-efi" }
+      - { name: "ovmf" }
+      - { name: "spice-client-gtk" }
+
+  tasks:
+
+    - name: "Install Qemu Hypervisor"
+      when: "install_qemu_enabled|default(false)"
+      block:
+
+        - name: "Install Qemu Hypervisor"
+          apt:
+            name: "{{ item.name }}"
+            state: "latest"
+            update_cache: true
+            cache_valid_time: 86400
+            default_release: "{{ item.release|default(ansible_distribution_release) }}"
+          loop: "{{ install_qemu_packages|select('distribution', distro, release, attribute='requires')|list }}"
+
+

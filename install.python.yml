@@ -1,0 +1,37 @@
+
+
+- import_playbook: "software.dpkg.yml"
+
+
+- hosts: "all"
+  become: true
+  become_user: "root"
+
+  vars:
+
+    install_python_packages:
+      - { name: "python" }
+      - { name: "python3" }
+      - { name: "python-pip" }
+      - { name: "python-setuptools" }
+      - { name: "python-virtualenv" }
+      - { name: "python3-pip" }
+      - { name: "python3-setuptools" }
+      - { name: "python3-virtualenv" }
+
+  tasks:
+
+    - name: "Install Python Toolchain"
+      when: "install_python_enabled|default(false)"
+      block:
+
+        - name: "Install Python Toolchain"
+          apt:
+            name: "{{ item.name }}"
+            state: "latest"
+            update_cache: true
+            cache_valid_time: 86400
+            default_release: "{{ item.release|default(ansible_distribution_release) }}"
+          loop: "{{ install_python_packages|select('distribution', distro, release, attribute='requires')|list }}"
+
+

@@ -1,0 +1,7 @@
+
+
+- import_playbook: "guest.networks.yml"
+- import_playbook: "guest.disks.yml"
+- import_playbook: "guest.instances.yml"
+
+

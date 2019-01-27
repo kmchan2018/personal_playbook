@@ -1,0 +1,6 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=Firefox
+Exec=/usr/lib/firefox/firefox %u
+Type=Application
+NoDisplay=true

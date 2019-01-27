@@ -1,0 +1,127 @@
+{%- extends 'files/guest.instances.inc.j2' -%}{%- block body -%}
+#!/bin/bash
+
+##########################################################################
+#
+# Load configuration file
+#
+
+if [[ -f "{{ config_file }}" ]] ; then
+  source "{{ config_file }}"
+fi
+
+##########################################################################
+#
+# Configure QEMU audio configuration
+#
+
+export QEMU_AUDIO_DRV="alsa"
+export QEMU_AUDIO_DAC_FIXED_FREQ="{{ audio_rate }}"
+export QEMU_AUDIO_ADC_FIXED_FREQ="{{ audio_rate }}"
+export QEMU_AUDIO_TIMER_PERIOD="{{ (2 * 1000 / audio_period_time)|int }}"
+export QEMU_ALSA_DAC_DEV="piper"
+export QEMU_ALSA_DAC_PERIOD_SIZE="{{ audio_period_size }}"
+export QEMU_ALSA_ADC_DEV="piper"
+export QEMU_ALSA_ADC_PERIOD_SIZE="{{ audio_period_size }}"
+
+##########################################################################
+#
+# Configure QEMU video configuration
+#
+
+DAEMON_VGA=qxl
+
+{% if looking_glass %}
+if [[ "$VIDEO" == "looking-glass" ]] ; then
+  DAEMON_VGA=none
+fi
+
+{%endif %}
+{% if cards|length > 0 %}
+##########################################################################
+#
+# Extract PCIe slot details
+#
+
+{% for card in cards %}
+DAEMON_CARD{{ card.index }}=$(lspci -n | grep "{{ card.address }}" | cut -d ' ' -f 1 | head)
+{% endfor %}
+
+{% endif %}
+##########################################################################
+#
+# Launch the hypervisor
+#
+
+exec qemu-system-x86_64 \
+  -name "{{ name }}" \
+  -monitor "unix:{{ monitor_socket }},server,nowait" \
+  -pidfile "{{ socket_directory }}/pid" \
+  -spice "unix,addr={{ spice_socket }},disable-ticketing" \
+  -enable-kvm \
+  -machine "q35,accel=kvm,sata=on,usb=on,mem-merge=off" \
+  -cpu "host,kvm=off,hv_relaxed,hv_spinlocks=0x1fff,hv_vapic,hv_time,hv_vendor_id=dummy" \
+  -smp "sockets={{ processor_socket }},cores={{ processor_core }},threads={{ processor_thread }}" \
+  -m "{{ memory_size }}G" {% if memory_prealloc == true -%} -mem-prealloc {%- endif %} \
+  -display "none" \
+  -nographic \
+  -vga "$DAEMON_VGA" \
+  -usb \
+  -rtc "base=localtime" \
+  -serial "none" \
+  -parallel "none" \
+  -drive "if=pflash,id=flash.0,file=/usr/share/OVMF/OVMF_CODE.fd,format=raw,readonly" \
+  -drive "if=pflash,id=flash.1,file={{ bios_file }},format=raw" \
+  -drive "if=none,id=cd.0,media=cdrom,readonly" \
+  -drive "if=none,id=cd.1,media=cdrom,readonly" \
+{% for disk in disks %}
+  -drive "if=none,id=hd.{{ disk.index }},file={{ disk.path }},format={{ disk.format }},media=disk,{{ disk.options }}" \
+{% endfor %}
+  -netdev "user,id=network.0,restrict=on" \
+{% for network in networks %}
+  -netdev "tap,id=network.{{ network.index }},ifname={{ network.device }},script=no,downscript=no" \
+{% endfor %}
+  -chardev "spicevmc,id=spice.agent,name=vdagent,debug=0" \
+  -chardev "spicevmc,id=spice.usbredir.0,name=usbredir" \
+  -chardev "spicevmc,id=spice.usbredir.1,name=usbredir" \
+  -chardev "spicevmc,id=spice.usbredir.2,name=usbredir" \
+  -chardev "spicevmc,id=spice.usbredir.3,name=usbredir" \
+  -device "ioh3420,id=pcie.1,bus=pcie.0,addr=1c.0,port=1,chassis=1,multifunction=on" \
+  -device "ioh3420,id=pcie.2,bus=pcie.0,addr=1c.1,port=2,chassis=2,multifunction=on" \
+  -device "ioh3420,id=pcie.3,bus=pcie.0,addr=1c.2,port=3,chassis=3,multifunction=on" \
+{% for bus in buses %}
+  -device "ioh3420,id=pcie.{{ bus.index }},bus=pcie.0,addr=1c.{{ bus.index - 1 }},port={{ bus.index }},chassis={{ bus.index }},multifunction=on" \
+{% endfor %}
+  -device "virtio-balloon-pci,id=balloon,bus=pcie.1" \
+  -device "virtio-scsi-pci,id=scsi,bus=pcie.2" \
+  -device "virtio-net-pci,id=nic.0,bus=pcie.3,netdev=network.0" \
+{% for network in networks %}
+  -device "virtio-net-pci,id=nic.{{ network.index }},bus=pcie.{{ network.bus }},netdev=network.{{ network.index }}" \
+{% endfor %}
+{% for card in cards %}
+  -device "vfio-pci,id=card.{{ card.index }},bus=pcie.{{ card.bus }},host=$DAEMON_CARD{{ card.index }}{{ card.options }}" \
+{% endfor %}
+  -device "ide-cd,id=drive.cd.0,bus=ide.0,unit=0,drive=cd.0,bootindex=0" \
+  -device "ide-cd,id=drive.cd.1,bus=ide.1,unit=0,drive=cd.1,bootindex=1" \
+{% for disk in disks %}
+  -device "scsi-hd,id=drive.hd.{{ disk.index }},bus=scsi.0,drive=hd.{{ disk.index }},bootindex={{ disk.index + 2 }}" \
+{% endfor %}
+{% if looking_glass %}
+  -device "ivshmem-plain,memdev=ivshmem,bus=pcie.0" \
+  -object "memory-backend-file,id=ivshmem,share=on,mem-path={{ looking_glass_file }},size={{ looking_glass_size }}M" \
+{% endif %}
+  -device "virtio-serial" \
+  -device "virtserialport,chardev=spice.agent,name=com.redhat.spice.0" \
+  -device "ich9-usb-ehci2,id=ehci.1,bus=pcie.0,addr=1a.7,multifunction=on" \
+  -device "ich9-usb-uhci4,id=uhci.1,bus=pcie.0,addr=1a.0,masterbus=ehci.1.0,firstport=0,multifunction=on" \
+  -device "ich9-usb-uhci5,id=uhci.2,bus=pcie.0,addr=1a.1,masterbus=ehci.1.0,firstport=2,multifunction=on" \
+  -device "ich9-usb-uhci6,id=uhci.3,bus=pcie.0,addr=1a.2,masterbus=ehci.1.0,firstport=4,multifunction=on" \
+  -device "usb-redir,id=usbredir.0,chardev=spice.usbredir.0" \
+  -device "usb-redir,id=usbredir.1,chardev=spice.usbredir.1" \
+  -device "usb-redir,id=usbredir.2,chardev=spice.usbredir.2" \
+  -device "usb-redir,id=usbredir.3,chardev=spice.usbredir.3" \
+  -device "ich9-intel-hda" \
+  -device "hda-duplex" \
+  "${@}"
+
+{% endblock %}

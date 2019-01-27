@@ -1,0 +1,25 @@
+
+
+- hosts: "all"
+  become: true
+  become_user: "root"
+
+  tasks:
+
+    - name: "Configuring Kernel-Based Virtual Machine: Enable Kernel Modules"
+      template:
+        dest: "/etc/modules-load.d/kvm.conf"
+        src: "{{ playbook_dir }}/files/etc/modules-load.d/kvm.conf.j2"
+        owner: "root"
+        group: "root"
+        mode: "0644"
+
+    - name: "Configuring Kernel-Based Virtual Machine: Update Kernel Module Parameters"
+      template:
+        dest: "/etc/modprobe.d/kvm.conf"
+        src: "{{ playbook_dir }}/files/etc/modprobe.d/kvm.conf.j2"
+        owner: "root"
+        group: "root"
+        mode: "0644"
+
+

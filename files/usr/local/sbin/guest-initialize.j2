@@ -1,0 +1,58 @@
+{%- extends 'files/guest.instances.inc.j2' -%}{%- block body -%}
+#!/bin/bash
+
+if [[ ! -d "{{ guest_data_prefix }}" ]] ; then
+  install -o "root" -g "root" -m 755 -d "{{ guest_data_prefix }}"
+fi
+
+if [[ ! -d "{{ data_directory }}" ]] ; then
+  install -o "{{ account }}" -g "{{ account }}" -m 755 -d "{{ data_directory }}"
+fi
+
+if [[ ! -f "{{ bios_file }}" ]] ; then
+  install -o "{{ account }}" -g "{{ account }}" -m 0644 /usr/share/OVMF/OVMF_VARS.fd "{{ bios_file }}"
+fi
+
+if [[ ! -d "{{ guest_socket_prefix }}" ]] ; then
+  install -o "root" -g "root" -m 755 -d "{{ guest_socket_prefix }}"
+fi
+
+if [[ ! -d "{{ socket_directory }}" ]] ; then
+  install -o "{{ account }}" -g "{{ account }}" -m 0770 -d "{{ socket_directory }}"
+fi
+
+if [[ ! -f "{{ playback_file }}" ]]; then
+  piper create "{{ playback_file }}" "{{ audio_format }}" "{{ audio_channels }}" "{{ audio_rate }}" "{{ audio_period_time }}" 500 500 100
+  chown "{{ account }}:{{ account }}" "{{ playback_file }}"
+  chmod 660 "{{ playback_file }}"
+fi
+
+if [[ ! -f "{{ capture_file }}" ]]; then
+  piper create "{{ capture_file }}" "{{ audio_format }}" "{{ audio_channels }}" "{{ audio_rate }}" "{{ audio_period_time }}" 500 500 100
+  chown "{{ account }}:{{ account }}" "{{ capture_file }}"
+  chmod 660 "{{ capture_file }}"
+fi
+
+if [[ ! -d "{{ guest_ivshmem_prefix }}" ]] ; then
+  install -o "root" -g "root" -m 755 -d "{{ guest_ivshmem_prefix }}"
+fi
+
+if [[ ! -d "{{ ivshmem_directory }}" ]] ; then
+  install -o "{{ account }}" -g "{{ account }}" -m 0770 -d "{{ ivshmem_directory }}"
+fi
+
+{% if looking_glass %}
+if [[ ! -f "{{ looking_glass_file }}" ]] ; then
+  touch "{{ looking_glass_file }}"
+  chown "{{ account }}:{{ account }}" "{{ looking_glass_file }}"
+  chmod 660 "{{ looking_glass_file }}"
+fi
+
+{% endif %}
+{% for network in networks %}
+ip tuntap add "{{ network.device }}" mode tap user "{{ account }}" group "{{ account }}"
+ip link set "{{ network.device }}" up
+ip link set "{{ network.device }}" master "{{ network.master }}"
+
+{% endfor %}
+{% endblock %}

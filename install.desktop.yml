@@ -1,0 +1,58 @@
+
+
+- import_playbook: "software.dpkg.yml"
+
+
+- hosts: "all"
+  become: true
+  become_user: "root"
+
+  vars:
+
+    install_desktop_packages:
+      - { name: "conky" }
+      - { name: "fcitx" }
+      - { name: "fcitx-table-all" }
+      - { name: "fcitx-table-cangjie3" }
+      - { name: "fcitx-table-cangjie5" }
+      - { name: "fcitx-table-quick3" }
+      - { name: "fcitx-table-quick5" }
+      - { name: "firefox" }
+      - { name: "firejail" }
+      - { name: "geeqie" }
+      - { name: "gimp" }
+      - { name: "gtk2-engines-oxygen" }
+      - { name: "keepassx" }
+      - { name: "steam" }
+      - { name: "skanlite" }
+      - { name: "tlp" }
+      - { name: "vlc" }
+      - { name: "wmctrl" }
+      - { name: "xdotool" }
+      - { name: "xpra" }
+      - { name: "chromium", requires: { distribution: "debian" } }
+      - { name: "flashplugin-nonfree", requires: { distribution: "debian" } }
+      - { name: "gtk3-engines-oxygen", requires: { distribution: "debian" } }
+      - { name: "wine", requires: { distribution: "debian" } }
+      - { name: "wine32", requires: { distribution: "debian" } }
+      - { name: "chromium-browser", requires: { distribution: "ubuntu" } }
+      - { name: "flashplugin-installer", requires: { distribution: "ubuntu" } }
+      - { name: "gtk3-engines-breeze", requires: { distribution: "ubuntu" } }
+      - { name: "wine-stable", requires: { distribution: "ubuntu", since: "zesty" } }
+
+  tasks:
+
+    - name: "Install Desktop Software"
+      when: "install_desktop_enabled|default(false)"
+      block:
+
+        - name: "Install Desktop Software"
+          apt:
+            name: "{{ item.name }}"
+            state: "latest"
+            update_cache: true
+            cache_valid_time: 86400
+            default_release: "{{ item.release|default(ansible_distribution_release) }}"
+          loop: "{{ install_desktop_packages|select('distribution', distro, release, attribute='requires')|list }}"
+
+

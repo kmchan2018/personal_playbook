@@ -1,0 +1,71 @@
+
+
+- import_playbook: "software.dpkg.yml"
+
+
+- hosts: "all"
+  become: true
+  become_user: "root"
+
+  vars:
+
+    install_netbeans_url: "http://download.netbeans.org/netbeans/8.2/final/zip/netbeans-8.2-201609300101.zip"
+    install_netbeans_checksum: "sha256:ad9888334b9a6c1f1138dcb2eccc8ce4921463e871e46def4ecc617538160948"
+    install_netbeans_archive: "/usr/local/lib/netbeans-8.2/netbeans-8.2.zip"
+    install_netbeans_directory: "/usr/local/lib/netbeans-8.2"
+    install_netbeans_binaries: [ "netbeans" ]
+
+  tasks:
+
+    - name: "Install Netbeans Integrated Development Environment"
+      when: "install_netbeans_enabled|default(false)"
+      block:
+
+        - name: "Install Netbeans Integrated Development Environment: Create Installation Directory"
+          file:
+            path: "/usr/local/share/applications"
+            state: "directory"
+            owner: "root"
+            group: "root"
+            mode: "0755"
+
+        - name: "Install Netbeans Integrated Development Environment: Create Installation Directory"
+          file:
+            path: "{{ install_netbeans_directory }}"
+            state: "directory"
+            owner: "root"
+            group: "root"
+            mode: "0755"
+
+        - name: "Install Netbeans Integrated Development Environment: Download Release"
+          get_url:
+            url: "{{ install_netbeans_url }}"
+            dest: "{{ install_netbeans_archive }}"
+            checksum: "{{ install_netbeans_checksum }}"
+            owner: "root"
+            group: "root"
+            mode: "0644"
+
+        - name: "Install Netbeans Integrated Development Environment: Unpack Release"
+          shell: "bsdtar --extract --no-same-owner --strip-components 1 --file {{ install_netbeans_archive }}"
+          args:
+            chdir: "{{ install_netbeans_directory }}"
+            creates: "{{ install_netbeans_directory }}/bin/netbeans"
+
+        - name: "Install Netbeans Integrated Development Environment: Symlink Executables"
+          file:
+            path: "/usr/local/bin/{{ item }}"
+            src: "{{ install_netbeans_directory }}/bin/{{ item }}"
+            state: "link"
+            force: true
+          loop: "{{ install_netbeans_binaries }}"
+
+        - name: "Install Netbeans Integrated Development Environment: Install Desktop Entry"
+          template:
+            dest: "/usr/local/share/applications/netbeans.desktop"
+            src: "{{ playbook_dir }}/files/usr/local/share/applications/netbeans.desktop.j2"
+            owner: "root"
+            group: "root"
+            mode: "0644"
+
+

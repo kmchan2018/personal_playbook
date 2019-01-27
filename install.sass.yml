@@ -1,0 +1,32 @@
+
+
+- import_playbook: "software.dpkg.yml"
+
+
+- hosts: "all"
+  become: true
+  become_user: "root"
+
+  vars:
+
+    install_sass_packages:
+      - { name: "pysassc" }
+      - { name: "sassc", requires: { distribution: "debian", since: "stretch" } }
+      - { name: "sassc", requires: { distribution: "ubuntu", since: "zesty" } }
+
+  tasks:
+
+    - name: "Install SASS Toolchain"
+      when: "install_sass_enabled|default(false)"
+      block:
+
+        - name: "Install SASS Toolchain"
+          apt:
+            name: "{{ item.name }}"
+            state: "latest"
+            update_cache: true
+            cache_valid_time: 86400
+            default_release: "{{ item.release|default(ansible_distribution_release) }}"
+          loop: "{{ install_sass_packages|select('distribution', distro, release, attribute='requires')|list }}"
+
+

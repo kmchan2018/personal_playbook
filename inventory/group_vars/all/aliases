@@ -1,0 +1,6 @@
+
+
+distro: "{{ ansible_distribution|lower }}"
+release: "{{ ansible_distribution_release|lower }}"
+
+

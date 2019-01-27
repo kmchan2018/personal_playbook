@@ -1,0 +1,50 @@
+
+
+- hosts: "all"
+  become: true
+  become_user: "root"
+
+  tasks:
+
+    - name: "Configuring Kernel Mode Setting: Enable Kernel Modules"
+      template:
+        dest: "/etc/modules-load.d/kms.conf"
+        src: "{{ playbook_dir }}/files/etc/modules-load.d/kms.conf.j2"
+        owner: "root"
+        group: "root"
+        mode: "0644"
+
+    - name: "Configuring Kernel Mode Setting: Update Initial RAM Disk"
+      lineinfile:
+        dest: "/etc/initramfs-tools/modules"
+        regexp: '^\s*#?\s*{{ hardware_kms_module }}.*$'
+        line: '{{ hardware_kms_module }}'
+      notify: "Update Initial RAM Disk"
+
+    - name: "Configuring Kernel Mode Setting: Initialize Kernel Command Line"
+      lineinfile:
+        dest: "/etc/default/grub"
+        regexp: '^\s*#\s*GRUB_CMDLINE_LINUX_DEFAULT=(?:"?\s*(.*?)\s*"?)?\s*$'
+        line: 'GRUB_CMDLINE_LINUX_DEFAULT="\1"'
+        backrefs: "yes"
+      notify: "Update GRUB Boot Loader"
+
+    - name: "Configuring Kernel Mode Setting: Configure EFI/VESA Framebuffer in Kernel Command Line"
+      kernel_options_in_file:
+        dest: "/etc/default/grub"
+        region: '^GRUB_CMDLINE_LINUX_DEFAULT="(.*)"$'
+        state: 'present'
+        target: 'option'
+        option: 'video'
+        value: 'vesafb:off,efifb:off'
+      notify: "Update GRUB Boot Loader"
+
+  handlers:
+
+    - name: "Update Initial RAM Disk"
+      command: "update-initramfs -u -k all"
+
+    - name: "Update GRUB Boot Loader"
+      command: "update-grub"
+
+

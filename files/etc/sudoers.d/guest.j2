@@ -1,0 +1,6 @@
+{%- extends 'files/guest.instances.inc.j2' -%}{%- block body %}
+
+%{{ account }} ALL=(root) NOPASSWD:/usr/local/bin/{{ name }}-start
+%{{ account }} ALL=({{ account }}) ALL
+{% endblock %}
+

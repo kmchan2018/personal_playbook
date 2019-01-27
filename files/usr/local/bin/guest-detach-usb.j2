@@ -1,0 +1,10 @@
+{%- extends 'files/guest.instances.inc.j2' -%}{%- block body -%}
+#!/bin/bash
+
+if [[ $# -ge 1 ]]; then
+  echo "device_del $1" | socat - "UNIX-CONNECT:{{ monitor_socket }}"
+else
+  echo "info usbhost" | socat - "UNIX-CONNECT:{{ monitor_socket }}"
+fi
+
+{% endblock %}

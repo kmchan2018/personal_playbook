@@ -1,0 +1,10 @@
+{%- extends 'files/guest.instances.inc.j2' -%}{%- block body -%}
+#!/bin/bash
+
+if [[ $# -lt 1 ]]; then
+  echo "info block" | socat - "UNIX-CONNECT:{{ monitor_socket }}"
+else
+  echo "eject $1" | socat - "UNIX-CONNECT:{{ monitor_socket }}"
+fi
+
+{% endblock %}

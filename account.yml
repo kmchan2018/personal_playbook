@@ -1,0 +1,10 @@
+
+
+- import_playbook: "account.config.yml"
+- import_playbook: "account.common.yml"
+- import_playbook: "account.firefox.yml"
+- import_playbook: "account.geeqie.yml"
+- import_playbook: "account.server.yml"
+- import_playbook: "account.steam.yml"
+
+

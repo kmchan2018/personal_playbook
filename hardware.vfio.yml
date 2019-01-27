@@ -1,0 +1,130 @@
+
+
+- hosts: "all"
+  become: true
+  become_user: "root"
+
+  tasks:
+
+    - name: "Configuring Virtual Function IO: Create User Group"
+      group:
+        name: "vfio"
+        state: "present"
+        system: "yes"
+
+    - name: "Configuring Virtual Function IO: Install Udev Rules"
+      copy:
+        dest: "/etc/udev/rules.d/99-vfio.rules"
+        src: "{{ playbook_dir }}/files/etc/udev/rules.d/99-vfio.rules"
+        owner: "root"
+        group: "root"
+        mode: "0644"
+      notify:
+        - "Reload Udev Service"
+        - "Apply Udev Configuration"
+
+    - name: "Configuring Virtual Function IO: Enable Kernel Modules"
+      copy:
+        dest: "/etc/modules-load.d/vfio.conf"
+        src: "{{ playbook_dir }}/files/etc/modules-load.d/vfio.conf"
+        owner: "root"
+        group: "root"
+        mode: "0644"
+
+    - name: "Configuring Virtual Function IO: Update Kernel Mdoule Parameters"
+      template:
+        dest: "/etc/modprobe.d/vfio.conf"
+        src: "{{ playbook_dir }}/files/etc/modprobe.d/vfio.conf.j2"
+        owner: "root"
+        group: "root"
+        mode: "0644"
+      notify:
+        - "Update Initial RAM Disk"
+
+    - name: "Configuring Virtual Function IO: Update Initial RAM Disk"
+      lineinfile:
+        dest: "/etc/initramfs-tools/modules"
+        regexp: '^\s*#?\s*vfio_pci.*$'
+        line: 'vfio_pci'
+      notify:
+        - "Update Initial RAM Disk"
+
+    - name: "Configuring Virtual Function IO: Initialize Kernel Command Line"
+      lineinfile:
+        dest: "/etc/default/grub"
+        regexp: '^\s*#\s*GRUB_CMDLINE_LINUX_DEFAULT=(?:"?\s*(.*?)\s*"?)?\s*$'
+        line: 'GRUB_CMDLINE_LINUX_DEFAULT="\1"'
+        backrefs: "yes"
+      notify:
+        - "Update GRUB Boot Loader"
+
+    - name: "Configuring Virtual Function IO: Configure IOMMU Support in Kernel Command Line"
+      kernel_options_in_file:
+        dest: "/etc/default/grub"
+        region: '^GRUB_CMDLINE_LINUX_DEFAULT="(.*)"$'
+        state: 'present'
+        target: 'option'
+        option: 'iommu'
+        value: 'pt'
+      notify:
+        - "Update GRUB Boot Loader"
+
+    - name: "Configuring Virtual Function IO: Configure Intel IOMMU Support in Kernel Command Line"
+      kernel_options_in_file:
+        dest: "/etc/default/grub"
+        region: '^GRUB_CMDLINE_LINUX_DEFAULT="(.*)"$'
+        state: '{{ "present" if "GenuineIntel" in ansible_processor else "absent" }}'
+        target: 'option'
+        option: 'intel_iommu'
+        value: 'on'
+      notify:
+        - "Update GRUB Boot Loader"
+
+    - name: "Configuring Virtual Function IO: Configure AMD IOMMU Support in Kernel Command Line"
+      kernel_options_in_file:
+        dest: "/etc/default/grub"
+        region: '^GRUB_CMDLINE_LINUX_DEFAULT="(.*)"$'
+        state: '{{ "present" if "AuthenticAMD" in ansible_processor else "absent" }}'
+        target: 'option'
+        option: 'amd_iommu'
+        value: 'on'
+      notify:
+        - "Update GRUB Boot Loader"
+
+    - name: "Configuring Virtual Function IO: Configure Target Devices in Kernel Command Line"
+      kernel_options_in_file:
+        dest: "/etc/default/grub"
+        region: '^GRUB_CMDLINE_LINUX_DEFAULT="(.*)"$'
+        state: '{{ "present" if hardware_vfio_pci_stub|default([])|length > 0 else "absent" }}'
+        target: 'option'
+        option: 'vfio_pci.ids'
+        value: '{{ hardware_vfio_pci_stub|default([])|join(",") }}'
+      notify:
+        - "Update GRUB Boot Loader"
+
+    - name: "Configuring Virtual Function IO: Configure ACS Override in Kernel Command Line"
+      kernel_options_in_file:
+        dest: "/etc/default/grub"
+        region: '^GRUB_CMDLINE_LINUX_DEFAULT="(.*)"$'
+        state: '{{ "present" if hardware_vfio_pcie_acs_override|default("") != "" else "absent" }}'
+        target: 'option'
+        option: 'pcie_acs_override'
+        value: '{{ hardware_vfio_pcie_acs_override|default("") }}'
+      notify:
+        - "Update GRUB Boot Loader"
+
+  handlers:
+
+    - name: "Update Initial RAM Disk"
+      command: "update-initramfs -u -k all"
+
+    - name: "Update GRUB Boot Loader"
+      command: "update-grub"
+
+    - name: "Reload Udev Service"
+      command: "udevadm control --reload"
+
+    - name: "Apply Udev Configuration"
+      command: "udevadm trigger"
+
+

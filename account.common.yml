@@ -1,0 +1,44 @@
+
+
+- hosts: "all"
+  become: true
+  become_user: "root"
+
+  tasks:
+
+    - name: "Applying Common Settings to Account: Creating Directories"
+      file:
+        dest: "/home/kmchan/{{ item.path }}"
+        state: "directory"
+        owner: "kmchan"
+        group: "kmchan"
+        mode: "{{ item.mode }}"
+      loop:
+        - { path: ".config", mode: "0755" }
+        - { path: ".config/autostart", mode: "0755" }
+        - { path: ".config/firejail", mode: "0755" }
+        - { path: ".config/gtk-3.0", mode: "0755" }
+        - { path: ".local", mode: "0755" }
+        - { path: ".local/share/", mode: "0755" }
+        - { path: ".local/share/applications", mode: "0755" }
+        - { path: ".ssh", mode: "0700" }
+        - { path: "bin", mode: "0755" }
+    
+    - name: "Applying Common Settings to Account: Copying Configuration Files"
+      copy:
+        dest: "/home/kmchan/{{ item.path }}"
+        src: "{{ playbook_dir }}/files/home/kmchan/{{ item.path }}"
+        owner: "kmchan"
+        group: "kmchan"
+        mode: "{{ item.mode }}"
+      loop:
+        - { path: ".config/gtk-3.0/settings.ini", mode: "0644" }
+        - { path: ".local/share/applications/steam.desktop", mode: "0644" }
+        - { path: ".gtkrc-2.0", mode: "0644" }
+        - { path: ".vimrc", mode: "0755" }
+        - { path: ".config/autostart/fcitx-proxy-server.desktop", mode: "0644" }
+        - { path: "bin/fcitx-proxy-server", mode: "0755" }
+        - { path: "bin/fcitx-proxy-backend", mode: "0755" }
+        - { path: "bin/fcitx-proxy-launch", mode: "0755" }
+    
+

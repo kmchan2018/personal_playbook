@@ -1,0 +1,54 @@
+
+
+- hosts: "all"
+  become: true
+  become_user: "root"
+
+  vars:
+
+    install_golang_version: "1.11.1"
+    install_golang_url: "https://storage.googleapis.com/golang/go1.11.1.linux-amd64.tar.gz"
+    install_golang_checksum: "sha256:2871270d8ff0c8c69f161aaae42f9f28739855ff5c5204752a8d92a1c9f63993"
+    install_golang_archive: "/usr/local/lib/golang-1.11.1/golang-1.11.1.tar.gz"
+    install_golang_directory: "/usr/local/lib/golang-1.11.1"
+    install_golang_binaries: [ "go", "godoc", "gofmt" ]
+
+  tasks:
+
+    - name: "Install Golang Toolchain"
+      when: "install_golang_enabled|default(false)"
+      block:
+
+        - name: "Install Golang Toolchain: Create Installation Directory"
+          file:
+            path: "{{ install_golang_directory }}"
+            state: "directory"
+            owner: "root"
+            group: "root"
+            mode: "0755"
+
+        - name: "Install Golang Toolchain: Download Release"
+          get_url:
+            url: "{{ install_golang_url }}"
+            dest: "{{ install_golang_archive }}"
+            checksum: "{{ install_golang_checksum }}"
+            owner: "root"
+            group: "root"
+            mode: "0644"
+
+        - name: "Install Golang Toolchain: Unpack Release"
+          shell: "tar --extract --no-same-owner --strip-components 1 --file {{ install_golang_archive }}"
+          args:
+            chdir: "{{ install_golang_directory }}"
+            creates: "{{ install_golang_directory }}/bin/go"
+            warn: false
+
+        - name: "Install Golang Toolchain: Symlink Executables"
+          file:
+            path: "/usr/local/bin/{{ item }}"
+            src: "{{ install_golang_directory }}/bin/{{ item }}"
+            state: "link"
+            force: true
+          loop: "{{ install_golang_binaries }}"
+
+

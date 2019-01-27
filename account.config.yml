@@ -1,0 +1,20 @@
+
+
+- hosts: "all"
+  become: true
+  become_user: "root"
+
+  tasks:
+
+    - name: "Updating Account Settings: Adding User to Specific Group"
+      user:
+        name: "kmchan"
+        groups: [ "adm", "dialout" ]
+        append: true
+    
+    - name: "Updating Account Settings: Setting Shell"
+      user:
+        name: "kmchan"
+        shell: "/bin/bash"
+
+

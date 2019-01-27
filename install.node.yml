@@ -1,0 +1,54 @@
+
+
+- hosts: "all"
+  become: true
+  become_user: "root"
+
+  vars:
+
+    install_node_version: "8.12.0"
+    install_node_url: "https://nodejs.org/dist/v8.12.0/node-v8.12.0-linux-x64.tar.xz"
+    install_node_checksum: "sha256:29a20479cd1e3a03396a4e74a1784ccdd1cf2f96928b56f6ffa4c8dae40c88f2"
+    install_node_archive: "/usr/local/lib/node-8.12.0/node-8.12.0.tar.xz"
+    install_node_directory: "/usr/local/lib/node-8.12.0"
+    install_node_binaries: [ "node", "npm" ]
+
+  tasks:
+
+    - name: "Install Node Toolchain"
+      when: "install_node_enabled|default(false)"
+      block:
+
+        - name: "Install Node Toolchain: Create Installation Directory"
+          file:
+            path: "{{ install_node_directory }}"
+            state: "directory"
+            owner: "root"
+            group: "root"
+            mode: "0755"
+
+        - name: "Install Node Toolchain: Download Release"
+          get_url:
+            url: "{{ install_node_url }}"
+            dest: "{{ install_node_archive }}"
+            checksum: "{{ install_node_checksum }}"
+            owner: "root"
+            group: "root"
+            mode: "0644"
+
+        - name: "Install Node Toolchain: Unpack Release"
+          shell: "tar --extract --no-same-owner --strip-components 1 --file {{ install_node_archive }}"
+          args:
+            chdir: "{{ install_node_directory }}"
+            creates: "{{ install_node_directory }}/bin/node"
+            warn: false
+
+        - name: "Install Node Toolchain: Symlink Executables"
+          file:
+            path: "/usr/local/bin/{{ item }}"
+            src: "{{ install_node_directory }}/bin/{{ item }}"
+            state: "link"
+            force: true
+          loop: "{{ install_node_binaries }}"
+
+

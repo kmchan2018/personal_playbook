@@ -1,0 +1,13 @@
+{%- extends 'files/guest.instances.inc.j2' -%}{%- block body -%}
+
+pcm_type.piper {
+  lib /usr/local/lib/alsa/libasound_module_pcm_piper.so
+}
+
+pcm.piper {
+  type piper
+  playback {{ playback_file }}
+  capture {{ capture_file }}
+}
+
+{% endblock %}

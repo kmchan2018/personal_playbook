@@ -1,0 +1,83 @@
+
+
+- import_playbook: "software.dpkg.yml"
+
+
+- hosts: "all"
+  become: true
+  become_user: "root"
+
+  vars:
+
+    install_looking_glass_version: "a11"
+    install_looking_glass_url: "https://github.com/gnif/LookingGlass/archive/a11.tar.gz"
+    install_looking_glass_checksum: "sha256:65f2045b8daeb019a761921fbc2a638a449f06491f28ac27d6c65031c6f51c87"
+    install_looking_glass_archive: "/usr/local/lib/LookingGlass-a11/LookingGlass-a11.tar.gz"
+    install_looking_glass_directory: "/usr/local/lib/LookingGlass-a11"
+
+    install_looking_glass_dependencies:
+      - { name: "build-essential" }
+      - { name: "cmake" }
+      - { name: "libsdl2-dev" }
+      - { name: "libsdl2-ttf-dev" }
+      - { name: "libssl-dev" }
+      - { name: "libspice-protocol-dev" }
+      - { name: "libfontconfig1-dev" }
+      - { name: "libx11-dev" }
+      - { name: "libconfig-dev" }
+      - { name: "nettle-dev" }
+
+  tasks:
+
+    - name: "Install Looking Glass"
+      when: "install_looking_glass_enabled|default(false)"
+      block:
+
+        - name: "Install Looking Glass: Install Dependencies"
+          apt:
+            name: "{{ item.name }}"
+            state: "latest"
+            update_cache: true
+            cache_valid_time: 86400
+            default_release: "{{ item.release|default(ansible_distribution_release) }}"
+          loop: "{{ install_looking_glass_dependencies|select('distribution', distro, release, attribute='requires')|list }}"
+
+        - name: "Install Looking Glass: Create Installation Directory"
+          file:
+            path: "{{ install_looking_glass_directory }}"
+            state: "directory"
+            owner: "root"
+            group: "root"
+            mode: "0755"
+
+        - name: "Install Looking Glass: Download Source"
+          get_url:
+            url: "{{ install_looking_glass_url }}"
+            dest: "{{ install_looking_glass_archive }}"
+            checksum: "{{ install_looking_glass_checksum }}"
+            owner: "root"
+            group: "root"
+            mode: "0644"
+
+        - name: "Install Looking Glass: Unpack Source"
+          shell: "tar --extract --no-same-owner --strip-components 1 --file {{ install_looking_glass_archive }}"
+          args:
+            chdir: "{{ install_looking_glass_directory }}"
+            creates: "{{ install_looking_glass_directory }}/README.md"
+            warn: false
+
+        - name: "Install Looking Glass: Compile Source"
+          shell: "make"
+          args:
+            chdir: "{{ install_looking_glass_directory }}/client"
+            creates: "{{ install_looking_glass_directory }}/client/bin/looking-glass-client"
+            warn: false
+
+        - name: "Install Looking Glass: Symlink Executables"
+          file:
+            path: "/usr/local/bin/looking-glass-client"
+            src: "{{ install_looking_glass_directory }}/client/bin/looking-glass-client"
+            state: "link"
+            force: true
+
+

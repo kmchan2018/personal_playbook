@@ -1,0 +1,63 @@
+# Firejail profile for Mozilla Firefox (Iceweasel in Debian)
+
+noblacklist ~/.mozilla
+noblacklist ~/.cache/mozilla
+include /etc/firejail/disable-common.inc
+include /etc/firejail/disable-programs.inc
+include /etc/firejail/disable-devel.inc
+
+caps.drop all
+netfilter
+nonewprivs
+noroot
+protocol unix,inet,inet6,netlink
+seccomp
+
+mkdir ~/.mozilla
+mkdir ~/.mozilla/extensions
+mkdir ~/.mozilla/firefox/Crash Reports
+
+# Mozilla
+whitelist ${DOWNLOADS}
+whitelist ~/.mozilla/extensions
+whitelist ~/.mozilla/firefox/profiles.ini
+whitelist ~/.mozilla/firefox/Crash Reports
+
+# Common
+whitelist ~/dwhelper
+whitelist ~/.zotero
+whitelist ~/.vimperatorrc
+whitelist ~/.vimperator
+whitelist ~/.pentadactylrc
+whitelist ~/.pentadactyl
+whitelist ~/.keysnail.js
+whitelist ~/.config/gnome-mplayer
+whitelist ~/.cache/gnome-mplayer/plugin
+whitelist ~/.dbus/session-bus
+whitelist ~/.pki
+
+# Xpra
+read-only ~/.xpra
+whitelist ~/.xpra
+
+# Fcitx
+read-only ~/.config/fcitx
+read-only ~/Software/firejail
+whitelist ~/.config/fcitx
+whitelist ~/Software/firejail
+
+# Password Managers
+whitelist ~/.keepassx
+whitelist ~/.config/keepassx
+whitelist ~/keepassx.kdbx
+whitelist ~/.lastpass
+whitelist ~/.config/lastpass
+
+# Silverlight
+whitelist ~/.wine-pipelight
+whitelist ~/.wine-pipelight64
+whitelist ~/.config/pipelight-widevine
+whitelist ~/.config/pipelight-silverlight5.1
+
+include /etc/firejail/whitelist-common.inc
+

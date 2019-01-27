@@ -1,0 +1,52 @@
+
+
+- import_playbook: "software.dpkg.yml"
+
+
+- hosts: "all"
+  become: true
+  become_user: "root"
+
+  vars:
+
+    install_system_packages:
+      - { name: "apt-transport-https" }
+      - { name: "bridge-utils" }
+      - { name: "build-essential" }
+      - { name: "ca-certificates" }
+      - { name: "cryptsetup" }
+      - { name: "cups" }
+      - { name: "debootstrap" }
+      - { name: "ethtool" }
+      - { name: "exfat-utils" }
+      - { name: "hplip" }
+      - { name: "lm-sensors" }
+      - { name: "locales" }
+      - { name: "lvm2" }
+      - { name: "mdadm" }
+      - { name: "ntp" }
+      - { name: "pciutils" }
+      - { name: "smartmontools" }
+      - { name: "software-properties-common" }
+      - { name: "syslinux" }
+      - { name: "syslinux-efi" }
+      - { name: "sudo" }
+      - { name: "uidmap" }
+      - { name: "usbutils" }
+      - { name: "firmware-linux", requires: { distribution: "debian" } }
+      - { name: "firmware-linux-nonfree", requires: { distribution: "debian" } }
+      - { name: "linux-firmware", requires: { distribution: "ubuntu" } }
+      #- { name: "linux-firmware-nonfree", requires: { distribution: "ubuntu" } }
+
+  tasks:
+
+    - name: "Install System Software"
+      apt:
+        name: "{{ item.name }}"
+        state: "latest"
+        update_cache: true
+        cache_valid_time: 86400
+        default_release: "{{ item.release|default(ansible_distribution_release) }}"
+      loop: "{{ install_system_packages|select('distribution', distro, release, attribute='requires')|list }}"
+
+

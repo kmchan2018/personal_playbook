@@ -1,0 +1,22 @@
+{%- extends 'files/guest.instances.inc.j2' -%}{%- block body -%}
+#!/bin/bash
+
+VIEWER_MODE=spice
+
+{% if looking_glass %}
+if [[ -f "{{ config_file }}" ]] ; then
+  source "{{ config_file }}"
+
+  if [[ "$VIDEO" == "looking-glass" ]]; then
+    VIEWER_MODE="looking-glass"
+  fi
+fi
+
+{% endif %}
+if [[ "$VIEWER_MODE" == "spice" ]] ; then
+  exec spicy --uri "spice+unix://{{ spice_socket }}"
+elif [[ "$VIEWER_MODE" == "looking-glass" ]] ; then
+  exec looking-glass-client -f "{{ looking_glass_file }}" -c "{{ spice_socket }}" -p 0 -o opengl:amdPinnedMem=0 -k -a
+fi
+
+{% endblock %}

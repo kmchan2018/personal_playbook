@@ -1,0 +1,130 @@
+
+
+- import_playbook: "software.dpkg.yml"
+
+
+- hosts: "all"
+  become: true
+  become_user: "root"
+
+  vars:
+
+    install_php_releases:
+      debian:
+        jessie:  { version: 56, runtime: "php5-XXX",   pecl: "php5-XXX" }
+        stretch: { version: 70, runtime: "php7.0-XXX", pecl: "php-XXX" }
+      ubuntu:
+        xenial:  { version: 70, runtime: "php7.0-XXX", pecl: "php-XXX" }
+        zesty:   { version: 70, runtime: "php7.0-XXX", pecl: "php-XXX" }
+        artul:   { version: 71, runtime: "php7.1-XXX", pecl: "php-XXX" }
+        bionic:  { version: 72, runtime: "php7.2-XXX", pecl: "php-XXX" }
+
+    install_php_components:
+      - { name: "cli" }
+      - { name: "curl" }
+      - { name: "enchant" }
+      - { name: "gd" }
+      - { name: "gmp" }
+      - { name: "intl" }
+      - { name: "json" }
+      - { name: "mysql" }
+      - { name: "pgsql" }
+      - { name: "pspell" }
+      - { name: "readline" }
+      - { name: "recode" }
+      - { name: "tidy" }
+      - { name: "xmlrpc" }
+      - { name: "xsl" }
+      - { name: "bcmath", requires: { distribution: "debian", since: "stretch" } }
+      - { name: "bz2", requires: { distribution: "debian", since: "stretch" } }
+      - { name: "dba", requires: { distribution: "debian", since: "stretch" } }
+      - { name: "mbstring", requires: { distribution: "debian", since: "stretch" } }
+      - { name: "mcrypt", requires: { distribution: "debian", until: "stretch" } }
+      - { name: "opcache", requires: { distribution: "debian", since: "stretch" } }
+      - { name: "soap", requires: { distribution: "debian", since: "stretch" } }
+      - { name: "sqlite", requires: { distribution: "debian", until: "jessie" } }
+      - { name: "sqlite3", requires: { distribution: "debian", since: "stretch" } }
+      - { name: "xml", requires: { distribution: "debian", since: "stretch" } }
+      - { name: "zip", requires: { distribution: "debian", since: "stretch" } }
+      - { name: "bcmath", requires: { distribution: "ubuntu", since: "xenial" } }
+      - { name: "bz2", requires: { distribution: "ubuntu", since: "xenial" } }
+      - { name: "dba", requires: { distribution: "ubuntu", since: "xenial" } }
+      - { name: "mbstring", requires: { distribution: "ubuntu", since: "xenial" } }
+      - { name: "mcrypt", requires: { distribution: "ubuntu", until: "artful" } }
+      - { name: "opcache", requires: { distribution: "ubuntu", since: "xenial" } }
+      - { name: "soap", requires: { distribution: "ubuntu", since: "xenial" } }
+      - { name: "sqlite", requires: { distribution: "ubuntu", until: "wily" } }
+      - { name: "sqlite3", requires: { distribution: "ubuntu", since: "xenial" } }
+      - { name: "xml", requires: { distribution: "ubuntu", since: "xenial" } }
+      - { name: "zip", requires: { distribution: "ubuntu", since: "xenial" } }
+
+    install_php_extensions:
+      - { name: "apcu" }
+      - { name: "igbinary" }
+      - { name: "imagick" }
+      - { name: "memcached" }
+      - { name: "msgpack" }
+      - { name: "xdebug" }
+      - { name: "amqp", requires: { distribution: "debian", since: "stretch" } }
+      - { name: "apcu-bc", requires: { distribution: "debian", since: "stretch" } }
+      - { name: "ast", requires: { distribution: "debian", since: "stretch" } }
+      - { name: "geoip", requires: { distribution: "debian", since: "jessie" } }
+      - { name: "libsodium", requires: { distribution: "debian", since: "stretch" } }
+      - { name: "redis", requires: { distribution: "debian", since: "stretch" } }
+      - { name: "ssh2", requires: { distribution: "debian", since: "jessie" } }
+      - { name: "uuid", requires: { distribution: "debian", since: "stretch" } }
+      - { name: "amqp", requires: { distribution: "ubuntu", version: "xenial" } }
+      - { name: "amqp", requires: { distribution: "ubuntu", since: "bionic" } }
+      - { name: "apcu-bc", requires: { distribution: "ubuntu", version: "xenial" } }
+      - { name: "apcu-bc", requires: { distribution: "ubuntu", since: "bionic" } }
+      - { name: "ast", requires: { distribution: "ubuntu", version: "xenial" } }
+      - { name: "ast", requires: { distribution: "ubuntu", since: "bionic" } }
+      - { name: "geoip", requires: { distribution: "ubuntu", version: "xenial" } }
+      - { name: "geoip", requires: { distribution: "ubuntu", since: "bionic" } }
+      - { name: "libsodium", requires: { distribution: "ubuntu", version: "xenial" } }
+      - { name: "libsodium", requires: { distribution: "ubuntu", since: "bionic" } }
+      - { name: "redis", requires: { distribution: "ubuntu", version: "xenial" } }
+      - { name: "redis", requires: { distribution: "ubuntu", since: "bionic" } }
+      - { name: "ssh2", requires: { distribution: "ubuntu", version: "xenial" } }
+      - { name: "ssh2", requires: { distribution: "ubuntu", since: "bionic" } }
+      - { name: "uuid", requires: { distribution: "ubuntu", version: "xenial" } }
+      - { name: "uuid", requires: { distribution: "ubuntu", since: "bionic" } }
+
+    install_php_composer_version: "1.6.4"
+    install_php_composer_url: "https://getcomposer.org/download/1.6.4/composer.phar"
+    install_php_composer_checksum: "sha256:8d0d9246f68532cc8fd6a47a58d195f0c849d26430f93c397a3176fc2d971ded"
+
+  tasks:
+
+    - name: "Install PHP Toolchain"
+      when: "install_php_enabled|default(false)"
+      block:
+
+        - name: "Install PHP Toolchain: Install PHP Runtime Packages"
+          apt:
+            name: "{{ install_php_releases|treeconf(distro, release, 'runtime', 'select')|replace('XXX', item.name) }}"
+            state: "latest"
+            update_cache: true
+            cache_valid_time: 86400
+            default_release: "{{ item.release|default(ansible_distribution_release) }}"
+          loop: "{{ install_php_components|select('distribution', distro, release, attribute='requires')|list }}"
+
+        - name: "Install PHP Toolchain: Install PHP PECL Packages"
+          apt:
+            name: "{{ install_php_releases|treeconf(distro, release, 'pecl', 'select')|replace('XXX', item.name) }}"
+            state: "latest"
+            update_cache: true
+            cache_valid_time: 86400
+            default_release: "{{ item.release|default(ansible_distribution_release) }}"
+          loop: "{{ install_php_extensions|select('distribution', distro, release, attribute='requires')|list }}"
+
+        - name: "Install PHP Toolchain: Install Composer"
+          get_url:
+            url: "{{ install_php_composer_url }}"
+            dest: "/usr/local/bin/composer"
+            checksum: "{{ install_php_composer_checksum }}"
+            owner: "root"
+            group: "root"
+            mode: "0755"
+
+

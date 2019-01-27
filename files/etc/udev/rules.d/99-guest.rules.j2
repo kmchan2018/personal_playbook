@@ -1,0 +1,13 @@
+
+#
+# Alter ownership for devices used by the virtual machines
+#
+
+{% for disk in guest_disks|default([]) -%}
+{%- if disk.type == 'device' -%}
+SUBSYSTEM=="block", KERNEL=="{{ disk.device }}", OWNER="{{ disk.account }}", GROUP="{{ disk.account }}", MODE="0660"
+{% elif disk.type == 'lvm' -%}
+SUBSYSTEM=="block", ENV{DM_VG_NAME}=="{{ disk.volume_group }}", ENV{DM_LV_NAME}=="{{ disk.logical_volume }}", OWNER="{{ disk.account }}", GROUP="{{ disk.account }}", MODE="0660"
+{% endif -%}
+{%- endfor %}
+
