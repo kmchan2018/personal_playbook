@@ -1,4 +1,6 @@
 facts/*
 inventory/host_vars/*/local
 inventory/host_vars/*/ssh
+secrets/*
+!secrets/.keep
 *.pyc
