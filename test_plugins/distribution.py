@@ -34,6 +34,7 @@ _version_map = {
 		"vivid"      : "15.04",      "wily"       : "15.10",      "xenial"     : "16.04",
 		"yakkety"    : "16.10",      "zesty"      : "17.04",      "artful"     : "17.10",
 		"bionic"     : "18.04",      "cosmic"     : "18.10",      "disco"      : "19.04",
+		"eoan"       : "19.10",
 	},
 }
 
