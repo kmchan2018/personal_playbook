@@ -23,6 +23,7 @@ install_sass_enabled: true
 #
 
 service_apache_enabled: true
+service_certbot_enabled: true
 service_ddclient_enabled: true
 service_php_fpm_enabled: true
 

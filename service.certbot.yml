@@ -1,0 +1,59 @@
+
+
+- hosts: "all"
+  become: true
+  become_user: "root"
+
+  tasks:
+
+    - name: "Setup Certbot Service"
+      when: "service_certbot_enabled|default(false)"
+      block:
+
+        - name: "Setup Certbot Service: Enable Certbot PPA"
+          apt_repository:
+            repo: "ppa:certbot/certbot"
+            state: "present"
+
+        - name: "Setup Certbot Service: Install Certbot Package"
+          apt:
+            name: "certbot"
+            state: "latest"
+            update_cache: true
+            cache_valid_time: 86400
+            default_release: "{{ ansible_distribution_release }}"
+
+        - name: "Setup Certbot Service: Create Data Directories"
+          file:
+            dest: "/var/www/certbot/.well-known/acme-challenge"
+            state: "directory"
+            owner: "root"
+            group: "root"
+            mode: "0755"
+
+        - name: "Setup Certbot Service: Install Configuration Files"
+          template:
+            dest: "{{ item.path }}"
+            src: "files/{{ item.path }}.j2"
+            owner: "{{ item.owner|default('root') }}"
+            group: "{{ item.group|default('root') }}"
+            mode: "{{ item.group|default('0644') }}"
+          loop:
+            - { path: "/etc/apache2/conf-available/local_certbot.conf" }
+
+        - name: "Setup Certbot Service: Enable Custom Apache Configuration"
+          file:
+            dest: "/etc/apache2/{{ item.type }}-enabled/{{ item.name }}"
+            src: "/etc/apache2/{{ item.type }}-available/{{ item.name }}"
+            state: "{{ item.state|default('link') }}"
+          when: "item.site|default('any') in service_web_websites|default([])|union(['any'])"
+          loop:
+            - { type: "conf", name: "local_certbot.conf", state: "link" }
+            - { type: "mods", name: "alias.load", state: "link" }
+
+        - name: "Setup Certbot Service: Enable Certbot Cron Job"
+          service:
+            name: "certbot.timer"
+            enabled: true
+
+
