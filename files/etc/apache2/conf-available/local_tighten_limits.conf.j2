@@ -1,0 +1,86 @@
+# vim: syntax=apache ts=4 sw=4 sts=4 sr noet
+
+
+##########################################################################
+#
+# Reduce server timeout to let the server disconnect stale clients more
+# aggressively.
+#
+
+Timeout 10
+
+
+##########################################################################
+#
+# Enable HTTP Keep Alive to encourage connection reuse by the clients. It
+# reduce the server overhead by reducing the number of TCP connections.
+#
+
+KeepAlive On
+
+
+##########################################################################
+#
+# Limits the number of requests allowed in a single connection when keep
+# alive is active. It prevents a single server process from withholding
+# too many resources.
+#
+
+MaxKeepAliveRequests 100
+
+
+##########################################################################
+#
+# Limits the time where the server will wait for subsequent requests in
+# a keep alive connection. It allows unused keep alive connections to
+# close and release resources as fast as possible.
+#
+
+KeepAliveTimeout 5
+
+
+##########################################################################
+#
+# Limits each line in the request to a fixed length. It blocks oversized
+# requests from being accepted by the server.
+#
+
+LimitRequestLine 8192
+
+
+##########################################################################
+#
+# Limits the number of headers in a request to a fixed amount. It blocks
+# oversized requests from being accepted.
+#
+
+LimitRequestFields 100
+
+
+##########################################################################
+#
+# Limits each header line in a request to a fixed length. It blocks
+# oversized requests from being accepted.
+#
+
+LimitRequestFieldSize 8192
+
+
+##########################################################################
+#
+# Limits body of a request to a fixed length. It blocks oversized requests
+# from being accepted.
+#
+
+LimitRequestBody 12582912
+
+
+##########################################################################
+#
+# Limits body of a request to a fixed length when the body is an XML file.
+# It blocks oversized requests from being accepted.
+#
+
+LimitXMLRequestBody 524288
+
+

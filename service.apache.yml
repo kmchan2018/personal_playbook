@@ -1,0 +1,95 @@
+
+
+- hosts: "all"
+  become: true
+  become_user: "root"
+
+  vars:
+
+    service_apache_packages:
+      - { name: "apache2" }
+      - { name: "apache2-dev" }
+
+    service_apache_mod_proxy_protocol_version: "78cd88c2e9fb7b1226ec524830fa1624f73b77b7"
+    service_apache_mod_proxy_protocol_url: "https://github.com/roadrunner2/mod-proxy-protocol.git"
+    service_apache_mod_proxy_protocol_directory: "/usr/local/lib/mod_proxy_protocol"
+
+  tasks:
+
+    - name: "Setup Apache Service"
+      when: "service_apache_enabled|default(false)"
+      block:
+
+        - name: "Setup Apache Service: Install Apache Packages"
+          apt:
+            name: "{{ item.name }}"
+            state: "latest"
+            update_cache: true
+            cache_valid_time: 86400
+            default_release: "{{ item.release|default(ansible_distribution_release) }}"
+          loop: "{{ service_apache_packages|select('distribution', distro, release, attribute='requires')|list }}"
+
+        - name: "Setup Apache Service: Clone Proxy Protocol Module Source"
+          git:
+            dest: "{{ service_apache_mod_proxy_protocol_directory }}"
+            repo: "{{ service_apache_mod_proxy_protocol_url }}"
+            version: "{{ service_apache_mod_proxy_protocol_version }}"
+            clone: "yes"
+            update: "yes"
+            remote: "origin"
+            accept_hostkey: "yes"
+
+        - name: "Setup Apache Service: Compile Proxy Protocol Module Source"
+          shell: "make"
+          args:
+            chdir: "{{ service_apache_mod_proxy_protocol_directory }}"
+            creates: "{{ service_apache_mod_proxy_protocol_directory }}/.libs/mod_proxy_protocol.so"
+            warn: false
+
+        - name: "Setup Apache Service: Install Configuration Files"
+          template:
+            dest: "{{ item.path }}"
+            src: "files/{{ item.path }}.j2"
+            owner: "{{ item.owner|default('root') }}"
+            group: "{{ item.group|default('root') }}"
+            mode: "{{ item.group|default('0644') }}"
+          loop:
+            - { path: "/etc/apache2/conf-available/local_alt_port.conf" }
+            - { path: "/etc/apache2/conf-available/local_hide_info.conf" }
+            - { path: "/etc/apache2/conf-available/local_hide_vcs.conf" }
+            - { path: "/etc/apache2/conf-available/local_sanitize_docroot_options.conf" }
+            - { path: "/etc/apache2/conf-available/local_sanitize_logging_options.conf" }
+            - { path: "/etc/apache2/conf-available/local_tighten_limits.conf" }
+            - { path: "/etc/apache2/conf-available/local_tighten_ssl.conf" }
+            - { path: "/etc/apache2/mods-available/local_proxy_protocol.load" }
+
+        - name: "Setup Apache Service: Enable Custom Configuration"
+          file:
+            dest: "/etc/apache2/{{ item.type }}-enabled/{{ item.name }}"
+            src: "/etc/apache2/{{ item.type }}-available/{{ item.name }}"
+            state: "{{ item.state|default('link') }}"
+          loop:
+            - { type: "conf", name: "local_alt_port.conf", state: "link" }
+            - { type: "conf", name: "local_hide_info.conf", state: "link" }
+            - { type: "conf", name: "local_hide_vcs.conf", state: "link" }
+            - { type: "conf", name: "local_sanitize_docroot_options.conf", state: "link" }
+            - { type: "conf", name: "local_sanitize_logging_options.conf", state: "link" }
+            - { type: "conf", name: "local_tighten_limits.conf", state: "link" }
+            - { type: "conf", name: "local_tighten_ssl.conf", state: "link" }
+            - { type: "mods", name: "autoindex.load", state: "absent" }
+            - { type: "mods", name: "autoindex.conf", state: "absent" }
+            - { type: "mods", name: "remoteip.load", state: "link" }
+            - { type: "mods", name: "rewrite.load", state: "link" }
+            - { type: "mods", name: "socache_shmcb.load", state: "link" }
+            - { type: "mods", name: "ssl.load", state: "link" }
+            - { type: "mods", name: "ssl.conf", state: "link" }
+            - { type: "mods", name: "status.load", state: "absent" }
+            - { type: "mods", name: "status.conf", state: "absent" }
+            - { type: "mods", name: "local_proxy_protocol.load", state: "link" }
+
+        - name: "Setup Apache Service: Enable Apache Daemon"
+          service:
+            name: "apache2.service"
+            enabled: true
+
+

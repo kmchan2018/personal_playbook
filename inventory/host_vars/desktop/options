@@ -22,6 +22,7 @@ install_sass_enabled: true
 # Service List
 #
 
+service_apache_enabled: true
 service_ddclient_enabled: true
 
 
@@ -123,6 +124,16 @@ service_ddclient_hosts:
   - { provider: "namecheap", domain: "kmchan3.space", host: "desktop" }
   - { provider: "namecheap", domain: "kmchan3.space", host: "firefox" }
   - { provider: "namecheap", domain: "kmchan3.space", host: "test" }
+
+
+#
+# Apache Service Settings
+#
+
+service_apache_http_port: 80
+service_apache_https_port: 443
+service_apache_http_proxy_port: 8080
+service_apache_https_proxy_port: 8443
 
 
 #
