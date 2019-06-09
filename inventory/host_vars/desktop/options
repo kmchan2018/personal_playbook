@@ -19,6 +19,13 @@ install_sass_enabled: true
 
 
 #
+# Service List
+#
+
+service_ddclient_enabled: true
+
+
+#
 # Kernel Mode Setting Configuration
 #
 
@@ -106,6 +113,16 @@ guest_instances:
     disks: [ "windows-root", "windows-data" ]
     networks: [ "bridge" ]
     passthroughs: [ "graphics" ]
+
+
+#
+# DDClient Service Settings
+#
+
+service_ddclient_hosts:
+  - { provider: "namecheap", domain: "kmchan3.space", host: "desktop" }
+  - { provider: "namecheap", domain: "kmchan3.space", host: "firefox" }
+  - { provider: "namecheap", domain: "kmchan3.space", host: "test" }
 
 
 #

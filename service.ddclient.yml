@@ -1,0 +1,40 @@
+
+
+- hosts: "all"
+  become: true
+  become_user: "root"
+
+  tasks:
+
+    - name: "Setup DDClient Service"
+      when: "service_ddclient_enabled|default(false)"
+      block:
+
+        - name: "Setup DDClient Service: Load Namecheap Secrets"
+          include_vars:
+            file: "secrets/namecheap"
+
+        - name: "Setup DDClient Service: Install DDClient Package"
+          apt:
+            name: "ddclient"
+            state: "latest"
+            update_cache: true
+            cache_valid_time: 86400
+            default_release: "{{ ansible_distribution_release }}"
+
+        - name: "Setup DDClient Service: Install Configuration Files"
+          template:
+            dest: "{{ item.path }}"
+            src: "{{ playbook_dir }}/files/{{ item.path }}.j2"
+            owner: "root"
+            group: "root"
+            mode: "{{ item.mode }}"
+          loop:
+            - { path: "/etc/ddclient.conf", mode: "0600" }
+
+        - name: "Setup DDClient Service: Enable DDClient Daemon"
+          service:
+            name: "ddclient.service"
+            enabled: true
+
+

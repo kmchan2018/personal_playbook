@@ -1,0 +1,8 @@
+
+
+{% for entry in service_ddclient_hosts -%}
+{% if entry.provider == 'namecheap' %}use=web, web=dynamicdns.park-your-domain.com/getip, protocol=namecheap, server=dynamicdns.park-your-domain.com, login={{ entry.domain }}, password={{ namecheap[entry.domain] }} {{ entry.host }}
+{% endif -%}
+{% endfor %}
+
+
