@@ -2,5 +2,6 @@
 
 - import_playbook: "service.apache.yml"
 - import_playbook: "service.ddclient.yml"
+- import_playbook: "service.php_fpm.yml"
 
 
