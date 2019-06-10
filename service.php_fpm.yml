@@ -18,6 +18,16 @@
             cache_valid_time: 86400
             default_release: "{{ ansible_distribution_release }}"
 
+        - name: "Setup PHP FPM: Enable Custom Apache Configuration"
+          file:
+            dest: "/etc/apache2/{{ item.type }}-enabled/{{ item.name }}"
+            src: "/etc/apache2/{{ item.type }}-available/{{ item.name }}"
+            state: "{{ item.state|default('link') }}"
+          loop:
+            - { type: "conf", name: "{{ php_component_prefix }}-fpm.conf", state: "link" }
+            - { type: "mods", name: "proxy.load", state: "link" }
+            - { type: "mods", name: "proxy_fcgi.load", state: "link" }
+
         - name: "Setup PHP FPM Service: Enable PHP FPM Daemon"
           service:
             name: "{{ php_fpm_service }}"
