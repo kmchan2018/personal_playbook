@@ -29,6 +29,14 @@ service_php_fpm_enabled: true
 
 
 #
+# Website List
+#
+
+website_desktop_kmchan3_space_enabled: true
+website_test_kmchan3_space_enabled: true
+
+
+#
 # Kernel Mode Setting Configuration
 #
 

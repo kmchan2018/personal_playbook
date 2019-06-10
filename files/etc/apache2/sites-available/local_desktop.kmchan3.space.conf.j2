@@ -1,0 +1,36 @@
+# vim: syntax=apache ts=4 sw=4 sts=4 sr noet
+
+
+<VirtualHost _default_:{{ service_apache_http_port|default(80) }}>
+	ServerName desktop.kmchan3.space
+	ProxyProtocol Off
+</VirtualHost>
+{% if service_apache_http_proxy_port|default(8080) != false %}
+
+<VirtualHost _default_:{{ service_apache_http_proxy_port|default(8080) }}>
+	ServerName desktop.kmchan3.space
+	ProxyProtocol On
+</VirtualHost>
+{% endif -%}
+{% if service_apache_https_port|default(443) != false %}
+
+<VirtualHost _default_:{{ service_apache_https_port|default(443) }}>
+	ServerName desktop.kmchan3.space
+	ProxyProtocol Off
+	SSLEngine On
+	SSLCertificateFile /etc/letsencrypt/live/desktop.kmchan3.space/fullchain.pem
+	SSLCertificateKeyFile /etc/letsencrypt/live/desktop.kmchan3.space/privkey.pem
+</VirtualHost>
+{% endif -%}
+{% if service_apache_https_proxy_port|default(8443) != false %}
+
+<VirtualHost _default_:{{ service_apache_https_proxy_port|default(8443) }}>
+	ServerName desktop.kmchan3.space
+	ProxyProtocol On
+	SSLEngine On
+	SSLCertificateFile /etc/letsencrypt/live/desktop.kmchan3.space/fullchain.pem
+	SSLCertificateKeyFile /etc/letsencrypt/live/desktop.kmchan3.space/privkey.pem
+</VirtualHost>
+{% endif %}
+
+

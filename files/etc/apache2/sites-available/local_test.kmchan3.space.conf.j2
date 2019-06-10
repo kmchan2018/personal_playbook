@@ -1,0 +1,76 @@
+# vim: syntax=apache ts=4 sw=4 sts=4 sr noet
+
+
+<Directory /var/www/test.kmchan3.space/html>
+	Options None
+	AllowOverride None
+	Require all granted
+</Directory>
+
+<Directory /var/www/test.kmchan3.space/scripts>
+	Options None
+	AllowOverride None
+	Require all denied
+</Directory>
+
+<VirtualHost _default_:{{ service_apache_http_port|default(80) }}>
+	ServerName test.kmchan3.space
+	DocumentRoot "/var/www/test.kmchan3.space/html"
+	ErrorLog ${APACHE_LOG_DIR}/test.kmchan3.space_error.log
+	CustomLog ${APACHE_LOG_DIR}/test.kmchan3.space_access.log combined
+	ProxyProtocol Off
+
+	<FilesMatch ".+\.ph(ar|p|tml)$">
+		SetHandler "proxy:unix:/run/php/php7.2-fpm.test.kmchan3.space.sock|fcgi://localhost"
+	</FilesMatch>
+</VirtualHost>
+{% if service_apache_http_proxy_port|default(8080) != false %}
+
+<VirtualHost _default_:{{ service_apache_http_proxy_port|default(8080) }}>
+	ServerName test.kmchan3.space
+	DocumentRoot "/var/www/test.kmchan3.space/html"
+	ErrorLog ${APACHE_LOG_DIR}/test.kmchan3.space_error.log
+	CustomLog ${APACHE_LOG_DIR}/test.kmchan3.space_access.log combined
+	ProxyProtocol On
+
+	<FilesMatch ".+\.ph(ar|p|tml)$">
+		SetHandler "proxy:unix:/run/php/php7.2-fpm.test.kmchan3.space.sock|fcgi://localhost"
+	</FilesMatch>
+</VirtualHost>
+{% endif -%}
+{% if service_apache_https_port|default(443) != false %}
+
+<VirtualHost _default_:{{ service_apache_https_port|default(443) }}>
+	ServerName test.kmchan3.space
+	DocumentRoot "/var/www/test.kmchan3.space/html"
+	ErrorLog ${APACHE_LOG_DIR}/test.kmchan3.space_error.log
+	CustomLog ${APACHE_LOG_DIR}/test.kmchan3.space_access.log combined
+	ProxyProtocol Off
+	SSLEngine On
+	SSLCertificateFile /etc/letsencrypt/live/test.kmchan3.space/fullchain.pem
+	SSLCertificateKeyFile /etc/letsencrypt/live/test.kmchan3.space/privkey.pem
+
+	<FilesMatch ".+\.ph(ar|p|tml)$">
+		SetHandler "proxy:unix:/run/php/php7.2-fpm.test.kmchan3.space.sock|fcgi://localhost"
+	</FilesMatch>
+</VirtualHost>
+{% endif -%}
+{% if service_apache_https_proxy_port|default(8443) != false %}
+
+<VirtualHost _default_:{{ service_apache_https_proxy_port|default(8443) }}>
+	ServerName test.kmchan3.space
+	DocumentRoot "/var/www/test.kmchan3.space/html"
+	ErrorLog ${APACHE_LOG_DIR}/test.kmchan3.space_error.log
+	CustomLog ${APACHE_LOG_DIR}/test.kmchan3.space_access.log combined
+	ProxyProtocol On
+	SSLEngine On
+	SSLCertificateFile /etc/letsencrypt/live/test.kmchan3.space/fullchain.pem
+	SSLCertificateKeyFile /etc/letsencrypt/live/test.kmchan3.space/privkey.pem
+
+	<FilesMatch ".+\.ph(ar|p|tml)$">
+		SetHandler "proxy:unix:/run/php/php7.2-fpm.test.kmchan3.space.sock|fcgi://localhost"
+	</FilesMatch>
+</VirtualHost>
+{% endif %}
+
+

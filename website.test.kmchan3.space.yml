@@ -1,0 +1,45 @@
+
+
+- hosts: "all"
+  become: true
+  become_user: "root"
+
+  tasks:
+
+    - name: "Setup Website test.kmchan3.space"
+      when: "website_test_kmchan3_space_enabled|default(false)"
+      block:
+
+        - name: "Setup Website test.kmchan3.space: Create Directories"
+          file:
+            dest: "/var/html/{{ item.name }}"
+            state: "directory"
+            owner: "{{ item.owner|default('root') }}"
+            group: "{{ item.group|default('root') }}"
+            mode: "0755"
+          loop:
+            - { name: "/test.kmchan3.space", owner: "kmchan", group: "kmchan" }
+            - { name: "/test.kmchan3.space/html", owner: "kmchan", group: "kmchan" }
+            - { name: "/test.kmchan3.space/html/.well-known", owner: "kmchan", group: "kmchan" }
+            - { name: "/test.kmchan3.space/scripts", owner: "kmchan", group: "kmchan" }
+
+        - name: "Setup Website test.kmchan3.space: Install Configuration Files"
+          template:
+            dest: "{{ item.path }}"
+            src: "files/{{ item.path }}.j2"
+            owner: "{{ item.owner|default('root') }}"
+            group: "{{ item.group|default('root') }}"
+            mode: "{{ item.group|default('0644') }}"
+          loop:
+            - { path: "/etc/apache2/sites-available/local_test.kmchan3.space.conf" }
+            - { path: "{{ php_config_path }}/fpm/pool.d/test.kmchan3.space.conf" }
+
+        - name: "Setup Website test.kmchan3.space: Enable Custom Apache Configuration"
+          file:
+            dest: "/etc/apache2/{{ item.type }}-enabled/{{ item.name }}"
+            src: "/etc/apache2/{{ item.type }}-available/{{ item.name }}"
+            state: "{{ item.state|default('link') }}"
+          loop:
+            - { type: "sites", name: "local_test.kmchan3.space.conf", state: "link" }
+
+
