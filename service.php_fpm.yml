@@ -4,22 +4,6 @@
   become: true
   become_user: "root"
 
-  vars:
-
-    service_php_fpm_packages:
-      - { name: "php5-fpm", requires: { distribution: "debian", since: "jessie", until: "jessie" } }
-      - { name: "php7.0-fpm", requires: { distribution: "debian", since: "stretch", until: "stretch" } }
-      - { name: "php7.0-fpm", requires: { distribution: "ubuntu", since: "xenial", until: "zesty" } }
-      - { name: "php7.1-fpm", requires: { distribution: "ubuntu", since: "artful", until: "artful" } }
-      - { name: "php7.2-fpm", requires: { distribution: "ubuntu", since: "bionic", until: "bionic" } }
-
-    service_php_fpm_daemons:
-      - { name: "php5-fpm.service", requires: { distribution: "debian", since: "jessie", until: "jessie" } }
-      - { name: "php7.0-fpm.service", requires: { distribution: "debian", since: "stretch", until: "stretch" } }
-      - { name: "php7.0-fpm.service", requires: { distribution: "ubuntu", since: "xenial", until: "zesty" } }
-      - { name: "php7.1-fpm.service", requires: { distribution: "ubuntu", since: "artful", until: "artful" } }
-      - { name: "php7.2-fpm.service", requires: { distribution: "ubuntu", since: "bionic", until: "bionic" } }
-
   tasks:
 
     - name: "Setup PHP FPM Service"
@@ -28,17 +12,15 @@
 
         - name: "Setup PHP FPM Service: Install PHP FPM Packages"
           apt:
-            name: "{{ item.name }}"
+            name: "{{ php_component_prefix }}-fpm"
             state: "latest"
             update_cache: true
             cache_valid_time: 86400
-            default_release: "{{ item.release|default(ansible_distribution_release) }}"
-          loop: "{{ service_php_fpm_packages|select('distribution', distro, release, attribute='requires')|list }}"
+            default_release: "{{ ansible_distribution_release }}"
 
         - name: "Setup PHP FPM Service: Enable PHP FPM Daemon"
           service:
-            name: "{{ item.name }}"
+            name: "{{ php_fpm_service }}"
             enabled: true
-          loop: "{{ service_php_fpm_daemons|select('distribution', distro, release, attribute='requires')|list }}"
 
 

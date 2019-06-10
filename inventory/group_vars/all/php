@@ -1,0 +1,114 @@
+
+
+php_release_repository:
+  - version: "5.6"
+    component_prefix: "php5"
+    extension_prefix: "php5"
+    config_path: "/etc/php5"
+    fpm_service: "php5-fpm.service"
+    requires: { distribution: "debian", since: "jessie", until: "jessie" }
+  - version: "7.0"
+    component_prefix: "php7.0"
+    extension_prefix: "php"
+    config_path: "/etc/php/7.0"
+    fpm_service: "php7.0-fpm.service"
+    requires: { distribution: "debian", since: "stretch", until: "stretch" }
+  - version: "7.0"
+    component_prefix: "php7.0"
+    extension_prefix: "php"
+    config_path: "/etc/php/7.0"
+    fpm_service: "php7.0-fpm.service"
+    requires: { distribution: "ubuntu", since: "xenial", until: "zesty" }
+  - version: "7.1"
+    component_prefix: "php7.1"
+    extension_prefix: "php"
+    config_path: "/etc/php/7.1"
+    fpm_service: "php7.1-fpm.service"
+    requires: { distribution: "ubuntu", since: "artful", until: "artful" }
+  - version: "7.2"
+    component_prefix: "php7.2"
+    extension_prefix: "php"
+    config_path: "/etc/php/7.2"
+    fpm_service: "php7.2-fpm.service"
+    requires: { distribution: "ubuntu", since: "bionic", until: "disco" }
+
+php_component_repository:
+  - { name: "cli" }
+  - { name: "curl" }
+  - { name: "enchant" }
+  - { name: "gd" }
+  - { name: "gmp" }
+  - { name: "intl" }
+  - { name: "json" }
+  - { name: "mysql" }
+  - { name: "pgsql" }
+  - { name: "pspell" }
+  - { name: "readline" }
+  - { name: "recode" }
+  - { name: "tidy" }
+  - { name: "xmlrpc" }
+  - { name: "xsl" }
+  - { name: "bcmath", requires: { distribution: "debian", since: "stretch" } }
+  - { name: "bz2", requires: { distribution: "debian", since: "stretch" } }
+  - { name: "dba", requires: { distribution: "debian", since: "stretch" } }
+  - { name: "mbstring", requires: { distribution: "debian", since: "stretch" } }
+  - { name: "mcrypt", requires: { distribution: "debian", until: "stretch" } }
+  - { name: "opcache", requires: { distribution: "debian", since: "stretch" } }
+  - { name: "soap", requires: { distribution: "debian", since: "stretch" } }
+  - { name: "sqlite", requires: { distribution: "debian", until: "jessie" } }
+  - { name: "sqlite3", requires: { distribution: "debian", since: "stretch" } }
+  - { name: "xml", requires: { distribution: "debian", since: "stretch" } }
+  - { name: "zip", requires: { distribution: "debian", since: "stretch" } }
+  - { name: "bcmath", requires: { distribution: "ubuntu", since: "xenial" } }
+  - { name: "bz2", requires: { distribution: "ubuntu", since: "xenial" } }
+  - { name: "dba", requires: { distribution: "ubuntu", since: "xenial" } }
+  - { name: "mbstring", requires: { distribution: "ubuntu", since: "xenial" } }
+  - { name: "mcrypt", requires: { distribution: "ubuntu", until: "artful" } }
+  - { name: "opcache", requires: { distribution: "ubuntu", since: "xenial" } }
+  - { name: "soap", requires: { distribution: "ubuntu", since: "xenial" } }
+  - { name: "sqlite", requires: { distribution: "ubuntu", until: "wily" } }
+  - { name: "sqlite3", requires: { distribution: "ubuntu", since: "xenial" } }
+  - { name: "xml", requires: { distribution: "ubuntu", since: "xenial" } }
+  - { name: "zip", requires: { distribution: "ubuntu", since: "xenial" } }
+
+php_extension_repository:
+  - { name: "apcu" }
+  - { name: "igbinary" }
+  - { name: "imagick" }
+  - { name: "memcached" }
+  - { name: "msgpack" }
+  - { name: "xdebug" }
+  - { name: "amqp", requires: { distribution: "debian", since: "stretch" } }
+  - { name: "apcu-bc", requires: { distribution: "debian", since: "stretch" } }
+  - { name: "ast", requires: { distribution: "debian", since: "stretch" } }
+  - { name: "geoip", requires: { distribution: "debian", since: "jessie" } }
+  - { name: "libsodium", requires: { distribution: "debian", since: "stretch" } }
+  - { name: "redis", requires: { distribution: "debian", since: "stretch" } }
+  - { name: "ssh2", requires: { distribution: "debian", since: "jessie" } }
+  - { name: "uuid", requires: { distribution: "debian", since: "stretch" } }
+  - { name: "amqp", requires: { distribution: "ubuntu", version: "xenial" } }
+  - { name: "amqp", requires: { distribution: "ubuntu", since: "bionic" } }
+  - { name: "apcu-bc", requires: { distribution: "ubuntu", version: "xenial" } }
+  - { name: "apcu-bc", requires: { distribution: "ubuntu", since: "bionic" } }
+  - { name: "ast", requires: { distribution: "ubuntu", version: "xenial" } }
+  - { name: "ast", requires: { distribution: "ubuntu", since: "bionic" } }
+  - { name: "geoip", requires: { distribution: "ubuntu", version: "xenial" } }
+  - { name: "geoip", requires: { distribution: "ubuntu", since: "bionic" } }
+  - { name: "redis", requires: { distribution: "ubuntu", version: "xenial" } }
+  - { name: "redis", requires: { distribution: "ubuntu", since: "bionic" } }
+  - { name: "ssh2", requires: { distribution: "ubuntu", version: "xenial" } }
+  - { name: "ssh2", requires: { distribution: "ubuntu", since: "bionic" } }
+  - { name: "uuid", requires: { distribution: "ubuntu", version: "xenial" } }
+  - { name: "uuid", requires: { distribution: "ubuntu", since: "bionic" } }
+
+
+php_release: "{{ php_release_repository|select('distribution', distro, release, attribute='requires')|first }}"
+php_version: "{{ php_release['version'] }}"
+php_component_prefix: "{{ php_release['component_prefix'] }}"
+php_extension_prefix: "{{ php_release['extension_prefix'] }}"
+php_config_path: "{{ php_release['config_path'] }}"
+php_fpm_service: "{{ php_release['fpm_service'] }}"
+php_components: "{{ php_component_repository|select('distribution', distro, release, attribute='requires')|list }}"
+php_extensions: "{{ php_extension_repository|select('distribution', distro, release, attribute='requires')|list }}"
+
+
