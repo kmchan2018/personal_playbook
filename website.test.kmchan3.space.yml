@@ -12,7 +12,7 @@
 
         - name: "Setup Website test.kmchan3.space: Create Directories"
           file:
-            dest: "/var/html/{{ item.name }}"
+            dest: "/var/www/{{ item.name }}"
             state: "directory"
             owner: "{{ item.owner|default('root') }}"
             group: "{{ item.group|default('root') }}"
