@@ -37,6 +37,17 @@ website_test_kmchan3_space_enabled: true
 
 
 #
+# Block Device Configuration
+#
+
+hardware_blockdev_names:
+  - { mount: "/", name: "Root" }
+  - { mount: "/boot", name: "Boot" }
+  - { mount: "/home", name: "Home" }
+  - { mount: "/mnt/backup", name: "Backup" }
+
+
+#
 # Kernel Mode Setting Configuration
 #
 

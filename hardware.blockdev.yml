@@ -1,0 +1,28 @@
+
+
+- hosts: "all"
+  become: true
+  become_user: "root"
+
+  tasks:
+
+    - name: "Configuring Block Devices: Install Udev Rules"
+      template:
+        dest: "/etc/udev/rules.d/99-blockdev.rules"
+        src: "files/etc/udev/rules.d/99-blockdev.rules.j2"
+        owner: "root"
+        group: "root"
+        mode: "0600"
+      notify:
+        - "Reload Udev Service"
+        - "Apply Udev Configuration"
+
+  handlers:
+
+    - name: "Reload Udev Service"
+      command: "udevadm control --reload"
+
+    - name: "Apply Udev Configuration"
+      command: "udevadm trigger"
+
+

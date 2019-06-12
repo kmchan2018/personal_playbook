@@ -1,0 +1,21 @@
+
+{% for block in hardware_blockdev_names|default([]) if ('uuid' in block or 'mount' in block) and 'name' in block %}
+{% if 'uuid' in block %}
+SUBSYSTEM=="block", ENV{ID_FS_UUID}=="{{ block.uuid }}", ENV{UDISKS_NAME}="{{ block.name }}"
+{% else %}
+{% for mount in ansible_mounts if mount.fstype is not match("fuse\..*") and mount.mount is not match("(/media/|/run/media/).*") %}
+{% if mount.mount == block.mount %}
+SUBSYSTEM=="block", ENV{ID_FS_UUID}=="{{ mount.uuid }}", ENV{UDISKS_NAME}="{{ block.name }}"
+{% endif %}
+{% endfor %}
+{% endif %}
+{% endfor %}
+
+{% for name, device in ansible_devices.iteritems() %}
+{% for pvid in device.links.ids if pvid is match("lvm-pv-uuid-.*") %}
+{% for cryptid in device.links.ids if cryptid is match("dm-uuid-CRYPT-.*") %}
+SUBSYSTEM=="block", ENV{DM_UUID}=="{{ cryptid|replace('dm-uuid-', '', 1) }}", ENV{UDISKS_IGNORE}="1"
+{% endfor %}
+{% endfor %}
+{% endfor %}
+

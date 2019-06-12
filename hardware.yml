@@ -1,5 +1,6 @@
 
 
+- import_playbook: "hardware.blockdev.yml"
 - import_playbook: "hardware.kms.yml"
 - import_playbook: "hardware.kvm.yml"
 - import_playbook: "hardware.sensor.yml"
