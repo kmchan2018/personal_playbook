@@ -1,0 +1,164 @@
+#!/usr/bin/env python3
+
+import functools
+import json
+import os
+import os.path
+import re
+import subprocess
+import sys
+import time
+import urllib.request
+
+cache = os.path.expanduser('~/.cache/conky')
+
+feed_url = 'https://www.hko.gov.hk/wxinfo/json/one_json_uc.xml?_=1548490776800'
+feed_referer = 'https://www.hko.gov.hk/contentc.htm'
+feed_agent = 'Mozilla/5.0 (iPhone; CPU iPhone OS 10_3_1 like Mac OS X) AppleWebKit/603.1.30 (KHTML, like Gecko) Version/10.0 Mobile/14E304 Safari/602.1'
+feed_cache = os.path.join(cache, 'weather.cache')
+
+icon_executable = '/usr/bin/convert'
+icon_source = os.path.expanduser('~/.config/conky/fontawesome/svgs/solid')
+icon_destination = os.path.join(cache, 'icons')
+icon_foregrounds = { 'light': 'white', 'dark': 'black' }
+icon_index = {}
+
+icon_index['50'] = icon_index['pic50.png'] = 'sun'
+icon_index['51'] = icon_index['pic51.png'] = 'cloud-sun'
+icon_index['52'] = icon_index['pic52.png'] = 'cloud-sun'
+icon_index['53'] = icon_index['pic53.png'] = 'cloud-sun-rain'
+icon_index['54'] = icon_index['pic54.png'] = 'cloud-sun-rain'
+icon_index['60'] = icon_index['pic60.png'] = 'cloud'
+icon_index['61'] = icon_index['pic61.png'] = 'cloud'
+icon_index['62'] = icon_index['pic62.png'] = 'cloud-rain'
+icon_index['63'] = icon_index['pic63.png'] = 'cloud-rain'
+icon_index['64'] = icon_index['pic64.png'] = 'cloud-showers-heavy'
+icon_index['65'] = icon_index['pic65.png'] = 'bolt'
+icon_index['70'] = icon_index['pic70.png'] = 'moon'
+icon_index['71'] = icon_index['pic71.png'] = 'moon'
+icon_index['72'] = icon_index['pic72.png'] = 'moon'
+icon_index['73'] = icon_index['pic73.png'] = 'moon'
+icon_index['74'] = icon_index['pic74.png'] = 'moon'
+icon_index['75'] = icon_index['pic75.png'] = 'moon'
+icon_index['76'] = icon_index['pic76.png'] = 'cloud-moon'
+icon_index['77'] = icon_index['pic77.png'] = 'cloud-moon'
+icon_index['83'] = icon_index['pic83.png'] = 'smog'
+
+def icon_convert(basename, size, style):
+	input = os.path.join(icon_source, '%s.svg' % basename)
+	output = os.path.join(icon_destination, '%s-%d-%s.png' % (basename, size, style))
+	foreground = bytes(icon_foregrounds[style], 'utf-8')
+	dimension = b'%dx%d' % (size, size)
+
+	if os.access(output, os.F_OK | os.R_OK):
+		return output
+
+	with open(input, 'rb') as handle:
+		inner = handle.read()
+		inner = re.sub(b'^<\?xml.*\?>', b'', inner)
+
+		converter = subprocess.Popen([icon_executable, b'-antialias', b'-background', b'none', b'-resize', dimension, b'-extent', dimension, b'-', output], stdin=subprocess.PIPE, stdout=subprocess.DEVNULL)
+		converter.stdin.write(b'<?xml version="1.0" encoding="utf-8"?>')
+		converter.stdin.write(b'<svg xmlns="http://www.w3.org/2000/svg" version="1.1">')
+		converter.stdin.write(b'<g fill="%s">' % foreground)
+		converter.stdin.write(inner)
+		converter.stdin.write(b'</g></svg>')
+		converter.stdin.flush()
+		converter.stdin.close()
+
+		if converter.wait() == 0:
+			return output
+		else:
+			if os.access(output, os.F_OK):
+				os.remove(output)
+			raise Exception()
+
+data = None
+handlers = {}
+
+weather_temperature = lambda data: data['hko']['Temperature']
+weather_temperature_min = lambda data: data['hko']['HomeMinTemperature']
+weather_temperature_max = lambda data: data['hko']['HomeMaxTemperature']
+weather_humidity = lambda data: data['hko']['RH']
+weather_icon = lambda data: icon_convert(icon_index[data['fcartoon']['Icon1']], 86, 'light')
+weather_conky_icon = lambda data, p: '${image %s -p %s -w 86x86}' % (weather_icon(data), p)
+forecast_date = lambda index, data: data['F9D']['WeatherForecast'][index]['ForecastDate']
+forecast_dayofweek = lambda index, data: time.strftime('%a', time.strptime(forecast_date(index, data), '%Y%m%d'))
+forecast_temperature_min = lambda index, data: data['F9D']['WeatherForecast'][index]['ForecastMintemp']
+forecast_temperature_max = lambda index, data: data['F9D']['WeatherForecast'][index]['ForecastMaxtemp']
+forecast_humidity_min = lambda index, data: data['F9D']['WeatherForecast'][index]['ForecastMinrh']
+forecast_humidity_max = lambda index, data: data['F9D']['WeatherForecast'][index]['ForecastMaxrh']
+forecast_icon = lambda index, data: icon_convert(icon_index[data['F9D']['WeatherForecast'][index]['ForecastIcon']], 39, 'light')
+forecast_conky_icon = lambda index, data, p: '${image %s -p %s -w 39x39}' % (forecast_icon(index, data), p)
+
+handlers['weather.temperature'] = weather_temperature
+handlers['weather.temperature_min'] = weather_temperature_min
+handlers['weather.temperature_max'] = weather_temperature_max
+handlers['weather.humidity'] = weather_humidity
+handlers['weather.icon'] = weather_icon
+handlers['weather.conky_icon'] = weather_conky_icon
+handlers['forecast.0.date'] = functools.partial(forecast_date, 0)
+handlers['forecast.0.dayofweek'] = functools.partial(forecast_dayofweek, 0)
+handlers['forecast.0.temperature_min'] = functools.partial(forecast_temperature_min, 0)
+handlers['forecast.0.temperature_max'] = functools.partial(forecast_temperature_max, 0)
+handlers['forecast.0.humidity_min'] = functools.partial(forecast_humidity_min, 0)
+handlers['forecast.0.humidity_max'] = functools.partial(forecast_humidity_max, 0)
+handlers['forecast.0.icon'] = functools.partial(forecast_icon, 0)
+handlers['forecast.0.conky_icon'] = functools.partial(forecast_conky_icon, 0)
+handlers['forecast.1.date'] = functools.partial(forecast_date, 1)
+handlers['forecast.1.dayofweek'] = functools.partial(forecast_dayofweek, 1)
+handlers['forecast.1.temperature_min'] = functools.partial(forecast_temperature_min, 1)
+handlers['forecast.1.temperature_max'] = functools.partial(forecast_temperature_max, 1)
+handlers['forecast.1.humidity_min'] = functools.partial(forecast_humidity_min, 1)
+handlers['forecast.1.humidity_max'] = functools.partial(forecast_humidity_max, 1)
+handlers['forecast.1.icon'] = functools.partial(forecast_icon, 1)
+handlers['forecast.1.conky_icon'] = functools.partial(forecast_conky_icon, 1)
+handlers['forecast.2.date'] = functools.partial(forecast_date, 2)
+handlers['forecast.2.dayofweek'] = functools.partial(forecast_dayofweek, 2)
+handlers['forecast.2.temperature_min'] = functools.partial(forecast_temperature_min, 2)
+handlers['forecast.2.temperature_max'] = functools.partial(forecast_temperature_max, 2)
+handlers['forecast.2.humidity_min'] = functools.partial(forecast_humidity_min, 2)
+handlers['forecast.2.humidity_max'] = functools.partial(forecast_humidity_max, 2)
+handlers['forecast.2.icon'] = functools.partial(forecast_icon, 2)
+handlers['forecast.2.conky_icon'] = functools.partial(forecast_conky_icon, 2)
+
+if __name__ == '__main__':
+	os.makedirs(cache, exist_ok=True)
+	os.makedirs(icon_destination, exist_ok=True)
+
+	if data == None:
+		try:
+			with open(feed_cache, 'r') as handle:
+				stat = os.stat(handle.fileno())
+				body = handle.read()
+				if time.time() - stat.st_mtime < 3600:
+					data = json.loads(body)
+		except:
+			print("DEBUG: Cannot load cache from %s" % cache, file=sys.stderr)
+
+	if data == None:
+		try:
+			request = urllib.request.Request(feed_url)
+			request.add_header('User-Agent', feed_agent)
+			request.add_header('Referer', feed_referer)
+			with urllib.request.urlopen(request) as response:
+				body = response.read().decode('utf-8')
+				data = json.loads(body)
+				with open(feed_cache, 'w') as handle:
+					handle.write(body)
+		except:
+			print("DEBUG: Cannot load data from %s" % url, file=sys.stderr)
+
+	if data == None:
+		sys.exit("ERROR: Cannot load data from cache")
+	elif len(sys.argv) < 2:
+		sys.exit("ERROR: Missing required key")
+	elif sys.argv[1] not in handlers:
+		sys.exit("ERROR: Invalid key %s" % sys.argv[1])
+	else:
+		key = sys.argv[1]
+		func = handlers[key]
+		extras = sys.argv[2:]
+		print(func(data, *extras))
+
+

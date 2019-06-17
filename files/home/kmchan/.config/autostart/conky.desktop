@@ -1,5 +1,5 @@
 [Desktop Entry]
-Exec=/usr/bin/conky
+Exec=/usr/local/bin/conky
 Name=Conky
 NoDisplay=false
 Terminal=false

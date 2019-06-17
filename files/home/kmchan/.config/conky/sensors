@@ -1,0 +1,267 @@
+#!/usr/bin/env python3
+
+import sys
+import functools
+import glob
+import json
+import os
+import os.path
+import xml.parsers.expat
+import dbus
+
+##########################################################################
+#
+# Common Functions
+#
+
+def cat(path):
+	with open(path, 'r') as f:
+		return f.read().strip()
+
+def build_sensor_line(name, temp = None, fan = None):
+	if temp != None and fan != None:
+		return "%s:${goto 150}%s'C${alignr}%s RPM" % (name, temp, fan)
+	elif temp != None:
+		return "%s:${goto 150}%s'C${alignr}N/A" % (name, temp)
+	elif fan != None:
+		return "%s:${goto 150} N/A${alignr}%s RPM" % (name, fan)
+	else:
+		return "%s:${goto 150} N/A${alignr}N/A" % (name)
+
+##########################################################################
+#
+# System Sensor Specific Functions
+#
+
+def find_system_sensors():
+	datadir = os.path.expanduser('~/.config/conky')
+	definitions = []
+	database = []
+	attributes = {}
+
+	definitions.append({ 'key': 'cpu',    'priority': 11,    'label': 'Processor'     })
+	definitions.append({ 'key': 'cpu0',   'priority': 11,    'label': 'Processor 1'   })
+	definitions.append({ 'key': 'cpu1',   'priority': 11,    'label': 'Processor 2'   })
+	definitions.append({ 'key': 'cpu2',   'priority': 11,    'label': 'Processor 3'   })
+	definitions.append({ 'key': 'cpu3',   'priority': 11,    'label': 'Processor 4'   })
+	definitions.append({ 'key': 'cpu4',   'priority': 11,    'label': 'Processor 5'   })
+	definitions.append({ 'key': 'cpu5',   'priority': 11,    'label': 'Processor 6'   })
+	definitions.append({ 'key': 'cpu6',   'priority': 11,    'label': 'Processor 7'   })
+	definitions.append({ 'key': 'cpu7',   'priority': 11,    'label': 'Processor 8'   })
+	definitions.append({ 'key': 'sys',    'priority': 91,    'label': 'Case'          })
+	definitions.append({ 'key': 'vrm',    'priority': 91,    'label': 'VRM'           })
+	definitions.append({ 'key': 'loop',   'priority': 91,    'label': 'Water Loop'    })
+
+	with open(os.path.join(datadir, 'database.json'), 'r') as f:
+		database.extend(json.load(f))
+
+	try:
+		if os.access(os.path.join(datadir, 'database.local.json'), os.F_OK | os.R_OK):
+			with open(os.path.join(datadir, 'database.local.json'), 'r') as f:
+				database.extend(json.load(f))
+	except:
+		pass
+
+	for path in glob.glob('/sys/devices/virtual/dmi/id/*'):
+		try:
+			attributes[os.path.basename(path)] = cat(path)
+		except:
+			pass
+
+	for record in database:
+		keys = set(attributes.keys()) & set(record.keys())
+		match = all([ check_rule(attributes[key], record[key]) for key in keys ])
+
+		if match == True:
+			for definition in definitions:
+				if definition['key'] in record['devices']:
+					device = record['devices'][definition['key']]
+					directive1 = build_hwmon_directive('temp', device['temp'])
+					directive2 = build_hwmon_directive('fan', device['fan'] if 'fan' in device else None)
+					yield (definition['priority'], build_sensor_line(definition['label'], directive1, directive2))
+
+def check_rule(value, rule):
+	if isinstance(rule, str) and rule != value:
+		return False
+	elif isinstance(rule, int) and rule != value:
+		return False
+	elif isinstance(rule, bool) and rule != value:
+		return False
+	elif isinstance(rule, dict) and 'minimum' in rule and value < rule['minimum']:
+		return False
+	elif isinstance(rule, dict) and 'maximum' in rule and value < rule['maximum']:
+		return False
+	else:
+		return True
+
+def build_hwmon_directive(type, sensor):
+	if isinstance(sensor, dict):
+		for path in glob.glob('/sys/devices/%s/hwmon/hwmon*' % sensor['device']):
+			device = os.path.basename(path)[5:]
+			return "${hwmon %s %s %d}" % (device, type, sensor['input'])
+	return None
+
+##########################################################################
+#
+# Graphics Card Sensor Specific Functions
+#
+
+def find_graphics_sensors():
+	count = 0
+	initial_directive1 = None
+	initial_directive2 = None
+
+	for path in glob.glob('/sys/class/hwmon/hwmon*'):
+		device = path[22:]
+		name = cat(os.path.join(path, 'name'))
+		graphics = os.access(os.path.join(path, 'device', 'drm'), os.F_OK)
+		temp = os.access(os.path.join(path, 'temp1_input'), os.F_OK)
+		fan = os.access(os.path.join(path, 'fan1_input'), os.F_OK)
+
+		if graphics and temp:
+			directive1 = '${hwmon %s temp 1}' % device
+			directive2 = '${hwmon %s fan 1}' % device if fan else None
+
+			if count == 0:
+				count = count + 1
+				initial_directive1 = directive1
+				initial_directive2 = directive2
+			elif count == 1:
+				count = count + 1
+				initial_directive1 = None
+				initial_directive2 = None
+				yield (12, build_sensor_line('Video Card 1', initial_directive1, initial_directive2))
+				yield (12, build_sensor_line('Video Card 2', directive1, directive2))
+			else:
+				count = count + 1
+				initial_directive1 = None
+				initial_directive2 = None
+				yield (12, build_sensor_line('Video Card %d' % count, directive1, directive2))
+
+	if count == 1:
+		yield (12, build_sensor_line('Video Card', initial_directive1, initial_directive2))
+
+##########################################################################
+#
+# Hard Drive Sensor Specific Functions
+#
+
+def find_drive_sensors():
+	bus = dbus.SystemBus()
+	udisks = bus.get_object('org.freedesktop.UDisks2', '/org/freedesktop/UDisks2/Manager')
+	device_paths = udisks.GetBlockDevices([], dbus_interface='org.freedesktop.UDisks2.Manager')
+	nvme_ssd_count = 0
+	sata_ssd_count = 0
+	sata_hdd_count = 0
+	nvme_ssd_directive = None
+	sata_ssd_directive = None
+	sata_hdd_directive = None
+
+	for device_path in device_paths:
+		device_object = bus.get_object('org.freedesktop.UDisks2', device_path)
+		device_interfaces = extract_interfaces(device_object)
+		device_properties = device_object.GetAll('org.freedesktop.UDisks2.Block', dbus_interface='org.freedesktop.DBus.Properties')
+		device_name = str(bytes(device_properties['Device']).strip(b'\x00'), 'utf-8')
+		device_alias = str(bytes(device_properties['PreferredDevice']).strip(b'\x00'), 'utf-8')
+		device_directive = '${hddtemp %s}' % device_alias
+
+		if 'org.freedesktop.UDisks2.Partition' in device_interfaces:
+			continue
+		elif 'org.freedesktop.UDisks2.Loop' in device_interfaces:
+			continue
+		elif device_properties['Drive'] == '/':
+			continue
+
+		drive_path = device_properties['Drive']
+		drive_object = bus.get_object('org.freedesktop.UDisks2', drive_path)
+		drive_properties = drive_object.GetAll('org.freedesktop.UDisks2.Drive', dbus_interface='org.freedesktop.DBus.Properties')
+		drive_rotation_rate = drive_properties['RotationRate']
+		drive_removable = drive_properties['Removable']
+		drive_ejectable = drive_properties['Ejectable']
+
+		if drive_removable:
+			continue
+		elif drive_ejectable:
+			continue
+
+		if device_alias.startswith('/dev/nvme'):
+			device_directive = None
+			if nvme_ssd_count == 0:
+				nvme_ssd_count = nvme_ssd_count + 1
+				nvme_ssd_directive = device_directive
+			elif nvme_ssd_count == 1:
+				nvme_ssd_count = nvme_ssd_count + 1
+				nvme_ssd_directive = None
+				yield (51, build_sensor_line('NVMe SSD 1', nvme_ssd_directive))
+				yield (51, build_sensor_line('NVMe SSD 2', device_directive))
+			else:
+				nvme_ssd_count = nvme_ssd_count + 1
+				nvme_ssd_directive = None
+				yield (51, build_sensor_line('NVMe SSD %d' % count, nvme_ssd_directive))
+		
+		if device_alias.startswith('/dev/sd') and drive_rotation_rate == 0:
+			if sata_ssd_count == 0:
+				sata_ssd_count = sata_ssd_count + 1
+				sata_ssd_directive = device_directive
+			elif sata_ssd_count == 1:
+				sata_ssd_count = sata_ssd_count + 1
+				sata_ssd_directive = None
+				yield (52, build_sensor_line('SATA SSD 1', sata_ssd_directive))
+				yield (52, build_sensor_line('SATA SSD 2', device_directive))
+			else:
+				sata_ssd_count = sata_ssd_count + 1
+				sata_ssd_directive = None
+				yield (52, build_sensor_line('SATA SSD %d' % count, sata_ssd_directive))
+
+		if device_alias.startswith('/dev/sd') and drive_rotation_rate != 0:
+			if sata_hdd_count == 0:
+				sata_hdd_count = sata_hdd_count + 1
+				sata_hdd_directive = device_directive
+			elif sata_hdd_count == 1:
+				sata_hdd_count = sata_hdd_count + 1
+				sata_hdd_directive = None
+				yield (53, build_sensor_line('SATA HDD 1', sata_hdd_directive))
+				yield (53, build_sensor_line('SATA HDD 2', device_directive))
+			else:
+				sata_hdd_count = sata_hdd_count + 1
+				sata_hdd_directive = None
+				yield (53, build_sensor_line('SATA HDD %d' % count, sata_hdd_directive))
+
+	if nvme_ssd_count == 1:
+		yield (51, build_sensor_line('NVMe SSD', nvme_ssd_directive))
+	
+	if sata_ssd_count == 1:
+		yield (52, build_sensor_line('SATA SSD', sata_ssd_directive))
+
+	if sata_hdd_count == 1:
+		yield (53, build_sensor_line('SATA HDD', sata_hdd_directive))
+
+def extract_interfaces(proxy):
+	interfaces = set()
+	parser = xml.parsers.expat.ParserCreate('UTF-8', '')
+	parser.buffer_text = True
+	parser.ordered_attributes = 0
+	parser.StartElementHandler = functools.partial(collect_interfaces, interfaces)
+	parser.Parse(proxy.Introspect(dbus_interface='org.freedesktop.DBus.Introspectable'))
+	return interfaces
+
+def collect_interfaces(collection, tag, attributes):
+	if tag == 'interface' and 'name' in attributes:
+		collection.add(attributes['name'])
+
+##########################################################################
+#
+# Main Script
+#
+
+if __name__ == '__main__':
+	sensors = []
+	sensors.append((50, ''))
+	sensors.append((90, ''))
+	sensors.extend(find_system_sensors())
+	sensors.extend(find_graphics_sensors())
+	sensors.extend(find_drive_sensors())
+
+	for sensor in sorted(sensors, key=lambda item: item[0]):
+		print(sensor[1])
+

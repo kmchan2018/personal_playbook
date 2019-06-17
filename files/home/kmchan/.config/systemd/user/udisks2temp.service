@@ -1,0 +1,10 @@
+
+[Unit]
+Description=HDDTemp Bridge for UDisks2
+
+[Service]
+ExecStart=/home/kmchan/bin/udisks2temp
+
+[Install]
+WantedBy=default.target
+

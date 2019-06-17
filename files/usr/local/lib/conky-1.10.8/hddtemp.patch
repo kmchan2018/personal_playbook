@@ -1,0 +1,11 @@
+--- conky-1.10.8.orig/src/hddtemp.cc	2018-02-07 22:16:39.000000000 +0800
++++ conky-1.10.8/src/hddtemp.cc	2019-06-15 17:58:54.899295078 +0800
+@@ -218,7 +218,7 @@
+ 
+ void free_hddtemp(struct text_object *obj)
+ {
+-	free_hddtemp_info();
++	//free_hddtemp_info();
+ 	free_and_zero(obj->data.s);
+ }
+ 

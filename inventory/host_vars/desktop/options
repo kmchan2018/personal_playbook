@@ -5,6 +5,7 @@
 #
 
 install_arduino_enabled: true
+install_conky_enabled: true
 install_desktop_enabled: true
 install_golang_enabled: true
 install_java_enabled: true
