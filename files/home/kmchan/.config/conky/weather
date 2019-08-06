@@ -43,6 +43,10 @@ icon_index['75'] = icon_index['pic75.png'] = 'moon'
 icon_index['76'] = icon_index['pic76.png'] = 'cloud-moon'
 icon_index['77'] = icon_index['pic77.png'] = 'cloud-moon'
 icon_index['83'] = icon_index['pic83.png'] = 'smog'
+icon_index['90'] = icon_index['pic90.png'] = 'temperature-high'
+icon_index['91'] = icon_index['pic91.png'] = 'temperature-high'
+icon_index['92'] = icon_index['pic92.png'] = 'temperature-low'
+icon_index['93'] = icon_index['pic93.png'] = 'temperature-low'
 
 def icon_convert(basename, size, style):
 	input = os.path.join(icon_source, '%s.svg' % basename)
