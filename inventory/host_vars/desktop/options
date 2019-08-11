@@ -17,6 +17,7 @@ install_piper_enabled: true
 install_python_enabled: true
 install_qemu_enabled: true
 install_sass_enabled: true
+install_scream_enabled: true
 
 
 #
