@@ -9,13 +9,14 @@
 
   vars:
 
-    install_looking_glass_version: "a11"
-    install_looking_glass_url: "https://github.com/gnif/LookingGlass/archive/a11.tar.gz"
-    install_looking_glass_checksum: "sha256:65f2045b8daeb019a761921fbc2a638a449f06491f28ac27d6c65031c6f51c87"
-    install_looking_glass_archive: "/usr/local/lib/LookingGlass-a11/LookingGlass-a11.tar.gz"
-    install_looking_glass_directory: "/usr/local/lib/LookingGlass-a11"
+    install_looking_glass_version: "B1"
+    install_looking_glass_url: "https://github.com/gnif/LookingGlass/archive/B1.tar.gz"
+    install_looking_glass_checksum: "sha256:fa9b3b380f451551c8b40b56a3e873607aa066e8333b7baacd0ed21a05bbb5c5"
+    install_looking_glass_archive: "/usr/local/lib/LookingGlass-B1/LookingGlass-B1.tar.gz"
+    install_looking_glass_directory: "/usr/local/lib/LookingGlass-B1"
 
     install_looking_glass_dependencies:
+      - { name: "binutils-dev" }
       - { name: "build-essential" }
       - { name: "cmake" }
       - { name: "libsdl2-dev" }
@@ -66,17 +67,25 @@
             creates: "{{ install_looking_glass_directory }}/README.md"
             warn: false
 
+        - name: "Install Looking Glass: Configure Source"
+          shell: "cmake ."
+          args:
+            chdir: "{{ install_looking_glass_directory }}/client"
+            creates: "{{ install_looking_glass_directory }}/client/Makefile"
+            warn: false
+
+
         - name: "Install Looking Glass: Compile Source"
           shell: "make"
           args:
             chdir: "{{ install_looking_glass_directory }}/client"
-            creates: "{{ install_looking_glass_directory }}/client/bin/looking-glass-client"
+            creates: "{{ install_looking_glass_directory }}/client/looking-glass-client"
             warn: false
 
         - name: "Install Looking Glass: Symlink Executables"
           file:
             path: "/usr/local/bin/looking-glass-client"
-            src: "{{ install_looking_glass_directory }}/client/bin/looking-glass-client"
+            src: "{{ install_looking_glass_directory }}/client/looking-glass-client"
             state: "link"
             force: true
 
