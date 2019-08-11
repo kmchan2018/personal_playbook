@@ -15,14 +15,18 @@ fi
 # Configure QEMU audio configuration
 #
 
+{% if piper %}
 export QEMU_AUDIO_DRV="alsa"
-export QEMU_AUDIO_DAC_FIXED_FREQ="{{ audio_rate }}"
-export QEMU_AUDIO_ADC_FIXED_FREQ="{{ audio_rate }}"
+export QEMU_AUDIO_DAC_FIXED_FREQ="{{ piper_rate }}"
+export QEMU_AUDIO_ADC_FIXED_FREQ="{{ piper_rate }}"
 export QEMU_AUDIO_TIMER_PERIOD="{{ (2 * 1000 / audio_period_time)|int }}"
 export QEMU_ALSA_DAC_DEV="piper"
-export QEMU_ALSA_DAC_PERIOD_SIZE="{{ audio_period_size }}"
+export QEMU_ALSA_DAC_PERIOD_SIZE="{{ piper_period_size }}"
 export QEMU_ALSA_ADC_DEV="piper"
-export QEMU_ALSA_ADC_PERIOD_SIZE="{{ audio_period_size }}"
+export QEMU_ALSA_ADC_PERIOD_SIZE="{{ piper_period_size }}"
+{% else %}
+export QEMU_AUDIO_DRV="none"
+{% endif %}
 
 ##########################################################################
 #
@@ -66,6 +70,9 @@ exec qemu-system-x86_64 \
   -display "none" \
   -nographic \
   -vga "$DAEMON_VGA" \
+{% if sound_hardware in ['all', 'sb16', 'es1370', 'ac97', 'adlib', 'gus', 'cs4231a', 'hda', 'pcspk'] %}
+	-soundhw "{{ sound_hardware }}" \
+{% endif %}
   -usb \
   -rtc "base=localtime" \
   -serial "none" \
@@ -107,8 +114,12 @@ exec qemu-system-x86_64 \
   -device "scsi-hd,id=drive.hd.{{ disk.index }},bus=scsi.0,drive=hd.{{ disk.index }},bootindex={{ disk.index + 2 }}" \
 {% endfor %}
 {% if looking_glass %}
-  -device "ivshmem-plain,memdev=ivshmem,bus=pcie.0" \
-  -object "memory-backend-file,id=ivshmem,share=on,mem-path={{ looking_glass_file }},size={{ looking_glass_size }}M" \
+  -device "ivshmem-plain,memdev=looking_glass,bus=pcie.0" \
+  -object "memory-backend-file,id=looking_glass,share=on,mem-path={{ looking_glass_file }},size={{ looking_glass_size }}M" \
+{% endif %}
+{% if scream %}
+  -device "ivshmem-plain,memdev=scream,bus=pcie.0" \
+  -object "memory-backend-file,id=scream,share=on,mem-path={{ scream_file }},size={{ scream_size }}M" \
 {% endif %}
   -device "virtio-serial" \
   -device "virtserialport,chardev=spice.agent,name=com.redhat.spice.0" \
@@ -120,8 +131,6 @@ exec qemu-system-x86_64 \
   -device "usb-redir,id=usbredir.1,chardev=spice.usbredir.1" \
   -device "usb-redir,id=usbredir.2,chardev=spice.usbredir.2" \
   -device "usb-redir,id=usbredir.3,chardev=spice.usbredir.3" \
-  -device "ich9-intel-hda" \
-  -device "hda-duplex" \
   "${@}"
 
 {% endblock %}

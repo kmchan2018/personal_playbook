@@ -21,18 +21,6 @@ if [[ ! -d "{{ socket_directory }}" ]] ; then
   install -o "{{ account }}" -g "{{ account }}" -m 0770 -d "{{ socket_directory }}"
 fi
 
-if [[ ! -f "{{ playback_file }}" ]]; then
-  piper create "{{ playback_file }}" "{{ audio_format }}" "{{ audio_channels }}" "{{ audio_rate }}" "{{ audio_period_time }}" 500 500 100
-  chown "{{ account }}:{{ account }}" "{{ playback_file }}"
-  chmod 660 "{{ playback_file }}"
-fi
-
-if [[ ! -f "{{ capture_file }}" ]]; then
-  piper create "{{ capture_file }}" "{{ audio_format }}" "{{ audio_channels }}" "{{ audio_rate }}" "{{ audio_period_time }}" 500 500 100
-  chown "{{ account }}:{{ account }}" "{{ capture_file }}"
-  chmod 660 "{{ capture_file }}"
-fi
-
 if [[ ! -d "{{ guest_ivshmem_prefix }}" ]] ; then
   install -o "root" -g "root" -m 755 -d "{{ guest_ivshmem_prefix }}"
 fi
@@ -46,6 +34,28 @@ if [[ ! -f "{{ looking_glass_file }}" ]] ; then
   touch "{{ looking_glass_file }}"
   chown "{{ account }}:{{ account }}" "{{ looking_glass_file }}"
   chmod 660 "{{ looking_glass_file }}"
+fi
+
+{% endif %}
+{% if piper %}
+if [[ ! -f "{{ piper_playback_file }}" ]]; then
+  piper create "{{ piper_playback_file }}" "{{ piper_format }}" "{{ piper_channels }}" "{{ piper_rate }}" "{{ piper_period_time }}" 500 500 100
+  chown "{{ account }}:{{ account }}" "{{ piper_playback_file }}"
+  chmod 660 "{{ piper_playback_file }}"
+fi
+
+if [[ ! -f "{{ piper_capture_file }}" ]]; then
+  piper create "{{ piper_capture_file }}" "{{ piper_format }}" "{{ piper_channels }}" "{{ piper_rate }}" "{{ piper_period_time }}" 500 500 100
+  chown "{{ account }}:{{ account }}" "{{ piper_capture_file }}"
+  chmod 660 "{{ piper_capture_file }}"
+fi
+
+{% endif %}
+{% if scream %}
+if [[ ! -f "{{ scream_file }}" ]]; then
+  touch "{{ scream_file }}"
+  chown "{{ account }}:{{ account }}" "{{ scream_file }}"
+  chmod 660 "{{ scream_file }}"
 fi
 
 {% endif %}

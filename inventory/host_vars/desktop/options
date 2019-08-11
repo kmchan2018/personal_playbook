@@ -133,7 +133,10 @@ guest_instances:
     processor_thread: 1
     memory_size: 8
     memory_prealloc: true
+    sound_hardware: 'none'
     looking_glass: true
+    piper: false
+    scream: true
     disks: [ "windows-root", "windows-data" ]
     networks: [ "bridge" ]
     passthroughs: [ "graphics" ]
