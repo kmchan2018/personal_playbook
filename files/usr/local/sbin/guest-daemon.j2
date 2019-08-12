@@ -33,14 +33,12 @@ export QEMU_AUDIO_DRV="none"
 # Configure QEMU video configuration
 #
 
-DAEMON_VGA=qxl
+DAEMON_VGA="{{ video_hardware }}"
 
-{% if looking_glass %}
-if [[ "$VIDEO" == "looking-glass" ]] ; then
-  DAEMON_VGA=none
+if [[ "x$BOOTSTRAP" != "x" ]] ; then
+  DAEMON_VGA=qxl
 fi
 
-{%endif %}
 {% if cards|length > 0 %}
 ##########################################################################
 #

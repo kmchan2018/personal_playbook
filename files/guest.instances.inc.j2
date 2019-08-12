@@ -82,6 +82,7 @@
 {%- set memory_hole = memory_size + temp_cards.memory -%}
 {%- set memory_prealloc = item[0].memory_prealloc|default(4) -%}
 
+{%- set video_hardware = item[0].video_hardware -%}
 {%- set sound_hardware = item[0].sound_hardware -%}
 
 {%- set looking_glass = item[0].looking_glass|default(true) -%}

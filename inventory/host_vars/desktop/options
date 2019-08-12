@@ -133,6 +133,7 @@ guest_instances:
     processor_thread: 1
     memory_size: 8
     memory_prealloc: true
+    video_hardware: 'none'
     sound_hardware: 'none'
     looking_glass: true
     piper: false
