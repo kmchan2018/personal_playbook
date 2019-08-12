@@ -125,6 +125,7 @@ guest_passthroughs:
     
 guest_instances:
   - name: "windows"
+    title: "Windows"
     account: "windows-machine"
     groups: [ "windows-disk" ]
     admins: [ "kmchan" ]

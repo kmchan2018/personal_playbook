@@ -9,7 +9,29 @@ fi
 if [[ "x$BOOTSTRAP" != "x" ]]; then
   exec spicy --uri "spice+unix://{{ spice_socket }}"
 else
-  exec looking-glass-client -f "{{ looking_glass_file }}" -c "{{ spice_socket }}" -p 0 -o "opengl:amdPinnedMem=0" -a &
+  looking-glass-client -f "{{ looking_glass_file }}" -c "{{ spice_socket }}" -p 0 -o "opengl:amdPinnedMem=0" -o "win:title={{ title }}" -a &
+  LOOKING_GLASS_PID=$!
+
+{% if scream == true %}
+  env "PULSE_PROP_OVERRIDE_application.name={{ title }}" "PULSE_PROP_OVERRIDE_application.process.id=$LOOKING_GLASS_PID" scream-ivshmem-pulse "{{ scream_file }}" &
+  SCREAM_PID=$!
+
+  wait $LOOKING_GLASS_PID
+  kill -TERM $SCREAM_PID
+  wait $SCREAM_PID
+  exit 0
+{% elif piper == true %}
+  env "PULSE_PROP_OVERRIDE_application.name={{ title }}" "PULSE_PROP_OVERRIDE_application.process.id=$LOOKING_GLASS_PID" piper drain "{{ piper_playback_file }}" alsa &
+  PIPER_PID=$!
+
+  wait $LOOKING_GLASS_PID
+  kill -TERM $PIPER_PID
+  wait $PIPER_PID
+  exit 0
+{% else %}
+  wait $LOOKING_GLASS_PID
+  exit 0
+{% endif %}
 fi
 {% elif video_hardware == 'none' %}
 if [[ "x$BOOTSTRAP" != "x" ]]; then
