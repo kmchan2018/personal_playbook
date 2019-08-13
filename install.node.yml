@@ -6,11 +6,11 @@
 
   vars:
 
-    install_node_version: "10.15.3"
-    install_node_url: "https://nodejs.org/dist/v10.15.3/node-v10.15.3-linux-x64.tar.xz"
-    install_node_checksum: "sha256:faddbe418064baf2226c2fcbd038c3ef4ae6f936eb952a1138c7ff8cfe862438"
-    install_node_archive: "/usr/local/lib/node-8.12.0/node-v10.15.3.tar.xz"
-    install_node_directory: "/usr/local/lib/node-10.15.3"
+    install_node_version: "10.16.2"
+    install_node_url: "https://nodejs.org/dist/v10.16.2/node-v10.16.2-linux-x64.tar.xz"
+    install_node_checksum: "sha256:406718dc2f3164b3d1981c36b68b70ea448fbbac29cefbe23ff286b3cd55f264"
+    install_node_archive: "/usr/local/lib/node-10.16.2/node-v10.16.2.tar.xz"
+    install_node_directory: "/usr/local/lib/node-10.16.2"
     install_node_binaries: [ "node", "npm" ]
 
   tasks:
