@@ -10,11 +10,11 @@
 
   vars:
 
-    install_arduino_version: "1.8.7"
-    install_arduino_url: "https://downloads.arduino.cc/arduino-1.8.7-linux64.tar.xz"
-    install_arduino_checksum: "sha512:d8273761d522b096873b1132c210f453f1742ced8ef0723d5b1abc352c9a02169943109ba9ffd78377e7e635ad9ddc2a781d7186e9b48144e7f2389045b09e12"
-    install_arduino_archive: "/usr/local/lib/arduino-1.8.7/arduino-1.8.7-linux64.tar.xz"
-    install_arduino_directory: "/usr/local/lib/arduino-1.8.7"
+    install_arduino_version: "1.8.9"
+    install_arduino_url: "https://downloads.arduino.cc/arduino-1.8.9-linux64.tar.xz"
+    install_arduino_checksum: "sha512:1cea971484bd0e85ba9e7b8a72a0cd0b8338b23493332eb3c7c03a7c86ce638e7a46fc063f79a542bc4359332f5785dbc6ef433dcccc4b291632d3b17a1968b4"
+    install_arduino_archive: "/usr/local/lib/arduino-1.8.9/arduino-1.8.9-linux64.tar.xz"
+    install_arduino_directory: "/usr/local/lib/arduino-1.8.9"
 
     install_arduino_icons:
       - { path: "lib/icons/16x16/apps/arduino.png", size: 16 }
