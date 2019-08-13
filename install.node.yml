@@ -11,7 +11,11 @@
     install_node_checksum: "sha256:406718dc2f3164b3d1981c36b68b70ea448fbbac29cefbe23ff286b3cd55f264"
     install_node_archive: "/usr/local/lib/node-10.16.2/node-v10.16.2.tar.xz"
     install_node_directory: "/usr/local/lib/node-10.16.2"
-    install_node_binaries: [ "node", "npm" ]
+    install_node_binaries:
+      - { name: node, target: node }
+      - { name: nodejs, target: node }
+      - { name: npm, target: npm }
+
 
   tasks:
 
@@ -45,8 +49,8 @@
 
         - name: "Install Node Toolchain: Symlink Executables"
           file:
-            path: "/usr/local/bin/{{ item }}"
-            src: "{{ install_node_directory }}/bin/{{ item }}"
+            path: "/usr/local/bin/{{ item.name }}"
+            src: "{{ install_node_directory }}/bin/{{ item.target }}"
             state: "link"
             force: true
           loop: "{{ install_node_binaries }}"
