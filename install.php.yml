@@ -9,9 +9,9 @@
 
   vars:
 
-    install_php_composer_version: "1.6.4"
-    install_php_composer_url: "https://getcomposer.org/download/1.6.4/composer.phar"
-    install_php_composer_checksum: "sha256:8d0d9246f68532cc8fd6a47a58d195f0c849d26430f93c397a3176fc2d971ded"
+    install_php_composer_version: "1.9.0"
+    install_php_composer_url: "https://getcomposer.org/download/1.9.0/composer.phar"
+    install_php_composer_checksum: "sha256:c9dff69d092bdec14dee64df6677e7430163509798895fbd54891c166c5c0875"
 
   tasks:
 
