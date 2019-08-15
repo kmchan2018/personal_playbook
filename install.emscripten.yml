@@ -27,6 +27,17 @@
       - { name: "emranlib", target: "fastcomp/emscripten/emranlib" }
       - { name: "emrun", target: "fastcomp/emscripten/emrun" }
       - { name: "emscons", target: "fastcomp/emscripten/emscons" }
+      - { name: "spectest-interp", target: "fastcomp/bin/spectest-interp" }
+      - { name: "wasm-interp", target: "fastcomp/bin/wasm-interp" }
+      - { name: "wasm-objdump", target: "fastcomp/bin/wasm-objdump" }
+      - { name: "wasm-opcodecnt", target: "fastcomp/bin/wasm-opcodecnt" }
+      - { name: "wasm-strip", target: "fastcomp/bin/wasm-strip" }
+      - { name: "wasm-validate", target: "fastcomp/bin/wasm-validate" }
+      - { name: "wasm2c", target: "fastcomp/bin/wasm2c" }
+      - { name: "wasm2wat", target: "fastcomp/bin/wasm2wat" }
+      - { name: "wast2json", target: "fastcomp/bin/wast2json" }
+      - { name: "wat-desugar", target: "fastcomp/bin/wat-desugar" }
+      - { name: "wat2wasm", target: "fastcomp/bin/wat2wasm" }
 
   tasks:
 
@@ -49,6 +60,14 @@
             chdir: "{{ install_emscripten_directory }}"
             creates: "{{ install_emscripten_directory }}/fastcomp"
             warn: false
+
+        - name: "Install Emscripten Toolchain: Generate Configuration File"
+          template:
+            dest: "/usr/local/etc/emscripten"
+            src: "files/usr/local/etc/emscripten.j2"
+            owner: "root"
+            group: "root"
+            mode: "0755"
 
         - name: "Install Emscripten Toolchain: Symlink Executables"
           file:

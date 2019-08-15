@@ -1,0 +1,10 @@
+import os
+LLVM_ROOT = '{{ install_emscripten_directory }}/fastcomp/fastcomp/bin'
+BINARYEN_ROOT = '{{ install_emscripten_directory }}/fastcomp'
+EMSCRIPTEN_NATIVE_OPTIMIZER = '{{ install_emscripten_directory }}/fastcomp/bin/optimizer'
+SPIDERMONKEY_ENGINE = ''
+NODE_JS = '/usr/local/bin/nodejs'
+V8_ENGINE = ''
+TEMP_DIR = '/tmp'
+COMPILER_ENGINE = NODE_JS
+JS_ENGINES = [NODE_JS]
