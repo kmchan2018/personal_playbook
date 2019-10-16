@@ -16,6 +16,13 @@
       - { name: nodejs, target: node }
       - { name: npm, target: npm }
 
+    install_yarn_version: "1.19.1"
+    install_yarn_url: "https://github.com/yarnpkg/yarn/releases/download/v1.19.1/yarn-v1.19.1.tar.gz"
+    install_yarn_checksum: "sha256:34293da6266f2aae9690d59c2d764056053ff7eebc56b80b8df05010c3da9343"
+    install_yarn_archive: "/usr/local/lib/yarn-1.19.1/yarn-v1.19.1.tar.gz"
+    install_yarn_directory: "/usr/local/lib/yarn-1.19.1"
+    install_yarn_binaries:
+      - { name: "yarn", target: "yarn" }
 
   tasks:
 
@@ -23,7 +30,7 @@
       when: "install_node_enabled|default(false)"
       block:
 
-        - name: "Install Node Toolchain: Create Installation Directory"
+        - name: "Install Node Toolchain: Create Node Installation Directory"
           file:
             path: "{{ install_node_directory }}"
             state: "directory"
@@ -31,7 +38,7 @@
             group: "root"
             mode: "0755"
 
-        - name: "Install Node Toolchain: Download Release"
+        - name: "Install Node Toolchain: Download Node Release"
           get_url:
             url: "{{ install_node_url }}"
             dest: "{{ install_node_archive }}"
@@ -40,14 +47,14 @@
             group: "root"
             mode: "0644"
 
-        - name: "Install Node Toolchain: Unpack Release"
+        - name: "Install Node Toolchain: Unpack Node Release"
           shell: "tar --extract --no-same-owner --strip-components 1 --file {{ install_node_archive }}"
           args:
             chdir: "{{ install_node_directory }}"
             creates: "{{ install_node_directory }}/bin/node"
             warn: false
 
-        - name: "Install Node Toolchain: Symlink Executables"
+        - name: "Install Node Toolchain: Symlink Node Executables"
           file:
             path: "/usr/local/bin/{{ item.name }}"
             src: "{{ install_node_directory }}/bin/{{ item.target }}"
@@ -55,4 +62,35 @@
             force: true
           loop: "{{ install_node_binaries }}"
 
+        - name: "Install Node Toolchain: Create Yarn Installation Directory"
+          file:
+            path: "{{ install_yarn_directory }}"
+            state: "directory"
+            owner: "root"
+            group: "root"
+            mode: "0755"
+
+        - name: "Install Node Toolchain: Download Yarn Release"
+          get_url:
+            url: "{{ install_yarn_url }}"
+            dest: "{{ install_yarn_archive }}"
+            checksum: "{{ install_yarn_checksum }}"
+            owner: "root"
+            group: "root"
+            mode: "0644"
+
+        - name: "Install Node Toolchain: Unpack Yarn Release"
+          shell: "tar --extract --no-same-owner --strip-components 1 --file {{ install_yarn_archive }}"
+          args:
+            chdir: "{{ install_yarn_directory }}"
+            creates: "{{ install_yarn_directory }}/bin/node"
+            warn: false
+
+        - name: "Install Node Toolchain: Symlink Yarn Executables"
+          file:
+            path: "/usr/local/bin/{{ item.name }}"
+            src: "{{ install_yarn_directory }}/bin/{{ item.target }}"
+            state: "link"
+            force: true
+          loop: "{{ install_yarn_binaries }}"
 
