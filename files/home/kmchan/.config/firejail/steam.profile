@@ -19,6 +19,8 @@ noblacklist ${HOME}/.local/share/vulkan
 noblacklist ${HOME}/.steam
 noblacklist ${HOME}/.steampath
 noblacklist ${HOME}/.steampid
+noblacklist /sbin
+noblacklist /usr/sbin
 noblacklist /usr/lib/llvm*
 
 # Includes default rules
@@ -27,6 +29,7 @@ include /etc/firejail/disable-programs.inc
 include /etc/firejail/disable-devel.inc
 include /etc/firejail/disable-passwdmgr.inc
 include /etc/firejail/whitelist-common.inc
+include /etc/firejail/whitelist-var-common.inc
 
 # Ensure existence of essential files
 mkdir ${HOME}/.java
