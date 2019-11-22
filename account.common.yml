@@ -6,6 +6,21 @@
 
   tasks:
 
+    - name: "Applying Common Settings to Account: Update User Limits"
+      copy:
+        dest: "/etc/security/limits.d/kmchan.conf"
+        src: "{{ playbook_dir }}/files/etc/security/limits.d/kmchan.conf"
+        owner: "root"
+        group: "root"
+        mode: "0644"
+
+
+- hosts: "all"
+  become: true
+  become_user: "root"
+
+  tasks:
+
     - name: "Applying Common Settings to Account: Creating Directories"
       file:
         dest: "/home/kmchan/{{ item.path }}"
