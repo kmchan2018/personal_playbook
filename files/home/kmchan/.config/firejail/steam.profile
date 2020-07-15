@@ -46,6 +46,10 @@ whitelist ${HOME}/.steampid
 whitelist ${HOME}/.local/share/Steam
 whitelist ${HOME}/.local/share/vulkan
 
+# Allows game files for Unity games
+mkdir ${HOME}/.config/unity3d
+whitelist ${HOME}/.config/unity3d
+
 # Allows game files for "Killing Floor" (http://store.steampowered.com/app/1250/Killing_Floor/)
 # mkdir ${HOME}/.killingfloor
 # whitelist ${HOME}/.killingfloor
@@ -80,9 +84,7 @@ whitelist ${HOME}/.local/share/vulkan
 
 # Allows game files for Creeper World 3
 mkdir ${HOME}/.config/creeperworld3
-mkdir ${HOME}/.config/unity3d
 whitelist ${HOME}/.config/creeperworld3
-whitelist ${HOME}/.config/unity3d
 
 # Allows xpra files
 read-only ${HOME}/.xpra
