@@ -5,6 +5,7 @@
 #
 
 install_arduino_enabled: true
+install_baidunetdisk_enabled: true
 install_conky_enabled: true
 install_desktop_enabled: true
 install_emscripten_enabled: true
@@ -170,6 +171,7 @@ service_apache_https_proxy_port: 8443
 #
 
 account_conky_enabled: true
+account_baidunetdisk_enabled: true
 account_firefox_enabled: true
 account_geeqie_enabled: true
 account_server_enabled: true

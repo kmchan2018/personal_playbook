@@ -1,0 +1,32 @@
+
+
+- import_playbook: "software.dpkg.yml"
+
+
+- hosts: "all"
+  become: true
+  become_user: "root"
+
+  tasks:
+
+    - name: "Install Baidu Net Disk"
+      when: "install_baidunetdisk_enabled|default(false)"
+      block:
+
+        - name: "Install Baidu Net Disk: Install Dependencies"
+          apt:
+            name: "desktop-file-utils"
+            state: "latest"
+            update_cache: true
+            cache_valid_time: 86400
+            default_release: "{{ ansible_distribution_release }}"
+
+        - name: "Install Baidu Net Disk: Install Packages"
+          apt:
+            deb: "http://wppkg.baidupcs.com/issue/netdisk/LinuxGuanjia/3.0.1/baidunetdisk_linux_3.0.1.2.deb"
+            state: "present"
+            allow_unauthenticated: true
+            update_cache: true
+            cache_valid_time: 86400
+
+
