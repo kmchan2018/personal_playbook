@@ -6,11 +6,11 @@
 
   vars:
 
-    install_golang_version: "1.12.7"
-    install_golang_url: "https://storage.googleapis.com/golang/go1.12.7.linux-amd64.tar.gz"
-    install_golang_checksum: "sha256:66d83bfb5a9ede000e33c6579a91a29e6b101829ad41fffb5c5bb6c900e109d9"
-    install_golang_archive: "/usr/local/lib/golang-1.12.7/golang-1.12.7.tar.gz"
-    install_golang_directory: "/usr/local/lib/golang-1.12.7"
+    install_golang_version: "1.14.5"
+    install_golang_url: "https://storage.googleapis.com/golang/go1.14.5.linux-amd64.tar.gz"
+    install_golang_checksum: "sha256:82a1b84f16858db03231eb201f90cce2a991078dda543879b87e738e2586854b"
+    install_golang_archive: "/usr/local/lib/golang-1.14.4/golang-1.14.5.tar.gz"
+    install_golang_directory: "/usr/local/lib/golang-1.14.5"
     install_golang_binaries: [ "go", "godoc", "gofmt" ]
 
   tasks:
