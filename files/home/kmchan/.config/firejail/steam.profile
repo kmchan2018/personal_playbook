@@ -86,6 +86,12 @@ whitelist ${HOME}/.config/unity3d
 mkdir ${HOME}/.config/creeperworld3
 whitelist ${HOME}/.config/creeperworld3
 
+# Allows game files for Paradox launcher
+mkdir ${HOME}/.paradoxlauncher
+mkdir ${HOME}/.local/share/Paradox Interactive
+whitelist ${HOME}/.paradoxlauncher
+whitelist ${HOME}/.local/share/Paradox Interactive
+
 # Allows xpra files
 read-only ${HOME}/.xpra
 whitelist ${HOME}/.xpra
