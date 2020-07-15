@@ -6,11 +6,11 @@
 
   vars:
 
-    install_node_version: "10.16.2"
-    install_node_url: "https://nodejs.org/dist/v10.16.2/node-v10.16.2-linux-x64.tar.xz"
-    install_node_checksum: "sha256:406718dc2f3164b3d1981c36b68b70ea448fbbac29cefbe23ff286b3cd55f264"
-    install_node_archive: "/usr/local/lib/node-10.16.2/node-v10.16.2.tar.xz"
-    install_node_directory: "/usr/local/lib/node-10.16.2"
+    install_node_version: "12.18.2"
+    install_node_url: "https://nodejs.org/dist/v12.18.2/node-v12.18.2-linux-x64.tar.xz"
+    install_node_checksum: "sha256:b8dc634798ee783482c2ae1755bd7dff09d83fa7bb037cdc370b601d0a5e5cbb"
+    install_node_archive: "/usr/local/lib/node-12.18.2/node-v12.18.2.tar.xz"
+    install_node_directory: "/usr/local/lib/node-12.18.2"
     install_node_binaries:
       - { name: node, target: node }
       - { name: nodejs, target: node }
