@@ -116,7 +116,6 @@ notv
 netfilter
 
 # Sanitizes syscalls
-seccomp
 protocol unix,inet,inet6,netlink
 
 # Sanitizes users
