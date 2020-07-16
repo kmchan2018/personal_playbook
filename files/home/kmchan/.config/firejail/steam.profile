@@ -86,6 +86,10 @@ whitelist ${HOME}/.config/unity3d
 mkdir ${HOME}/.config/creeperworld3
 whitelist ${HOME}/.config/creeperworld3
 
+# Allows game files for 7 Days to Die
+mkdir ${HOME}/.local/share/7DaysToDie
+whitelist ${HOME}/.local/share/7DaysToDie
+
 # Allows game files for Paradox launcher
 mkdir ${HOME}/.paradoxlauncher
 mkdir ${HOME}/.local/share/Paradox Interactive
