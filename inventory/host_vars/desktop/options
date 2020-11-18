@@ -29,6 +29,7 @@ install_scream_enabled: true
 service_apache_enabled: true
 service_certbot_enabled: true
 service_ddclient_enabled: true
+service_mysql_enabled: true
 service_php_fpm_enabled: true
 
 
@@ -174,6 +175,7 @@ account_conky_enabled: true
 account_baidunetdisk_enabled: true
 account_firefox_enabled: true
 account_geeqie_enabled: true
+account_mysql_enabled: true
 account_server_enabled: true
 account_steam_enabled: true
 

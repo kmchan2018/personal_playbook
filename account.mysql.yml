@@ -1,0 +1,26 @@
+
+
+- hosts: "all"
+  become: true
+  become_user: "root"
+
+  tasks:
+
+    - name: "Applying MySQL Settings to Account"
+      when: "account_mysql_enabled|default(false)"
+      block:
+
+        - name: "Applying MySQL Settings to Account: Create Local Login"
+          shell: "mysql -e \"CREATE USER IF NOT EXISTS 'kmchan'@'localhost' IDENTIFIED WITH auth_socket;\""
+
+        - name: "Applying MySQL Settings to Account: Grant Privileges to Local Login"
+          shell: "mysql -e \"GRANT ALL ON kmchan.* TO 'kmchan'@'localhost';\""
+
+        - name: "Applying MySQL Settings to Account: Create Personal Database"
+          mysql_db:
+            name: "kmchan"
+            state: "present"
+            encoding: "utf8mb4"
+            collation: "utf8mb4_unicode_ci"
+
+

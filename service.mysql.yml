@@ -1,0 +1,46 @@
+
+
+- hosts: "all"
+  become: true
+  become_user: "root"
+
+  vars:
+
+    service_mysql_packages:
+      - { name: "mysql-server" }
+      - { name: "python-pymysql" }
+      - { name: "python-mysqldb" }
+      - { name: "python3-pymysql" }
+      - { name: "python3-mysqldb" }
+
+  tasks:
+
+    - name: "Setup MySQL Service"
+      when: "service_mysql_enabled|default(false)"
+      block:
+
+        - name: "Setup MySQL Service: Install MySQL Packages"
+          apt:
+            name: "{{ item.name }}"
+            state: "latest"
+            update_cache: true
+            cache_valid_time: 86400
+            default_release: "{{ item.release|default(ansible_distribution_release) }}"
+          loop: "{{ service_mysql_packages|select('distribution', distro, release, attribute='requires')|list }}"
+
+        - name: "Setup MySQL Service: Install Configuration Files"
+          template:
+            dest: "{{ item.path }}"
+            src: "files/{{ item.path }}.j2"
+            owner: "{{ item.owner|default('root') }}"
+            group: "{{ item.group|default('root') }}"
+            mode: "{{ item.group|default('0644') }}"
+          loop:
+            - { path: "/etc/mysql/mysql.conf.d/encoding.cnf" }
+
+        - name: "Setup MySQL Service: Enable Apache Daemon"
+          service:
+            name: "apache2.service"
+            enabled: true
+
+
