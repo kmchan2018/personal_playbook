@@ -40,7 +40,7 @@
 
         - name: "Setup MySQL Service: Enable MySQL Daemon"
           service:
-            name: "apache2.service"
+            name: "mysql.service"
             enabled: true
 
 
