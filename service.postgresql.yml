@@ -1,0 +1,51 @@
+
+
+- hosts: "all"
+  become: true
+  become_user: "root"
+
+  vars:
+
+    service_postgresql_versions:
+      - { version: "10", requires: { distribution: "ubuntu", since: "bionic", until: "bionic" } }
+
+    service_postgresql_packages:
+      - { name: "postgresql-10", requires: { distribution: "ubuntu", since: "bionic", until: "bionic"  } }
+      - { name: "python-psycopg2" }
+      - { name: "python3-psycopg2" }
+
+  tasks:
+
+    - name: "Setup PostgreSQL Service"
+      when: "service_postgresql_enabled|default(false)"
+      block:
+
+        - name: "Setup PostgreSQL Service: Install PostgreSQL Packages"
+          apt:
+            name: "{{ item.name }}"
+            state: "latest"
+            update_cache: true
+            cache_valid_time: 86400
+            default_release: "{{ item.release|default(ansible_distribution_release) }}"
+          loop: "{{ service_postgresql_packages|select('distribution', distro, release, attribute='requires')|list }}"
+
+        - name: "Setup PostgreSQL Service: Update PostgreSQL Authentication Configuration"
+          lineinfile:
+            path: "/etc/postgresql/{{ (service_postgresql_versions|select('distribution', distro, release, attribute='requires')|list|first).version }}/main/pg_hba.conf"
+            line: "local\\1all\\2postgres\\3peer map=local"
+            regexp: "^local(\\s+)all(\\s+)postgres(\\s+)peer.*$"
+            state: "present"
+            backrefs: "yes"
+
+        - name: "Setup PostgreSQL Service: Update PostgreSQL User Name Mapping"
+          lineinfile:
+            path: "/etc/postgresql/{{ (service_postgresql_versions|select('distribution', distro, release, attribute='requires')|list|first).version }}/main/pg_ident.conf"
+            line: "local           root                    postgres"
+            state: "present"
+
+        - name: "Setup PostgreSQL Service: Enable PostgreSQL Daemon"
+          service:
+            name: "postgresql.service"
+            enabled: true
+
+

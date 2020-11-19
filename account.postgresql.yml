@@ -1,0 +1,24 @@
+
+
+- hosts: "all"
+  become: true
+  become_user: "root"
+
+  tasks:
+
+    - name: "Applying PostgreSQL Settings to Account"
+      when: "account_postgresql_enabled|default(false)"
+      block:
+
+        - name: "Applying PostgreSQL Settings to Account: Create Local Login"
+          postgresql_user:
+            name: "kmchan"
+            state: "present"
+            role_attr_flags: "NOSUPERUSER,NOCREATEDB,NOCREATEROLE,NOBYPASSRLS"
+
+        - name: "Applying PostgreSQL Settings to Account: Create Personal Database"
+          postgresql_db:
+            name: "kmchan"
+            state: "present"
+            owner: "kmchan"
+

@@ -32,6 +32,7 @@ service_ddclient_enabled: true
 service_docker_enabled: true
 service_mysql_enabled: true
 service_php_fpm_enabled: true
+service_postgresql_enabled: true
 
 
 #
@@ -178,6 +179,7 @@ account_docker_enabled: true
 account_firefox_enabled: true
 account_geeqie_enabled: true
 account_mysql_enabled: true
+account_postgresql_enabled: true
 account_server_enabled: true
 account_steam_enabled: true
 

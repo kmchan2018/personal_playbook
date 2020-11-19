@@ -6,5 +6,6 @@
 - import_playbook: "service.docker.yml"
 - import_playbook: "service.mysql.yml"
 - import_playbook: "service.php_fpm.yml"
+- import_playbook: "service.postgresql.yml"
 
 
