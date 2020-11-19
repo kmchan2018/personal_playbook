@@ -38,7 +38,7 @@
           loop:
             - { path: "/etc/mysql/mysql.conf.d/encoding.cnf" }
 
-        - name: "Setup MySQL Service: Enable Apache Daemon"
+        - name: "Setup MySQL Service: Enable MySQL Daemon"
           service:
             name: "apache2.service"
             enabled: true
