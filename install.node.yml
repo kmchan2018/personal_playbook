@@ -6,21 +6,21 @@
 
   vars:
 
-    install_node_version: "12.18.2"
-    install_node_url: "https://nodejs.org/dist/v12.18.2/node-v12.18.2-linux-x64.tar.xz"
-    install_node_checksum: "sha256:b8dc634798ee783482c2ae1755bd7dff09d83fa7bb037cdc370b601d0a5e5cbb"
-    install_node_archive: "/usr/local/lib/node-12.18.2/node-v12.18.2.tar.xz"
-    install_node_directory: "/usr/local/lib/node-12.18.2"
+    install_node_version: "14.16.0"
+    install_node_url: "https://nodejs.org/dist/v14.16.0/node-v14.16.0-linux-x64.tar.xz"
+    install_node_checksum: "sha256:2e079cf638766fedd720d30ec8ffef5d6ceada4e8b441fc2a093cb9a865f4087"
+    install_node_archive: "/usr/local/lib/node-14.16.0/node-v14.16.0.tar.xz"
+    install_node_directory: "/usr/local/lib/node-14.16.0"
     install_node_binaries:
       - { name: node, target: node }
       - { name: nodejs, target: node }
       - { name: npm, target: npm }
 
-    install_yarn_version: "1.19.1"
-    install_yarn_url: "https://github.com/yarnpkg/yarn/releases/download/v1.19.1/yarn-v1.19.1.tar.gz"
-    install_yarn_checksum: "sha256:34293da6266f2aae9690d59c2d764056053ff7eebc56b80b8df05010c3da9343"
-    install_yarn_archive: "/usr/local/lib/yarn-1.19.1/yarn-v1.19.1.tar.gz"
-    install_yarn_directory: "/usr/local/lib/yarn-1.19.1"
+    install_yarn_version: "1.22.10"
+    install_yarn_url: "https://github.com/yarnpkg/yarn/releases/download/v1.22.10/yarn-v1.22.10.tar.gz"
+    install_yarn_checksum: "sha256:7e433d4a77e2c79e6a7ae4866782608a8e8bcad3ec6783580577c59538381a6e"
+    install_yarn_archive: "/usr/local/lib/yarn-1.22.10/yarn-v1.22.10.tar.gz"
+    install_yarn_directory: "/usr/local/lib/yarn-1.22.10"
     install_yarn_binaries:
       - { name: "yarn", target: "yarn" }
 
