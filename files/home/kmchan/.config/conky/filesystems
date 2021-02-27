@@ -17,7 +17,8 @@ if __name__ == '__main__':
 		name = str(properties1['HintName'])
 		system = bool(properties1['HintSystem'])
 		ignore = bool(properties1['HintIgnore'])
-		if usage == 'filesystem' and ignore == False:
+		options = str(properties1['UserspaceMountOptions'])
+		if usage == 'filesystem' and ignore == False and options.find('x-gdu.hide') == -1:
 			properties2 = block.GetAll('org.freedesktop.UDisks2.Filesystem', dbus_interface='org.freedesktop.DBus.Properties')
 			for mount in properties2['MountPoints']:
 				root = str(bytes(mount).strip(b'\x00'), 'utf-8')
