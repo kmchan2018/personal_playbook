@@ -31,6 +31,12 @@ php_release_repository:
     config_path: "/etc/php/7.2"
     fpm_service: "php7.2-fpm.service"
     requires: { distribution: "ubuntu", since: "bionic", until: "disco" }
+  - version: "7.4"
+    component_prefix: "php7.4"
+    extension_prefix: "php"
+    config_path: "/etc/php/7.4"
+    fpm_service: "php7.4-fpm.service"
+    requires: { distribution: "ubuntu", since: "eoan", until: "focal" }
 
 php_component_repository:
   - { name: "cli" }
@@ -44,7 +50,6 @@ php_component_repository:
   - { name: "pgsql" }
   - { name: "pspell" }
   - { name: "readline" }
-  - { name: "recode" }
   - { name: "tidy" }
   - { name: "xmlrpc" }
   - { name: "xsl" }
@@ -65,6 +70,7 @@ php_component_repository:
   - { name: "mbstring", requires: { distribution: "ubuntu", since: "xenial" } }
   - { name: "mcrypt", requires: { distribution: "ubuntu", until: "artful" } }
   - { name: "opcache", requires: { distribution: "ubuntu", since: "xenial" } }
+  - { name: "recode", requires: { distribution: "ubuntu", until: "eoan" } }
   - { name: "soap", requires: { distribution: "ubuntu", since: "xenial" } }
   - { name: "sqlite", requires: { distribution: "ubuntu", until: "wily" } }
   - { name: "sqlite3", requires: { distribution: "ubuntu", since: "xenial" } }
