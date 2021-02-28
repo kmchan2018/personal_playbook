@@ -9,24 +9,23 @@
 
   vars:
 
-    install_looking_glass_version: "B1"
-    install_looking_glass_url: "https://github.com/gnif/LookingGlass/archive/B1.tar.gz"
-    install_looking_glass_checksum: "sha256:fa9b3b380f451551c8b40b56a3e873607aa066e8333b7baacd0ed21a05bbb5c5"
-    install_looking_glass_archive: "/usr/local/lib/LookingGlass-B1/LookingGlass-B1.tar.gz"
-    install_looking_glass_directory: "/usr/local/lib/LookingGlass-B1"
+    install_looking_glass_version: "B3"
+    install_looking_glass_url: "https://github.com/gnif/LookingGlass/"
+    install_looking_glass_directory: "/usr/local/lib/LookingGlass-B3"
 
     install_looking_glass_dependencies:
       - { name: "binutils-dev" }
       - { name: "build-essential" }
       - { name: "cmake" }
+      - { name: "fonts-freefont-ttf" }
+      - { name: "libfontconfig1-dev" }
       - { name: "libsdl2-dev" }
       - { name: "libsdl2-ttf-dev" }
       - { name: "libssl-dev" }
       - { name: "libspice-protocol-dev" }
-      - { name: "libfontconfig1-dev" }
       - { name: "libx11-dev" }
-      - { name: "libconfig-dev" }
       - { name: "nettle-dev" }
+      - { name: "wayland-protocols" }
 
   tasks:
 
@@ -43,32 +42,18 @@
             default_release: "{{ item.release|default(ansible_distribution_release) }}"
           loop: "{{ install_looking_glass_dependencies|select('distribution', distro, release, attribute='requires')|list }}"
 
-        - name: "Install Looking Glass: Create Installation Directory"
-          file:
-            path: "{{ install_looking_glass_directory }}"
-            state: "directory"
-            owner: "root"
-            group: "root"
-            mode: "0755"
-
-        - name: "Install Looking Glass: Download Source"
-          get_url:
-            url: "{{ install_looking_glass_url }}"
-            dest: "{{ install_looking_glass_archive }}"
-            checksum: "{{ install_looking_glass_checksum }}"
-            owner: "root"
-            group: "root"
-            mode: "0644"
-
-        - name: "Install Looking Glass: Unpack Source"
-          shell: "tar --extract --no-same-owner --strip-components 1 --file {{ install_looking_glass_archive }}"
-          args:
-            chdir: "{{ install_looking_glass_directory }}"
-            creates: "{{ install_looking_glass_directory }}/README.md"
-            warn: false
+        - name: "Install Looking Glass: Clone Source Repository"
+          git:
+            dest: "{{ install_looking_glass_directory }}"
+            repo: "{{ install_looking_glass_url }}"
+            version: "{{ install_looking_glass_version }}"
+            clone: "yes"
+            update: "yes"
+            remote: "origin"
+            accept_hostkey: "yes"
 
         - name: "Install Looking Glass: Configure Source"
-          shell: "cmake ."
+          shell: "cmake -DENABLE_BACKTRACE=0 ."
           args:
             chdir: "{{ install_looking_glass_directory }}/client"
             creates: "{{ install_looking_glass_directory }}/client/Makefile"
