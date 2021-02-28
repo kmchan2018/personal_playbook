@@ -21,6 +21,7 @@ _version_map = {
 		"woody"      : "3.0",        "sarge"      : "3.1",        "etch"       : "4.0",
 		"lenny"      : "5.0",        "squeeze"    : "6.0",        "wheezy"     : "7.0",
 		"jessie"     : "8.0",        "stretch"    : "9.0",        "buster"     : "10.0",
+		"bullseye"   : "11.0",       "bookworm"   : "12.0",       "trixie"     : "13.0",
 	},
 
 	"ubuntu": {
@@ -34,7 +35,8 @@ _version_map = {
 		"vivid"      : "15.04",      "wily"       : "15.10",      "xenial"     : "16.04",
 		"yakkety"    : "16.10",      "zesty"      : "17.04",      "artful"     : "17.10",
 		"bionic"     : "18.04",      "cosmic"     : "18.10",      "disco"      : "19.04",
-		"eoan"       : "19.10",
+		"eoan"       : "19.10",      "focal"      : "20.04",      "groovy"     : "20.10",
+		"hirsute"    : "21.04",
 	},
 }
 
