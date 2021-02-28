@@ -2,14 +2,14 @@
 
 
 <Directory /var/www/test.kmchan3.space/html>
-	Options None
-	AllowOverride None
+	Options SymLinksIfOwnerMatch
+	AllowOverride All
 	Require all granted
 </Directory>
 
 <Directory /var/www/test.kmchan3.space/scripts>
-	Options None
-	AllowOverride None
+	Options SymLinksIfOwnerMatch
+	AllowOverride All
 	Require all denied
 </Directory>
 
