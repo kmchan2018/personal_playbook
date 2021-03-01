@@ -111,6 +111,8 @@ guest_networks:
       parameters:
         stp: false
         forward-delay: 0
+      dhcp4-overrides:
+        route-metric: 999
 
 guest_disks:
   - name: windows-root
