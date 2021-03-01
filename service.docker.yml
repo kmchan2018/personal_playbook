@@ -24,6 +24,14 @@
             default_release: "{{ item.release|default(ansible_distribution_release) }}"
           loop: "{{ service_docker_packages|select('distribution', distro, release, attribute='requires')|list }}"
 
+        - name: "Setup Docker Service: Hide Docker network interface from Network Manager"
+          copy:
+            dest: "/etc/NetworkManager/conf.d/docker.conf"
+            src: "{{ playbook_dir }}/files/etc/NetworkManager/conf.d/docker.conf"
+            owner: "root"
+            group: "root"
+            mode: "0644"
+
         - name: "Setup Docker Service: Enable Docker Daemon"
           service:
             name: "docker.service"
