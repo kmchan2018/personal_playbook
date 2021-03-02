@@ -1,10 +1,10 @@
 
 
 - import_playbook: "hardware.blockdev.yml"
-- import_playbook: "hardware.kms.yml"
 - import_playbook: "hardware.kvm.yml"
 - import_playbook: "hardware.sensor.yml"
 - import_playbook: "hardware.usb.yml"
 - import_playbook: "hardware.vfio.yml"
+- import_playbook: "hardware.video.yml"
 
 

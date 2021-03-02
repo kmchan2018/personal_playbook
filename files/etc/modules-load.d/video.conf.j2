@@ -1,0 +1,11 @@
+
+#
+# KMS support
+#
+
+{% for key, device in hardware_video.items() %}
+{% if device['type'] == 'primary' %}
+{{ device["module"] }}
+{% endif %}
+{% endfor %}
+

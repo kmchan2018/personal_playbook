@@ -1,0 +1,27 @@
+
+#
+# The file stops Xorg from scanning and using all video cards on the
+# system. It prevents cards that are configured for passthrough from
+# being locked up by X server.
+#
+# Furthermore, since video cards is no longer automatically scanned,
+# we need to configure them manually.
+#
+
+Section "ServerFlags"
+  Option "AutoAddGPU" "false"
+EndSection
+
+{% for key, device in hardware_video.items() %}
+{% if device['type'] == 'primary' %}
+Section "Device"
+  Identifier "{{ device['name'] }}"
+  BusID "PCI:{{ device['address'][0]|pciaddr('xorg') }}"
+  Driver "{{ device['driver'] }}"
+{% if device['driver'] == 'intel' or device['driver'] == 'amdgpu' %}
+  Option "DRI" "3"
+{% endif %}
+EndSection
+{% endif %}
+{% endfor %}
+

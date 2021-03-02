@@ -55,13 +55,6 @@ hardware_blockdev_names:
 
 
 #
-# Kernel Mode Setting Configuration
-#
-
-hardware_kms_module: "amdgpu"
-
-
-#
 # Kernel-Based Virtual Machine Configuration
 #
 
@@ -89,9 +82,30 @@ hardware_usb_autosuspend: -1
 # Virtual Function IO Configuration
 #
 
-hardware_vfio_pci_stub:
-  - "10de:1c82"
-  - "10de:0fb9"
+hardware_vfio_pci_stub: []
+
+
+#
+# Video Card Configuration
+#
+
+hardware_video:
+  primary:
+    type: primary
+    name: AMD Radeon Pro WX2100
+    module: amdgpu
+    driver: amdgpu
+    address:
+      - { vendor: "1002", model: "6995", bus: "22", device: "00", function: "0" }
+      - { vendor: "1002", model: "aae0", bus: "22", device: "00", function: "1" }
+  passthru:
+    type: passthrough
+    name: Nvidia GeForce GTX 1050 Ti
+    module: nvidia
+    driver: nvidia
+    address:
+      - { vendor: "10de", model: "1c82", bus: "23", device: "00", function: "0" }
+      - { vendor: "10de", model: "0fb9", bus: "23", device: "00", function: "1" }
 
 
 #
