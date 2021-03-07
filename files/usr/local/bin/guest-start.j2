@@ -1,10 +1,5 @@
-{%- extends 'files/guest.instances.inc.j2' -%}{%- block body -%}
 #!/bin/bash
 
-if [[ $EUID -eq 0 ]]; then
-  exec systemctl start {{ name }}.service
-else
-  exec sudo /usr/local/bin/{{ name }}-start "$@"
-fi
+source "/usr/local/lib/guest/{{ item[0].name }}"
+start
 
-{% endblock %}

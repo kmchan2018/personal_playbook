@@ -1,10 +1,5 @@
-{%- extends 'files/guest.instances.inc.j2' -%}{%- block body -%}
 #!/bin/bash
 
-{% for network in networks %}
-ip link set "{{ network.device }}" nomaster
-ip link set "{{ network.device }}" down
-ip tuntap del "{{ network.device }}" mode tap
+source "/usr/local/lib/guest/{{ item[0].name }}"
+cleanup
 
-{% endfor %}
-{% endblock %}

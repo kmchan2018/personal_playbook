@@ -1,10 +1,5 @@
-{%- extends 'files/guest.instances.inc.j2' -%}{%- block body -%}
 #!/bin/bash
 
-if [[ $# -lt 2 ]]; then
-  echo "info block" | socat - "UNIX-CONNECT:{{ monitor_socket }}"
-else
-  echo "change $1 $2" | socat - "UNIX-CONNECT:{{ monitor_socket }}"
-fi
+source "/usr/local/lib/guest/{{ item[0].name }}"
+insert_cdrom "$@"
 
-{% endblock %}

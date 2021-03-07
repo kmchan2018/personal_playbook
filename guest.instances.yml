@@ -30,6 +30,7 @@
       - { path: "/usr/local/sbin/guest-daemon", mode: "0755" }
       - { path: "/usr/local/sbin/guest-initialize", mode: "0755" }
       - { path: "/usr/local/sbin/guest-finalize", mode: "0755" }
+      - { path: "/usr/local/lib/guest/functions", mode: "0644", placeholder: "functions" }
       - { path: "/var/lib/guest/name/.asoundrc", mode: "0644", placeholder: "name" }
 
   tasks:
@@ -62,6 +63,14 @@
       with_subelements:
         - "{{ guest_instances|default([]) }}"
         - "admins"
+
+    - name: "Create Guest Instances: Create Necessary Directories"
+      file:
+        dest: "/usr/local/lib/guest"
+        state: "directory"
+        owner: "kmchan"
+        group: "kmchan"
+        mode: "0755"
 
     - name: "Create Guest Instances: Install BIOS File"
       copy:
