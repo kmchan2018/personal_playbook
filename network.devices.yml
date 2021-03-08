@@ -6,13 +6,13 @@
 
   tasks:
 
-    - name: "Creating Guest Networks: Install Netplan Configuration"
+    - name: "Configuring Network Devices: Install Netplan Configuration"
       template:
-        dest: "/etc/netplan/99-guest.yaml"
-        src: "files/etc/netplan/99-guest.yaml.j2"
+        dest: "/etc/netplan/99-network-devices.yaml"
+        src: "files/etc/netplan/99-network-devices.yaml.j2"
         owner: "root"
         group: "root"
-        mode: "0600"
+        mode: "0644"
       notify:
         - "Reload Netplan Service"
 

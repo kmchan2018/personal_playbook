@@ -1,0 +1,24 @@
+
+
+- hosts: "all"
+  become: true
+  become_user: "root"
+
+  tasks:
+
+    - name: "Configuring Network Interfaces: Setup Kernel Parameters"
+      template:
+        dest: "/etc/sysctl.d/99-network-options.conf"
+        src: "files/etc/sysctl.d/99-network-options.conf.j2"
+        owner: "root"
+        group: "root"
+        mode: "0644"
+      notify:
+        - "Reload Kernel Parameters"
+
+  handlers:
+
+    - name: "Reload Kernel Parameters"
+      command: "sysctl -p /etc/sysctl.d/99-network-options.conf"
+
+

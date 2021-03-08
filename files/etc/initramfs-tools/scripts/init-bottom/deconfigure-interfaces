@@ -1,0 +1,11 @@
+#!/bin/sh
+
+case ${1} in
+	prereqs)
+	echo ""
+	exit 0
+	;;
+esac
+
+rm -f /run/netplan/*.yaml
+

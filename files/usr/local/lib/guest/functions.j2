@@ -46,17 +46,15 @@
 	{%- endif -%}
 {%- endif -%}
 
-{%- if guest_networks is defined and guest_networks.bridges is defined -%}
-	{%- if item[0].networks is defined -%}
-		{%- for key, bridge in guest_networks.bridges.items()|list if key in item[0].networks -%}
-			{%- set device = key ~ '-' ~ name -%}
-			{%- set master = key -%}
-			{%- set temp_networks.items = temp_networks.items + [ dict(index=temp_networks.index, bus=temp_buses.index, device=device, master=master) ] -%}
-			{%- set temp_networks.index = temp_networks.index + 1 -%}
-			{%- set temp_buses.items = temp_buses.items + [ dict(index=temp_buses.index) ] -%}
-			{%- set temp_buses.index = temp_buses.index + 1 -%}
-		{%- endfor -%}
-	{%- endif -%}
+{%- if item[0].networks is defined -%}
+	{%- for key in item[0].networks -%}
+		{%- set device = key ~ '-' ~ name -%}
+		{%- set master = key -%}
+		{%- set temp_networks.items = temp_networks.items + [ dict(index=temp_networks.index, bus=temp_buses.index, device=device, master=master) ] -%}
+		{%- set temp_networks.index = temp_networks.index + 1 -%}
+		{%- set temp_buses.items = temp_buses.items + [ dict(index=temp_buses.index) ] -%}
+		{%- set temp_buses.index = temp_buses.index + 1 -%}
+	{%- endfor -%}
 {%- endif -%}
 
 {%- if guest_passthroughs is defined -%}

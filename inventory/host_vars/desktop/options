@@ -112,22 +112,6 @@ hardware_video:
 # Guest Configuration
 #
 
-guest_networks:
-  ethernets:
-    port:
-      renderer: networkd
-      match: { macaddress: "70:85:c2:40:50:60" }
-  bridges:
-    bridge:
-      renderer: networkd
-      interfaces: [ "port" ]
-      dhcp4: true
-      parameters:
-        stp: false
-        forward-delay: 0
-      dhcp4-overrides:
-        route-metric: 999
-
 guest_disks:
   - name: windows-root
     type: "lvm"
@@ -165,6 +149,35 @@ guest_instances:
     disks: [ "windows-root", "windows-data" ]
     networks: [ "bridge" ]
     passthroughs: [ "graphics" ]
+
+
+#
+# Network Configuration
+#
+
+network_devices:
+  ethernets:
+    port:
+      renderer: networkd
+      match: { macaddress: "70:85:c2:40:50:60" }
+  bridges:
+    bridge:
+      renderer: networkd
+      interfaces: [ "port" ]
+      dhcp4: true
+      parameters:
+        stp: false
+        forward-delay: 0
+      dhcp4-overrides:
+        route-metric: 999
+
+network_initramfs_modules: []
+network_initramfs_reset_netplan: true
+
+network_options:
+    net.bridge.bridge-nf-call-ip6tables: 0
+    net.bridge.bridge-nf-call-iptables: 0
+    net.bridge.bridge-nf-call-arptables: 0
 
 
 #
