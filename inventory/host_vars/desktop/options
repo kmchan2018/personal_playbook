@@ -175,6 +175,9 @@ network_devices:
 network_initramfs_modules: []
 network_initramfs_reset_netplan: true
 
+network_modules:
+  - "br_netfilter"
+
 network_options:
     net.bridge.bridge-nf-call-ip6tables: 0
     net.bridge.bridge-nf-call-iptables: 0

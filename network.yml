@@ -2,6 +2,7 @@
 
 - import_playbook: "network.devices.yml"
 - import_playbook: "network.initramfs.yml"
+- import_playbook: "network.modules.yml"
 - import_playbook: "network.options.yml"
 
 
