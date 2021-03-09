@@ -1,6 +1,9 @@
 
 [Unit]
 Description=Lanuch hypervisor daemon for {{ item[0].name }} guest virtual machine
+{% for passthrough in item[0].passthroughs %}
+AssertPathExists=!/run/vfio-{{ passthrough }}.lock
+{% endfor %}
 
 [Service]
 Type=simple

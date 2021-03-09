@@ -64,6 +64,23 @@ hardware_kvm_amd_npt: true
 
 
 #
+# PCI/PCIe Device Configuration
+#
+
+hardware_pci_devices:
+  video:
+    name: AMD Radeon Pro WX2100
+    addresses:
+      - { vendor: "1002", model: "6995", bus: "22", device: "00", function: "0" }
+      - { vendor: "1002", model: "aae0", bus: "22", device: "00", function: "1" }
+  shared-video:
+    name: Nvidia GeForce GTX 1050 Ti
+    addresses:
+      - { vendor: "10de", model: "1c82", bus: "23", device: "00", function: "0" }
+      - { vendor: "10de", model: "0fb9", bus: "23", device: "00", function: "1" }
+
+
+#
 # Sensor Configuration
 #
 
@@ -82,30 +99,20 @@ hardware_usb_autosuspend: -1
 # Virtual Function IO Configuration
 #
 
-hardware_vfio_pci_stub: []
+hardware_vfio_devices:
+  shared-video:
+    device: shared-video
 
 
 #
 # Video Card Configuration
 #
 
-hardware_video:
-  primary:
-    type: primary
-    name: AMD Radeon Pro WX2100
-    module: amdgpu
-    driver: amdgpu
-    address:
-      - { vendor: "1002", model: "6995", bus: "22", device: "00", function: "0" }
-      - { vendor: "1002", model: "aae0", bus: "22", device: "00", function: "1" }
-  passthru:
-    type: passthrough
-    name: Nvidia GeForce GTX 1050 Ti
-    module: nvidia
-    driver: nvidia
-    address:
-      - { vendor: "10de", model: "1c82", bus: "23", device: "00", function: "0" }
-      - { vendor: "10de", model: "0fb9", bus: "23", device: "00", function: "1" }
+hardware_video_device: video
+hardware_video_kms_start: early
+hardware_video_kms_module: amdgpu
+hardware_video_x11_autodetect: false
+hardware_video_x11_driver: amdgpu
 
 
 #
@@ -124,12 +131,6 @@ guest_disks:
     logical_volume: "Windows"
     account: "windows-disk"
 
-guest_passthroughs:
-  - name: graphics
-    tree:
-      - - { address: "10de:1c82", options: "x-vga=on", memory: 4 }
-        - { address: "10de:0fb9" }
-    
 guest_instances:
   - name: "windows"
     title: "Windows"
@@ -148,7 +149,7 @@ guest_instances:
     scream: true
     disks: [ "windows-root", "windows-data" ]
     networks: [ "bridge" ]
-    passthroughs: [ "graphics" ]
+    passthroughs: [ "shared-video" ]
 
 
 #

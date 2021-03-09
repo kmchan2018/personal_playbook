@@ -17,10 +17,9 @@
     - name: "Configuring Video Cards: Include Framebuffer Modules for Primary Cards in Initial RAM Disk"
       lineinfile:
         dest: "/etc/initramfs-tools/modules"
-        regexp: '^\s*#?\s*{{ item.value["module"] }}.*$'
-        line: '{{ item.value["module"] }}'
-      when: "item.value['type'] == 'primary'"
-      with_dict: "{{ hardware_video }}"
+        regexp: '^\s*#?\s*{{ hardware_video_kms_module }}.*$'
+        line: '{{ hardware_video_kms_module }}'
+      when: "hardware_video_kms_start|default('late') == 'early' and hardware_video_kms_module|default('') != ''"
       notify: "Update Initial RAM Disk"
 
     - name: "Configuring Video Cards: Initialize Kernel Command Line"
@@ -29,6 +28,7 @@
         regexp: '^\s*#\s*GRUB_CMDLINE_LINUX_DEFAULT=(?:"?\s*(.*?)\s*"?)?\s*$'
         line: 'GRUB_CMDLINE_LINUX_DEFAULT="\1"'
         backrefs: "yes"
+      when: "hardware_video_kms_start|default('late') == 'early' and hardware_video_kms_module|default('') != ''"
       notify: "Update GRUB Boot Loader"
 
     - name: "Configuring Video Cards: Disable EFI/VESA Framebuffer in Kernel Command Line"
@@ -39,6 +39,7 @@
         target: 'option'
         option: 'video'
         value: 'vesafb:off,efifb:off'
+      when: "hardware_video_kms_start|default('late') == 'early' and hardware_video_kms_module|default('') != ''"
       notify: "Update GRUB Boot Loader"
 
     - name: "Configuring Video Cards: Enable Primary Cards in X.org"
@@ -48,26 +49,6 @@
         owner: "root"
         group: "root"
         mode: "0644"
-
-    - name: "Configuring Video Cards: Generate Bind Script for Each Passthrough Card"
-      template:
-        dest: "/usr/local/sbin/vfio-bind-video-{{ item.key }}"
-        src: "{{ playbook_dir }}/files/usr/local/sbin/vfio-bind-video.j2"
-        owner: "root"
-        group: "root"
-        mode: "0755"
-      when: "item.value['type'] == 'passthrough'"
-      with_dict: "{{ hardware_video }}"
-
-    - name: "Configuring Video Cards: Generate Unbind Script for Each Passthrough Card"
-      template:
-        dest: "/usr/local/sbin/vfio-unbind-video-{{ item.key }}"
-        src: "{{ playbook_dir }}/files/usr/local/sbin/vfio-unbind-video.j2"
-        owner: "root"
-        group: "root"
-        mode: "0755"
-      when: "item.value['type'] == 'passthrough'"
-      with_dict: "{{ hardware_video }}"
 
   handlers:
 

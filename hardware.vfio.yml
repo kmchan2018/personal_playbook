@@ -31,16 +31,6 @@
         group: "root"
         mode: "0644"
 
-    - name: "Configuring Virtual Function IO: Update Kernel Mdoule Parameters"
-      template:
-        dest: "/etc/modprobe.d/vfio.conf"
-        src: "{{ playbook_dir }}/files/etc/modprobe.d/vfio.conf.j2"
-        owner: "root"
-        group: "root"
-        mode: "0644"
-      notify:
-        - "Update Initial RAM Disk"
-
     - name: "Configuring Virtual Function IO: Update Initial RAM Disk"
       lineinfile:
         dest: "/etc/initramfs-tools/modules"
@@ -91,27 +81,34 @@
       notify:
         - "Update GRUB Boot Loader"
 
-    - name: "Configuring Virtual Function IO: Configure Target Devices in Kernel Command Line"
-      kernel_options_in_file:
-        dest: "/etc/default/grub"
-        region: '^GRUB_CMDLINE_LINUX_DEFAULT="(.*)"$'
-        state: '{{ "present" if hardware_vfio_pci_stub|default([])|length > 0 else "absent" }}'
-        target: 'option'
-        option: 'vfio_pci.ids'
-        value: '{{ hardware_vfio_pci_stub|default([])|join(",") }}'
-      notify:
-        - "Update GRUB Boot Loader"
-
     - name: "Configuring Virtual Function IO: Configure ACS Override in Kernel Command Line"
       kernel_options_in_file:
         dest: "/etc/default/grub"
         region: '^GRUB_CMDLINE_LINUX_DEFAULT="(.*)"$'
-        state: '{{ "present" if hardware_vfio_pcie_acs_override|default("") != "" else "absent" }}'
+        state: '{{ "present" if hardware_vfio_acs_override|default("") != "" else "absent" }}'
         target: 'option'
         option: 'pcie_acs_override'
-        value: '{{ hardware_vfio_pcie_acs_override|default("") }}'
+        value: '{{ hardware_vfio_acs_override|default("") }}'
       notify:
         - "Update GRUB Boot Loader"
+
+    - name: "Configuring Virtual Function IO: Generate Bind Script for Each Device"
+      template:
+        dest: "/usr/local/sbin/vfio-bind-{{ item.key }}"
+        src: "{{ playbook_dir }}/files/usr/local/sbin/vfio-bind-device.j2"
+        owner: "root"
+        group: "root"
+        mode: "0755"
+      loop: "{{ hardware_vfio_devices|dict2items }}"
+
+    - name: "Configuring Virtual Function IO: Generate Unbind Script for Each Device"
+      template:
+        dest: "/usr/local/sbin/vfio-unbind-{{ item.key }}"
+        src: "{{ playbook_dir }}/files/usr/local/sbin/vfio-unbind-device.j2"
+        owner: "root"
+        group: "root"
+        mode: "0755"
+      loop: "{{ hardware_vfio_devices|dict2items }}"
 
   handlers:
 

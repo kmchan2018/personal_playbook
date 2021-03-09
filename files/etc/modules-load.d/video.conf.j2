@@ -3,9 +3,7 @@
 # KMS support
 #
 
-{% for key, device in hardware_video.items() %}
-{% if device['type'] == 'primary' %}
-{{ device["module"] }}
-{% endif %}
-{% endfor %}
+{% if hardware_video_kms_module|default('') != '' -%}
+{{ hardware_video_kms_module }}
+{%- endif %}
 

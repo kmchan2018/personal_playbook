@@ -19,6 +19,7 @@
 {%- set temp_cards = namespace(items=[], index=0) -%}
 {%- set temp_disks = namespace(items=[], index=0) -%}
 {%- set temp_networks = namespace(items=[], index=1) -%}
+{%- set temp_scripts = namespace(prepare=[], cleanup=[]) -%}
 
 {%- if guest_disks is defined -%}
 	{%- if item[0].disks is defined -%}
@@ -57,6 +58,20 @@
 	{%- endfor -%}
 {%- endif -%}
 
+{%- if hardware_pci_devices is defined and hardware_vfio_devices is defined and item[0].passthroughs is defined -%}
+	{%- for device in item[0].passthroughs if device in hardware_vfio_devices and hardware_vfio_devices[device].device in hardware_pci_devices -%}
+		{%- for address in hardware_pci_devices[hardware_vfio_devices[device].device].addresses -%}
+			{%- set temp_cards.items = temp_cards.items + [ dict(index=temp_cards.index, bus=temp_buses.index, address=address, options='') ] -%}
+			{%- set temp_cards.index = temp_cards.index + 1 -%}
+		{%- endfor -%}
+		{%- set temp_scripts.prepare = temp_scripts.prepare + [ '/usr/local/sbin/vfio-bind-' + device ] -%}
+		{%- set temp_scripts.cleanup = temp_scripts.cleanup + [ '/usr/local/sbin/vfio-unbind-' + device ] -%}
+		{%- set temp_buses.items = temp_buses.items + [ dict(index=temp_buses.index) ] -%}
+		{%- set temp_buses.index = temp_buses.index + 1 -%}
+	{%- endfor -%}
+{%- endif -%}
+
+{#
 {%- if guest_passthroughs is defined -%}
 	{%- if item[0].passthroughs is defined -%}
 		{%- for passthrough in guest_passthroughs if passthrough.name in item[0].passthroughs -%}
@@ -73,6 +88,7 @@
 		{%- endfor -%}
 	{%- endif -%}
 {%- endif -%}
+#}
 
 {%- set processor_socket = item[0].processor_socket|default(1) -%}
 {%- set processor_core = item[0].processor_core|default(4) -%}
@@ -105,6 +121,9 @@
 {%- set cards = temp_cards.items -%}
 {%- set disks = temp_disks.items -%}
 {%- set networks = temp_networks.items -%}
+
+{%- set prepare_scripts = temp_scripts.prepare -%}
+{%- set cleanup_scripts = temp_scripts.cleanup -%}
 
 
 if [[ -f "{{ config_file }}" ]] ; then
@@ -277,6 +296,12 @@ prepare() {
 	ip link set "{{ network.device }}" up
 	ip link set "{{ network.device }}" master "{{ network.master }}"
 {% endfor %}
+{% if prepare_scripts|length > 0 %}
+
+{% for script in prepare_scripts %}
+  {{ script }}
+{% endfor %}
+{% endif %}
 }
 
 
@@ -296,6 +321,12 @@ cleanup() {
 	elif [[ ! -f "{{ bios_file }}" ]]; then
 		install -o "{{ account }}" -g "{{ account }}" -m 0644 /usr/share/OVMF/OVMF_VARS.fd "{{ bios_file }}"
 	fi
+{% if cleanup_scripts|length > 0 %}
+
+{% for script in cleanup_scripts %}
+  {{ script }}
+{% endfor %}
+{% endif %}
 {% for network in networks %}
 
 	ip link set "{{ network.device }}" nomaster
@@ -312,9 +343,6 @@ cleanup() {
 
 run() {
 	VGA="{{ video_hardware }}"
-{% for card in cards %}
-	CARD{{ card.index }}=$(lspci -n | grep "{{ card.address }}" | cut -d ' ' -f 1 | head)
-{% endfor %}
 
 	if [[ "x$BOOTSTRAP" != "x" ]]; then
 		VGA="qxl"
@@ -383,7 +411,7 @@ run() {
 	  -device "virtio-net-pci,id=nic.{{ network.index }},bus=pcie.{{ network.bus }},netdev=network.{{ network.index }}" \
 {% endfor %}
 {% for card in cards %}
-	  -device "vfio-pci,id=card.{{ card.index }},bus=pcie.{{ card.bus }},host=$CARD{{ card.index }}{{ card.options }}" \
+	  -device "vfio-pci,id=card.{{ card.index }},bus=pcie.{{ card.bus }},host={{ card.address|pciaddr('pciutils') }}" \
 {% endfor %}
 	  -device "ide-cd,id=drive.cd.0,bus=ide.0,unit=0,drive=cd.0,bootindex=0" \
 	  -device "ide-cd,id=drive.cd.1,bus=ide.1,unit=0,drive=cd.1,bootindex=1" \

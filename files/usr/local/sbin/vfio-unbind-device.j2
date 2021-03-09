@@ -1,0 +1,21 @@
+#!/bin/bash
+
+#
+# The file unbinds {{ hardware_pci_devices[item.value.device].name }} from vfio-pci module
+# so that it can be used on the host.
+#
+
+if [[ -f "/run/vfio-{{ item.key }}.lock" ]]; then
+{% for address in hardware_pci_devices[item.value.device].addresses %}
+  echo 1 > /sys/bus/pci/devices/{{ address|pciaddr('pciutils') }}/remove
+{% endfor %}
+
+  sleep 1
+  echo 1 > /sys/bus/pci/rescan
+
+  rm -f "/run/vfio-{{ item.key }}.lock"
+{% for cmd in item.value.after|default([]) %}
+  {{ cmd }}
+{% endfor %}
+fi
+
