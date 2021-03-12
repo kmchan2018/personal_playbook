@@ -165,6 +165,7 @@ network_devices:
     bridge:
       renderer: networkd
       interfaces: [ "port" ]
+      macaddress: "70:85:c2:40:50:60"
       dhcp4: true
       parameters:
         stp: false
