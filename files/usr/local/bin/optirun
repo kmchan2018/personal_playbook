@@ -1,0 +1,13 @@
+#!/bin/bash
+
+export ENABLE_PRIMUS_LAYER=1
+
+if [[ -f /usr/bin/optirun.distrib ]]; then
+	exec /usr/bin/optirun.distrib "$@"
+elif [[ -f /usr/bin/optirun ]]; then
+	exec /usr/bin/optirun "$@"
+else
+  # Report command not found
+	exit 127
+fi
+

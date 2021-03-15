@@ -1,6 +1,13 @@
 
 [Unit]
 Description=Lanuch hypervisor daemon for {{ item[0].name }} guest virtual machine
+{% if service_bumblebee_enabled|default(false) %}
+{% for passthrough in item[0].passthroughs %}
+{% if hardware_vfio_devices[passthrough].device == service_bumblebee_device %}
+After=bumblebeed.service
+{% endif %}
+{% endfor %}
+{% endif %}
 {% for passthrough in item[0].passthroughs %}
 AssertPathExists=!/run/vfio-{{ passthrough }}.lock
 {% endfor %}

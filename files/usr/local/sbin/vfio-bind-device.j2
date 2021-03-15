@@ -6,6 +6,9 @@
 #
 
 if [[ ! -f "/run/vfio-{{ item.key }}.lock" ]]; then
+{% if service_bumblebee_enabled|default(false) and service_bumblebee_device == item.value.device %}
+  systemctl stop bumblebeed.service
+{% endif %}
 {% for cmd in item.value.before|default([]) %}
   {{ cmd }}
 {% endfor %}

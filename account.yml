@@ -1,5 +1,6 @@
 
 
+- import_playbook: "account.bumblebee.yml"
 - import_playbook: "account.config.yml"
 - import_playbook: "account.common.yml"
 - import_playbook: "account.docker.yml"

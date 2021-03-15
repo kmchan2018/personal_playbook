@@ -1,0 +1,8 @@
+
+[Unit]
+After=bumblebeed.service
+
+[Service]
+ExecStart=/lib/systemd/systemd-socket-proxyd /var/run/bumblebee.socket
+PrivateTmp=yes
+
