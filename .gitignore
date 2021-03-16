@@ -1,6 +1,9 @@
+debug.yml
 facts/*
 inventory/host_vars/*/local
 inventory/host_vars/*/ssh
 secrets/*
 !secrets/.keep
+temp/*
+!temp/.keep
 *.pyc
