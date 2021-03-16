@@ -2,12 +2,7 @@
 Encoding=UTF-8                                                                                                                                      
 Version=1.0
 Type=Application
-{% if account_firefox_jail_x11|default(false) -%}
-Exec=bash -c "exec firejail --profile=/home/kmchan/.config/firejail/firefox-private.profile --x11 --env=LD_PRELOAD=/home/kmchan/Software/firejail/fcitx/patch.so --env=FCITX_DISPLAY=$DISPLAY firefox -P Private --new-instance"
-{% else -%}
-Exec=fcitx-proxy-launch firejail --profile=/home/kmchan/.config/firejail/firefox-private.profile firefox -P Private --new-instance
-{% endif -%}
-
+Exec=firejail --profile=/home/kmchan/.config/firejail/firefox-private.profile firefox -P Private --new-instance
 Terminal=false
 Name=Mozilla Firefox (Private Profile)
 Icon=firefox
