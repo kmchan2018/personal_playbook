@@ -10,6 +10,13 @@
       - { name: "apache2" }
       - { name: "apache2-dev" }
 
+    service_apache_proxy_protocol_rules:
+      - { name: "mod_proxy_protocol", directive: "ProxyProtocol",         requires: { distribution: "debian", until: "stretch" } }
+      - { name: "mod_proxy_protocol", directive: "ProxyProtocol",         requires: { distribution: "ubuntu", until: "bionic" } }
+      - { name: "mod_remoteip",       directive: "RemoteIPProxyProtocol", requires: { distribution: "debian", since: "buster" } }
+      - { name: "mod_remoteip",       directive: "RemoteIPProxyProtocol", requires: { distribution: "ubuntu", since: "cosmic" } }
+      - { name: "mod_remoteip" }
+
     service_apache_mod_proxy_protocol_version: "78cd88c2e9fb7b1226ec524830fa1624f73b77b7"
     service_apache_mod_proxy_protocol_url: "https://github.com/roadrunner2/mod-proxy-protocol.git"
     service_apache_mod_proxy_protocol_directory: "/usr/local/lib/mod_proxy_protocol"
@@ -38,6 +45,7 @@
             update: "yes"
             remote: "origin"
             accept_hostkey: "yes"
+          when: "(service_apache_proxy_protocol_rules|select('distribution', distro, release, attribute='requires')|first)['name'] == 'mod_proxy_protocol'"
 
         - name: "Setup Apache Service: Compile Proxy Protocol Module Source"
           shell: "make"
@@ -45,6 +53,7 @@
             chdir: "{{ service_apache_mod_proxy_protocol_directory }}"
             creates: "{{ service_apache_mod_proxy_protocol_directory }}/.libs/mod_proxy_protocol.so"
             warn: false
+          when: "(service_apache_proxy_protocol_rules|select('distribution', distro, release, attribute='requires')|first)['name'] == 'mod_proxy_protcool'"
 
         - name: "Setup Apache Service: Install Configuration Files"
           template:
@@ -54,6 +63,8 @@
             group: "{{ item.group|default('root') }}"
             mode: "{{ item.group|default('0644') }}"
           loop:
+            - { path: "/etc/apache2/proxy.on.inc" }
+            - { path: "/etc/apache2/proxy.off.inc" }
             - { path: "/etc/apache2/conf-available/local_alt_port.conf" }
             - { path: "/etc/apache2/conf-available/local_hide_info.conf" }
             - { path: "/etc/apache2/conf-available/local_hide_vcs.conf" }

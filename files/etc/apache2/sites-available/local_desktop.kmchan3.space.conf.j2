@@ -3,20 +3,20 @@
 
 <VirtualHost _default_:{{ service_apache_http_port|default(80) }}>
 	ServerName desktop.kmchan3.space
-	ProxyProtocol Off
+	Include /etc/apache2/proxy.off.inc
 </VirtualHost>
 {% if service_apache_http_proxy_port|default(8080) != false %}
 
 <VirtualHost _default_:{{ service_apache_http_proxy_port|default(8080) }}>
 	ServerName desktop.kmchan3.space
-	ProxyProtocol On
+	Include /etc/apache2/proxy.on.inc
 </VirtualHost>
 {% endif -%}
 {% if service_apache_https_port|default(443) != false %}
 
 <VirtualHost _default_:{{ service_apache_https_port|default(443) }}>
 	ServerName desktop.kmchan3.space
-	ProxyProtocol Off
+	Include /etc/apache2/proxy.off.inc
 	SSLEngine On
 	SSLCertificateFile /etc/letsencrypt/live/desktop.kmchan3.space/fullchain.pem
 	SSLCertificateKeyFile /etc/letsencrypt/live/desktop.kmchan3.space/privkey.pem
@@ -26,7 +26,7 @@
 
 <VirtualHost _default_:{{ service_apache_https_proxy_port|default(8443) }}>
 	ServerName desktop.kmchan3.space
-	ProxyProtocol On
+	Include /etc/apache2/proxy.on.inc
 	SSLEngine On
 	SSLCertificateFile /etc/letsencrypt/live/desktop.kmchan3.space/fullchain.pem
 	SSLCertificateKeyFile /etc/letsencrypt/live/desktop.kmchan3.space/privkey.pem

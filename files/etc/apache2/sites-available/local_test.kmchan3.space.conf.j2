@@ -18,7 +18,7 @@
 	DocumentRoot "/var/www/test.kmchan3.space/html"
 	ErrorLog ${APACHE_LOG_DIR}/test.kmchan3.space_error.log
 	CustomLog ${APACHE_LOG_DIR}/test.kmchan3.space_access.log combined
-	ProxyProtocol Off
+	Include /etc/apache2/proxy.off.inc
 
 	<FilesMatch ".+\.ph(ar|p|tml)$">
 		SetHandler "proxy:unix:/run/php/php7.2-fpm.test.kmchan3.space.sock|fcgi://localhost"
@@ -31,7 +31,7 @@
 	DocumentRoot "/var/www/test.kmchan3.space/html"
 	ErrorLog ${APACHE_LOG_DIR}/test.kmchan3.space_error.log
 	CustomLog ${APACHE_LOG_DIR}/test.kmchan3.space_access.log combined
-	ProxyProtocol On
+	Include /etc/apache2/proxy.on.inc
 
 	<FilesMatch ".+\.ph(ar|p|tml)$">
 		SetHandler "proxy:unix:/run/php/php7.2-fpm.test.kmchan3.space.sock|fcgi://localhost"
@@ -45,7 +45,7 @@
 	DocumentRoot "/var/www/test.kmchan3.space/html"
 	ErrorLog ${APACHE_LOG_DIR}/test.kmchan3.space_error.log
 	CustomLog ${APACHE_LOG_DIR}/test.kmchan3.space_access.log combined
-	ProxyProtocol Off
+	Include /etc/apache2/proxy.off.inc
 	SSLEngine On
 	SSLCertificateFile /etc/letsencrypt/live/test.kmchan3.space/fullchain.pem
 	SSLCertificateKeyFile /etc/letsencrypt/live/test.kmchan3.space/privkey.pem
@@ -62,7 +62,7 @@
 	DocumentRoot "/var/www/test.kmchan3.space/html"
 	ErrorLog ${APACHE_LOG_DIR}/test.kmchan3.space_error.log
 	CustomLog ${APACHE_LOG_DIR}/test.kmchan3.space_access.log combined
-	ProxyProtocol On
+	Include /etc/apache2/proxy.on.inc
 	SSLEngine On
 	SSLCertificateFile /etc/letsencrypt/live/test.kmchan3.space/fullchain.pem
 	SSLCertificateKeyFile /etc/letsencrypt/live/test.kmchan3.space/privkey.pem
