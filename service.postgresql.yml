@@ -7,10 +7,14 @@
   vars:
 
     service_postgresql_versions:
-      - { version: "10", requires: { distribution: "ubuntu", since: "bionic", until: "bionic" } }
+      - { version: "10", requires: { distribution: "ubuntu", since: "bionic", until: "cosmic" } }
+      - { version: "11", requires: { distribution: "ubuntu", since: "disco", until: "eoan" } }
+      - { version: "12", requires: { distribution: "ubuntu", since: "focal", until: "groovy" } }
 
     service_postgresql_packages:
-      - { name: "postgresql-10", requires: { distribution: "ubuntu", since: "bionic", until: "bionic"  } }
+      - { name: "postgresql-10", requires: { distribution: "ubuntu", since: "bionic", until: "cosmic"  } }
+      - { name: "postgresql-11", requires: { distribution: "ubuntu", since: "disco", until: "eoan"  } }
+      - { name: "postgresql-12", requires: { distribution: "ubuntu", since: "focal", until: "groovy"  } }
       - { name: "python-psycopg2" }
       - { name: "python3-psycopg2" }
 
