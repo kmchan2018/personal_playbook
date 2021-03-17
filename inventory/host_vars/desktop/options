@@ -40,6 +40,7 @@ service_postgresql_enabled: true
 # Website List
 #
 
+website_demo_kmchan3_space_enabled: true
 website_desktop_kmchan3_space_enabled: true
 website_test_kmchan3_space_enabled: true
 
@@ -191,6 +192,7 @@ network_options:
 #
 
 service_ddclient_hosts:
+  - { provider: "namecheap", domain: "kmchan3.space", host: "demo" }
   - { provider: "namecheap", domain: "kmchan3.space", host: "desktop" }
   - { provider: "namecheap", domain: "kmchan3.space", host: "firefox" }
   - { provider: "namecheap", domain: "kmchan3.space", host: "test" }
