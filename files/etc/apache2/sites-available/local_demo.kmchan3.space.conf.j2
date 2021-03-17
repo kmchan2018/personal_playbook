@@ -9,7 +9,7 @@
 	Include /etc/apache2/proxy.off.inc
 
 	<FilesMatch ".+\.ph(ar|p|tml)$">
-		SetHandler "proxy:unix:/run/php/php7.2-fpm.demo.kmchan3.space.sock|fcgi://localhost"
+		SetHandler "proxy:unix:/run/php/php{{ php_version }}-fpm.demo.kmchan3.space.sock|fcgi://localhost"
 	</FilesMatch>
 </VirtualHost>
 {% if service_apache_http_proxy_port|default(8080) != false %}
@@ -22,7 +22,7 @@
 	Include /etc/apache2/proxy.on.inc
 
 	<FilesMatch ".+\.ph(ar|p|tml)$">
-		SetHandler "proxy:unix:/run/php/php7.2-fpm.demo.kmchan3.space.sock|fcgi://localhost"
+		SetHandler "proxy:unix:/run/php/php{{ php_version }}-fpm.demo.kmchan3.space.sock|fcgi://localhost"
 	</FilesMatch>
 </VirtualHost>
 {% endif -%}
@@ -39,7 +39,7 @@
 	SSLCertificateKeyFile /etc/letsencrypt/live/demo.kmchan3.space/privkey.pem
 
 	<FilesMatch ".+\.ph(ar|p|tml)$">
-		SetHandler "proxy:unix:/run/php/php7.2-fpm.demo.kmchan3.space.sock|fcgi://localhost"
+		SetHandler "proxy:unix:/run/php/php{{ php_version }}-fpm.demo.kmchan3.space.sock|fcgi://localhost"
 	</FilesMatch>
 </VirtualHost>
 {% endif -%}
@@ -56,7 +56,7 @@
 	SSLCertificateKeyFile /etc/letsencrypt/live/demo.kmchan3.space/privkey.pem
 
 	<FilesMatch ".+\.ph(ar|p|tml)$">
-		SetHandler "proxy:unix:/run/php/php7.2-fpm.demo.kmchan3.space.sock|fcgi://localhost"
+		SetHandler "proxy:unix:/run/php/php{{ php_version }}-fpm.demo.kmchan3.space.sock|fcgi://localhost"
 	</FilesMatch>
 </VirtualHost>
 {% endif %}
