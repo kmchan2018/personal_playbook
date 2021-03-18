@@ -68,8 +68,8 @@
       file:
         dest: "/usr/local/lib/guest"
         state: "directory"
-        owner: "kmchan"
-        group: "kmchan"
+        owner: "root"
+        group: "root"
         mode: "0755"
 
     - name: "Create Guest Instances: Install BIOS File"
