@@ -18,7 +18,7 @@
             cache_valid_time: 86400
             default_release: "{{ ansible_distribution_release }}"
 
-        - name: "Setup PHP FPM: Enable Custom Apache Configuration"
+        - name: "Setup PHP FPM Service: Enable Custom Apache Configuration"
           file:
             dest: "/etc/apache2/{{ item.type }}-enabled/{{ item.name }}"
             src: "/etc/apache2/{{ item.type }}-available/{{ item.name }}"
@@ -27,6 +27,26 @@
             - { type: "conf", name: "{{ php_component_prefix }}-fpm.conf", state: "link" }
             - { type: "mods", name: "proxy.load", state: "link" }
             - { type: "mods", name: "proxy_fcgi.load", state: "link" }
+
+        - name: "Setup PHP FPM Service: Create Required Directories"
+          file:
+            dest: "{{ item.path }}"
+            state: "directory"
+            owner: "{{ item.owner|default('root') }}"
+            group: "{{ item.group|default('root') }}"
+            mode: "{{ item.group|default('0755') }}"
+          loop:
+            - { path: "/etc/systemd/system/{{ php_fpm_service }}.d" }
+
+        - name: "Setup PHP FPM Service: Install Configuration Files"
+          template:
+            dest: "{{ item.path }}"
+            src: "files/{{ item.path }}.j2"
+            owner: "{{ item.owner|default('root') }}"
+            group: "{{ item.group|default('root') }}"
+            mode: "{{ item.group|default('0644') }}"
+          loop:
+            - { path: "/etc/systemd/system/{{ php_fpm_service }}.d/local.conf" }
 
         - name: "Setup PHP FPM Service: Enable PHP FPM Daemon"
           service:
