@@ -55,6 +55,16 @@
             warn: false
           when: "(service_apache_proxy_protocol_rules|select('distribution', distro, release, attribute='requires')|first)['name'] == 'mod_proxy_protcool'"
 
+        - name: "Setup Apache Service: Create Required Directories"
+          file:
+            dest: "{{ item.path }}"
+            state: "directory"
+            owner: "{{ item.owner|default('root') }}"
+            group: "{{ item.group|default('root') }}"
+            mode: "{{ item.group|default('0755') }}"
+          loop:
+            - { path: "/etc/systemd/system/apache2.service.d" }
+
         - name: "Setup Apache Service: Install Configuration Files"
           template:
             dest: "{{ item.path }}"
@@ -63,6 +73,7 @@
             group: "{{ item.group|default('root') }}"
             mode: "{{ item.group|default('0644') }}"
           loop:
+            - { path: "/etc/systemd/system/apache2.service.d/local.conf" }
             - { path: "/etc/apache2/proxy.on.inc" }
             - { path: "/etc/apache2/proxy.off.inc" }
             - { path: "/etc/apache2/conf-available/local_alt_port.conf" }
