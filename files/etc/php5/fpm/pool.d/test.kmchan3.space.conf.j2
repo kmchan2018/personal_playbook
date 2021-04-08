@@ -14,3 +14,10 @@ pm.start_servers = 2
 pm.min_spare_servers = 1
 pm.max_spare_servers = 3
 
+php_flag[display_errors] = On
+php_flag[expose_php] = On
+php_admin_value[max_execution_time] = 60
+php_admin_value[memory_limit] = 32M
+php_admin_value[upload_max_filesize] = 16M
+php_admin_value[max_file_uploads] = 20
+
