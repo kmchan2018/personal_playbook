@@ -4,7 +4,10 @@
 <Directory /var/www/test.kmchan3.space/html>
 	Options SymLinksIfOwnerMatch
 	AllowOverride All
-	Require all granted
+	Require ip 127.0.0.0/8
+	Require ip 10.0.0.0/8
+	Require ip 172.16.0.0/12
+	Require ip 192.168.0.0/16
 </Directory>
 
 <Directory /var/www/test.kmchan3.space/scripts>
