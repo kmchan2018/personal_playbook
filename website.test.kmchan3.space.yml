@@ -10,18 +10,36 @@
       when: "website_test_kmchan3_space_enabled|default(false)"
       block:
 
+        - name: "Setup Website test.kmchan3.space: Create Group"
+          group:
+            name: "www-test"
+            system: "yes"
+            state: "present"
+
+        - name: "Setup Website test.kmchan3.space: Create User"
+          user:
+            name: "www-test"
+            group: "www-test"
+            home: "/var/www/test.kmchan3.space"
+            password: "!"
+            shell: "/bin/bash"
+            create_home: "yes"
+            move_home: "no"
+            system: "yes"
+            state: "present"
+
         - name: "Setup Website test.kmchan3.space: Create Directories"
           file:
             dest: "/var/www/{{ item.name }}"
             state: "directory"
             owner: "{{ item.owner|default('root') }}"
             group: "{{ item.group|default('root') }}"
-            mode: "0755"
+            mode: "{{ item.mode|default('0755') }}"
           loop:
-            - { name: "/test.kmchan3.space", owner: "kmchan", group: "kmchan" }
-            - { name: "/test.kmchan3.space/html", owner: "kmchan", group: "kmchan" }
-            - { name: "/test.kmchan3.space/html/.well-known", owner: "kmchan", group: "kmchan" }
-            - { name: "/test.kmchan3.space/scripts", owner: "kmchan", group: "kmchan" }
+            - { name: "/test.kmchan3.space", owner: "www-test", group: "www-test", mode: "0755" }
+            - { name: "/test.kmchan3.space/html", owner: "www-test", group: "www-data", mode: "0755" }
+            - { name: "/test.kmchan3.space/html/.well-known", owner: "www-test", group: "www-data", mode: "0755" }
+            - { name: "/test.kmchan3.space/projects", owner: "www-test", group: "www-test", mode: "0755" }
 
         - name: "Setup Website test.kmchan3.space: Install Configuration Files"
           template:
@@ -29,8 +47,9 @@
             src: "files/{{ item.path }}.j2"
             owner: "{{ item.owner|default('root') }}"
             group: "{{ item.group|default('root') }}"
-            mode: "{{ item.group|default('0644') }}"
+            mode: "{{ item.mode|default('0644') }}"
           loop:
+            - { path: "/etc/sudoers.d/test.kmchan3.space", mode: "0600" }
             - { path: "/etc/apache2/sites-available/local_test.kmchan3.space.conf" }
             - { path: "{{ php_config_path }}/fpm/pool.d/test.kmchan3.space.conf" }
 
