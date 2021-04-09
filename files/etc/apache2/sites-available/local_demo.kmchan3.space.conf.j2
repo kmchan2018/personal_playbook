@@ -1,6 +1,18 @@
 # vim: syntax=apache ts=4 sw=4 sts=4 sr noet
 
 
+<Directory /var/www/demo.kmchan3.space/html>
+	Options SymLinksIfOwnerMatch
+	AllowOverride All
+	Require all granted
+</Directory>
+
+<Directory /var/www/demo.kmchan3.space/projects>
+	Options SymLinksIfOwnerMatch
+	AllowOverride All
+	Require all denied
+</Directory>
+
 <VirtualHost _default_:{{ service_apache_http_port|default(80) }}>
 	ServerName demo.kmchan3.space
 	DocumentRoot "/var/www/demo.kmchan3.space/html"
