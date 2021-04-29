@@ -33,6 +33,7 @@
         - { path: ".config/autostart", mode: "0755" }
         - { path: ".config/firejail", mode: "0755" }
         - { path: ".config/gtk-3.0", mode: "0755" }
+        - { path: ".config/systemd/user", mode: "0755" }
         - { path: ".local", mode: "0755" }
         - { path: ".local/share/", mode: "0755" }
         - { path: ".local/share/applications", mode: "0755" }
@@ -48,6 +49,7 @@
         mode: "{{ item.mode }}"
       loop:
         - { path: ".config/gtk-3.0/settings.ini", mode: "0644" }
+        - { path: ".config/systemd/user/tempdir.service", mode: "0644" }
         - { path: ".local/share/applications/steam.desktop", mode: "0644" }
         - { path: ".gtkrc-2.0", mode: "0644" }
         - { path: ".vimrc", mode: "0755" }
