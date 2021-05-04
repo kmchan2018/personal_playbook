@@ -30,16 +30,18 @@
 
         - name: "Setup Website demo.kmchan3.space: Create Directories"
           file:
-            dest: "/var/www/{{ item.name }}"
+            dest: "{{ item.name }}"
             state: "directory"
             owner: "{{ item.owner|default('root') }}"
             group: "{{ item.group|default('root') }}"
             mode: "{{ item.mode|default('0755') }}"
           loop:
-            - { name: "/demo.kmchan3.space", owner: "www-demo", group: "www-demo", mode: "0755" }
-            - { name: "/demo.kmchan3.space/html", owner: "www-demo", group: "www-data", mode: "0755" }
-            - { name: "/demo.kmchan3.space/html/.well-known", owner: "www-demo", group: "www-data", mode: "0755" }
-            - { name: "/demo.kmchan3.space/projects", owner: "www-demo", group: "www-demo", mode: "0755" }
+            - { name: "/var/log/websites", owner: "root", group: "root", mode: "0755" }
+            - { name: "/var/log/websites/demo.kmchan3.space", owner: "www-demo", group: "www-demo", mode: "0750" }
+            - { name: "/var/www/demo.kmchan3.space", owner: "www-demo", group: "www-demo", mode: "0755" }
+            - { name: "/var/www/demo.kmchan3.space/html", owner: "www-demo", group: "www-data", mode: "0755" }
+            - { name: "/var/www/demo.kmchan3.space/html/.well-known", owner: "www-demo", group: "www-data", mode: "0755" }
+            - { name: "/var/www/demo.kmchan3.space/projects", owner: "www-demo", group: "www-demo", mode: "0755" }
 
         - name: "Setup Website demo.kmchan3.space: Install Configuration Files"
           template:
@@ -49,8 +51,9 @@
             group: "{{ item.group|default('root') }}"
             mode: "{{ item.mode|default('0644') }}"
           loop:
-            - { path: "/etc/sudoers.d/demo.kmchan3.space", mode: "0600" }
             - { path: "/etc/apache2/sites-available/local_demo.kmchan3.space.conf" }
+            - { path: "/etc/logrotate.d/demo.kmchan3.space" }
+            - { path: "/etc/sudoers.d/demo.kmchan3.space", mode: "0600" }
             - { path: "{{ php_config_path }}/fpm/pool.d/demo.kmchan3.space.conf" }
 
         - name: "Setup Website demo.kmchan3.space: Enable Custom Apache Configuration"
