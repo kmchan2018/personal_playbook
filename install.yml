@@ -14,5 +14,6 @@
 - import_playbook: "install.sass.yml"
 - import_playbook: "install.arduino.yml"
 - import_playbook: "install.netbeans.yml"
+- import_playbook: "install.zoom.yml"
 
 

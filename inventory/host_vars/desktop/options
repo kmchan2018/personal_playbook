@@ -20,6 +20,7 @@ install_python_enabled: true
 install_qemu_enabled: true
 install_sass_enabled: true
 install_scream_enabled: true
+install_zoom_enabled: true
 
 
 #
@@ -229,5 +230,6 @@ account_mysql_enabled: true
 account_postgresql_enabled: true
 account_server_enabled: true
 account_steam_enabled: true
+account_zoom_enabled: true
 
 
