@@ -1,0 +1,24 @@
+
+
+- import_playbook: "software.dpkg.yml"
+
+
+- hosts: "all"
+  become: true
+  become_user: "root"
+
+  tasks:
+
+    - name: "Install Skype"
+      when: "install_skype_enabled|default(false)"
+      block:
+
+        - name: "Install Skype: Install Packages"
+          apt:
+            deb: "https://repo.skype.com/latest/skypeforlinux-64.deb"
+            state: "present"
+            allow_unauthenticated: true
+            update_cache: true
+            cache_valid_time: 86400
+
+

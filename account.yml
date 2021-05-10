@@ -9,6 +9,7 @@
 - import_playbook: "account.server.yml"
 - import_playbook: "account.mysql.yml"
 - import_playbook: "account.postgresql.yml"
+- import_playbook: "account.skype.yml"
 - import_playbook: "account.steam.yml"
 - import_playbook: "account.zoom.yml"
 
