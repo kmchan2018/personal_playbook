@@ -18,7 +18,7 @@
             group: "{{ item.group|default('root') }}"
             mode: "{{ item.group|default('0644') }}"
           loop:
-            - { path: "/etc/apache2/sites-available/local_desktop.kmchan3.space.conf" }
+            - { path: "/etc/apache2/sites-available/000-desktop.kmchan3.space.conf" }
 
         - name: "Setup Website desktop.kmchan3.space: Enable Custom Apache Configuration"
           file:
@@ -26,6 +26,6 @@
             src: "/etc/apache2/{{ item.type }}-available/{{ item.name }}"
             state: "{{ item.state|default('link') }}"
           loop:
-            - { type: "sites", name: "local_desktop.kmchan3.space.conf", state: "link" }
+            - { type: "sites", name: "000-desktop.kmchan3.space.conf", state: "link" }
 
 

@@ -109,6 +109,9 @@
             - { type: "mods", name: "status.conf", state: "absent" }
             - { type: "mods", name: "local_proxy_protocol.load", state: "link" }
 
+        - name: "Setup Apache Service: Disable Site"
+          shell: "a2dissite -q 000-default"
+
         - name: "Setup Apache Service: Enable Apache Daemon"
           service:
             name: "apache2.service"
