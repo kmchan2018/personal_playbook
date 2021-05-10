@@ -20,12 +20,7 @@
           loop:
             - { path: "/etc/apache2/sites-available/000-desktop.kmchan3.space.conf" }
 
-        - name: "Setup Website desktop.kmchan3.space: Enable Custom Apache Configuration"
-          file:
-            dest: "/etc/apache2/{{ item.type }}-enabled/{{ item.name }}"
-            src: "/etc/apache2/{{ item.type }}-available/{{ item.name }}"
-            state: "{{ item.state|default('link') }}"
-          loop:
-            - { type: "sites", name: "000-desktop.kmchan3.space.conf", state: "link" }
+        - name: "Setup Website desktop.kmchan3.space: Enable Site"
+          shell: "a2ensite 000-desktop.kmchan3.space"
 
 
