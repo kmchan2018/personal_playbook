@@ -76,38 +76,26 @@
             - { path: "/etc/systemd/system/apache2.service.d/local.conf" }
             - { path: "/etc/apache2/proxy.on.inc" }
             - { path: "/etc/apache2/proxy.off.inc" }
-            - { path: "/etc/apache2/conf-available/local_alt_port.conf" }
-            - { path: "/etc/apache2/conf-available/local_hide_info.conf" }
-            - { path: "/etc/apache2/conf-available/local_hide_vcs.conf" }
-            - { path: "/etc/apache2/conf-available/local_sanitize_docroot_options.conf" }
-            - { path: "/etc/apache2/conf-available/local_sanitize_logging_options.conf" }
-            - { path: "/etc/apache2/conf-available/local_tighten_limits.conf" }
-            - { path: "/etc/apache2/conf-available/local_tighten_ssl.conf" }
-            - { path: "/etc/apache2/mods-available/local_proxy_protocol.load" }
+            - { path: "/etc/apache2/conf-available/zzz-alt_port.conf" }
+            - { path: "/etc/apache2/conf-available/zzz-hide_info.conf" }
+            - { path: "/etc/apache2/conf-available/zzz-hide_vcs.conf" }
+            - { path: "/etc/apache2/conf-available/zzz-sanitize_docroot_options.conf" }
+            - { path: "/etc/apache2/conf-available/zzz-sanitize_logging_options.conf" }
+            - { path: "/etc/apache2/conf-available/zzz-tighten_limits.conf" }
+            - { path: "/etc/apache2/conf-available/zzz-tighten_ssl.conf" }
+            - { path: "/etc/apache2/mods-available/zzz-proxy_protocol.load" }
 
-        - name: "Setup Apache Service: Enable Custom Configuration"
-          file:
-            dest: "/etc/apache2/{{ item.type }}-enabled/{{ item.name }}"
-            src: "/etc/apache2/{{ item.type }}-available/{{ item.name }}"
-            state: "{{ item.state|default('link') }}"
-          loop:
-            - { type: "conf", name: "local_alt_port.conf", state: "link" }
-            - { type: "conf", name: "local_hide_info.conf", state: "link" }
-            - { type: "conf", name: "local_hide_vcs.conf", state: "link" }
-            - { type: "conf", name: "local_sanitize_docroot_options.conf", state: "link" }
-            - { type: "conf", name: "local_sanitize_logging_options.conf", state: "link" }
-            - { type: "conf", name: "local_tighten_limits.conf", state: "link" }
-            - { type: "conf", name: "local_tighten_ssl.conf", state: "link" }
-            - { type: "mods", name: "autoindex.load", state: "absent" }
-            - { type: "mods", name: "autoindex.conf", state: "absent" }
-            - { type: "mods", name: "remoteip.load", state: "link" }
-            - { type: "mods", name: "rewrite.load", state: "link" }
-            - { type: "mods", name: "socache_shmcb.load", state: "link" }
-            - { type: "mods", name: "ssl.load", state: "link" }
-            - { type: "mods", name: "ssl.conf", state: "link" }
-            - { type: "mods", name: "status.load", state: "absent" }
-            - { type: "mods", name: "status.conf", state: "absent" }
-            - { type: "mods", name: "local_proxy_protocol.load", state: "link" }
+        - name: "Setup Apache Service: Enable Modules"
+          shell: "a2enmod -q remoteip rewrite socache_shmcb ssl zzz-proxy_protocol"
+
+        - name: "Setup Apache Service: Disable Modules"
+          shell: "a2dismod -q autoindex status"
+
+        - name: "Setup Apache Service: Enable Configurations"
+          shell: "a2enconf -q zzz-alt_port zzz-hide_info zzz-hide_vcs zzz-sanitize_docroot_options zzz-sanitize_logging_options zzz-tighten_limits zzz-tighten_ssl"
+
+        - name: "Setup Apache Service: Disable Site"
+          shell: "a2disconf -q serve-cgi-bin"
 
         - name: "Setup Apache Service: Disable Site"
           shell: "a2dissite -q 000-default"
