@@ -1,5 +1,6 @@
 
 
+- import_playbook: "install.android_studio.yml"
 - import_playbook: "install.arduino.yml"
 - import_playbook: "install.baidunetdisk.yml"
 - import_playbook: "install.conky.yml"
