@@ -16,9 +16,7 @@
       - { version:  6, requires: { distribution: "ubuntu", since: "trusty", until: "trusty" } }
       - { version:  7, requires: { distribution: "ubuntu", since: "trusty", until: "trusty" } }
       - { version:  8, requires: { distribution: "ubuntu", since: "xenial" } }
-      - { version:  9, requires: { distribution: "ubuntu", since: "xenial", until: "artful" } }
       - { version: 11, requires: { distribution: "ubuntu", since: "bionic" } }
-      - { version: 12, requires: { distribution: "ubuntu", since: "disco" } }
 
     install_java_packages:
       - { name: "ant" }
