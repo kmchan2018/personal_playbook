@@ -1,6 +1,24 @@
 
 
 #
+# Account Settings List
+#
+
+account_baidunetdisk_enabled: true
+account_bumblebee_enabled: true
+account_conky_enabled: true
+account_docker_enabled: true
+account_firefox_enabled: true
+account_geeqie_enabled: true
+account_mysql_enabled: true
+account_postgresql_enabled: true
+account_server_enabled: true
+account_skype_enabled: true
+account_steam_enabled: true
+account_zoom_enabled: true
+
+
+#
 # Install Lists
 #
 
@@ -190,17 +208,6 @@ network_options:
 
 
 #
-# DDClient Service Settings
-#
-
-service_ddclient_hosts:
-  - { provider: "namecheap", domain: "kmchan3.space", host: "demo" }
-  - { provider: "namecheap", domain: "kmchan3.space", host: "desktop" }
-  - { provider: "namecheap", domain: "kmchan3.space", host: "firefox" }
-  - { provider: "namecheap", domain: "kmchan3.space", host: "test" }
-
-
-#
 # Apache Service Settings
 #
 
@@ -218,20 +225,13 @@ service_bumblebee_device: "shared-video"
 
 
 #
-# Account Settings List
+# DDClient Service Settings
 #
 
-account_bumblebee_enabled: true
-account_conky_enabled: true
-account_baidunetdisk_enabled: true
-account_docker_enabled: true
-account_firefox_enabled: true
-account_geeqie_enabled: true
-account_mysql_enabled: true
-account_postgresql_enabled: true
-account_server_enabled: true
-account_skype_enabled: true
-account_steam_enabled: true
-account_zoom_enabled: true
+service_ddclient_hosts:
+  - { provider: "namecheap", domain: "kmchan3.space", host: "demo" }
+  - { provider: "namecheap", domain: "kmchan3.space", host: "desktop" }
+  - { provider: "namecheap", domain: "kmchan3.space", host: "firefox" }
+  - { provider: "namecheap", domain: "kmchan3.space", host: "test" }
 
 
