@@ -5,6 +5,7 @@
 #
 
 account_baidunetdisk_enabled: true
+account_bash_enabled: true
 account_bumblebee_enabled: true
 account_conky_enabled: true
 account_docker_enabled: true

@@ -1,6 +1,7 @@
 
 
 - import_playbook: "account.baidunetdisk.yml"
+- import_playbook: "account.bash.yml"
 - import_playbook: "account.bumblebee.yml"
 - import_playbook: "account.common.yml"
 - import_playbook: "account.config.yml"
