@@ -11,6 +11,7 @@ account_conky_enabled: true
 account_docker_enabled: true
 account_firefox_enabled: true
 account_geeqie_enabled: true
+account_golang_enabled: true
 account_mysql_enabled: true
 account_postgresql_enabled: true
 account_server_enabled: true
