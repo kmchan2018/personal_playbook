@@ -76,6 +76,7 @@ hardware_blockdev_names:
   - { mount: "/boot", name: "Boot" }
   - { mount: "/home", name: "Home" }
   - { mount: "/mnt/backup", name: "Backup" }
+  - { mount: "/mnt/download", name: "Download" }
 
 
 #
