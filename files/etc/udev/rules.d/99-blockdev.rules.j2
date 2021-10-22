@@ -11,7 +11,7 @@ SUBSYSTEM=="block", ENV{ID_FS_UUID}=="{{ mount.uuid }}", ENV{UDISKS_NAME}="{{ bl
 {% endif %}
 {% endfor %}
 
-{% for name, device in ansible_devices.iteritems() %}
+{% for name, device in ansible_devices.items() %}
 {% for pvid in device.links.ids if pvid is match("lvm-pv-uuid-.*") %}
 {% for cryptid in device.links.ids if cryptid is match("dm-uuid-CRYPT-.*") %}
 SUBSYSTEM=="block", ENV{DM_UUID}=="{{ cryptid|replace('dm-uuid-', '', 1) }}", ENV{UDISKS_IGNORE}="1"
