@@ -39,17 +39,13 @@
             group: "{{ item.group|default('root') }}"
             mode: "{{ item.group|default('0644') }}"
           loop:
-            - { path: "/etc/apache2/conf-available/local_certbot.conf" }
+            - { path: "/etc/apache2/conf-available/zzz-certbot.conf" }
 
-        - name: "Setup Certbot Service: Enable Custom Apache Configuration"
-          file:
-            dest: "/etc/apache2/{{ item.type }}-enabled/{{ item.name }}"
-            src: "/etc/apache2/{{ item.type }}-available/{{ item.name }}"
-            state: "{{ item.state|default('link') }}"
-          when: "item.site|default('any') in service_web_websites|default([])|union(['any'])"
-          loop:
-            - { type: "conf", name: "local_certbot.conf", state: "link" }
-            - { type: "mods", name: "alias.load", state: "link" }
+        - name: "Setup Apache Service: Enable Modules"
+          shell: "a2enmod -q alias"
+
+        - name: "Setup Apache Service: Enable Configurations"
+          shell: "a2enconf -q zzz-certbot"
 
         - name: "Setup Certbot Service: Enable Certbot Cron Job"
           service:
