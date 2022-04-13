@@ -9,10 +9,11 @@
     - name: "Configuring Block Devices: Install Udev Rules"
       template:
         dest: "/etc/udev/rules.d/99-blockdev.rules"
-        src: "files/etc/udev/rules.d/99-blockdev.rules.j2"
+        src: "{{ playbook_dir }}/files/etc/udev/rules.d/99-blockdev.rules.j2"
         owner: "root"
         group: "root"
         mode: "0600"
+      when: "hardware_blockdev_names|default([])|length > 0"
       notify:
         - "Reload Udev Service"
         - "Apply Udev Configuration"
