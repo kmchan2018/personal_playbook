@@ -46,8 +46,8 @@ def parse(cmdline):
 	chunks = cmdline.split()
 	output = []
 	for chunk in chunks:
-		if '=' in chunk:
-			temp = chunk.split('=', 2)
+		if b('=') in chunk:
+			temp = chunk.split(b('='), 2)
 			output.append(Option(temp[0], temp[1]))
 		elif chunk != '':
 			output.append(Flag(chunk))
@@ -149,22 +149,22 @@ def main():
 	
 			if target == 'flag' and state == 'present':
 				operation = 'Flag %s is inserted to kernel command line in file %s' % (flag, dest)
-				b_newline = insert_flag(b_oldline, flag)
+				b_newline = insert_flag(b_oldline, b(flag))
 			elif target == 'flag' and state == 'absent':
 				operation = 'Flag %s is removed from kernel command line in file %s' % (flag, dest)
-				b_newline = remove_flag(b_oldline, flag)
+				b_newline = remove_flag(b_oldline, b(flag))
 			elif target == 'option' and state == 'present':
 				operation = 'Option %s is updated to "%s" for kernel command line in file %s' % (option, value, dest)
-				b_newline = insert_option(b_oldline, option, value)
+				b_newline = insert_option(b_oldline, b(option), b(value))
 			elif target == 'option' and state == 'absent':
 				operation = 'Option %s is removed from kernel command line in file %s' % (option, dest)
-				b_newline = remove_option(b_oldline, option)
+				b_newline = remove_option(b_oldline, b(option))
 			elif target == 'item' and state == 'present':
 				operation = 'Option %s is updated to include "%s" for kernel command line in file %s' % (option, value, dest)
-				b_newline = insert_option_item(b_oldline, option, delimiter, value)
+				b_newline = insert_option_item(b_oldline, b(option), b(delimiter), b(value))
 			elif target == 'item' and state == 'absent':
 				operation = 'Option %s is updated to exclude "%s" for kernel command line in file %s' % (option, value, dest)
-				b_newline = remove_option_item(b_oldline, option, delimiter, value, noempty)
+				b_newline = remove_option_item(b_oldline, b(option), b(delimiter), b(value), noempty)
 
 			debug['oldline'] = to_native(b_oldline)
 			debug['newline'] = to_native(b_newline)
