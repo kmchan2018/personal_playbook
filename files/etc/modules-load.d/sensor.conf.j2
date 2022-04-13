@@ -3,7 +3,7 @@
 # Sensor support
 #
 
-{% for module in hardware_sensor_modules %}
+{% for module in hardware_sensor_modules|default([]) %}
 {{ module }}
 {% endfor %}
 
