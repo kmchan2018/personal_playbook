@@ -11,8 +11,9 @@
 
     install_java_releases:
       - { version:  7, requires: { distribution: "debian", since: "jessie", until: "jessie" } }
-      - { version:  8, requires: { distribution: "debian", since: "jessie" } }
-      - { version: 11, requires: { distribution: "debian", since: "stretch" } }
+      - { version:  8, requires: { distribution: "debian", since: "stretch", until: "stretch" } }
+      - { version: 11, requires: { distribution: "debian", since: "buster" } }
+      - { version: 17, requires: { distribution: "debian", since: "bullseye" } }
       - { version:  6, requires: { distribution: "ubuntu", since: "trusty", until: "trusty" } }
       - { version:  7, requires: { distribution: "ubuntu", since: "trusty", until: "trusty" } }
       - { version:  8, requires: { distribution: "ubuntu", since: "xenial" } }
