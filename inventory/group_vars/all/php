@@ -13,6 +13,18 @@ php_release_repository:
     config_path: "/etc/php/7.0"
     fpm_service: "php7.0-fpm.service"
     requires: { distribution: "debian", since: "stretch", until: "stretch" }
+  - version: "7.3"
+    component_prefix: "php7.3"
+    extension_prefix: "php"
+    config_path: "/etc/php/7.3"
+    fpm_service: "php7.4-fpm.service"
+    requires: { distribution: "debian", since: "buster", until: "buster" }
+  - version: "7.4"
+    component_prefix: "php7.4"
+    extension_prefix: "php"
+    config_path: "/etc/php/7.4"
+    fpm_service: "php7.4-fpm.service"
+    requires: { distribution: "debian", since: "bullseye", until: "bullseye" }
   - version: "7.0"
     component_prefix: "php7.0"
     extension_prefix: "php"
@@ -88,7 +100,7 @@ php_extension_repository:
   - { name: "apcu-bc", requires: { distribution: "debian", since: "stretch" } }
   - { name: "ast", requires: { distribution: "debian", since: "stretch" } }
   - { name: "geoip", requires: { distribution: "debian", since: "jessie" } }
-  - { name: "libsodium", requires: { distribution: "debian", since: "stretch" } }
+  - { name: "libsodium", requires: { distribution: "debian", since: "stretch", until: "stretch" } }
   - { name: "redis", requires: { distribution: "debian", since: "stretch" } }
   - { name: "ssh2", requires: { distribution: "debian", since: "jessie" } }
   - { name: "uuid", requires: { distribution: "debian", since: "stretch" } }
