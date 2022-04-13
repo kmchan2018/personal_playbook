@@ -10,11 +10,11 @@
   vars:
 
     install_console_packages:
-      - { name: "bsdtar" }
       - { name: "curl" }
       - { name: "ffmpeg" }
       - { name: "git" }
       - { name: "htop" }
+      - { name: "libarchive-tools" }
       - { name: "mc" }
       - { name: "net-tools" }
       - { name: "p7zip" }
