@@ -10,13 +10,22 @@
   vars:
 
     install_console_packages:
+      - { name: "bchunk" }
+      - { name: "cabextract" }
+      - { name: "ccd2iso" }
+      - { name: "convmv" }
       - { name: "curl" }
+      - { name: "daa2iso" }
       - { name: "ffmpeg" }
       - { name: "git" }
       - { name: "htop" }
+      - { name: "iat" }
+      - { name: "innoextract" }
       - { name: "libarchive-tools" }
       - { name: "mc" }
+      - { name: "mdf2iso" }
       - { name: "net-tools" }
+      - { name: "nrg2iso" }
       - { name: "p7zip" }
       - { name: "p7zip-full" }
       - { name: "rsync" }
