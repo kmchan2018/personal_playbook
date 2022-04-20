@@ -25,6 +25,7 @@
       - { name: "lvm2" }
       - { name: "mdadm" }
       - { name: "ntp" }
+      - { name: "nvme-cli" }
       - { name: "pciutils" }
       - { name: "smartmontools" }
       - { name: "software-properties-common" }
@@ -35,6 +36,8 @@
       - { name: "usbutils" }
       - { name: "firmware-linux", requires: { distribution: "debian" } }
       - { name: "firmware-linux-nonfree", requires: { distribution: "debian" } }
+      - { name: "firmware-amd-graphics" }
+      - { name: "firmware-realtek" }
       - { name: "linux-firmware", requires: { distribution: "ubuntu" } }
       #- { name: "linux-firmware-nonfree", requires: { distribution: "ubuntu" } }
 
