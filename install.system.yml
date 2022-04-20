@@ -34,12 +34,10 @@
       - { name: "sudo" }
       - { name: "uidmap" }
       - { name: "usbutils" }
-      - { name: "firmware-linux", requires: { distribution: "debian" } }
-      - { name: "firmware-linux-nonfree", requires: { distribution: "debian" } }
+      - { name: "firmware-linux" }
+      - { name: "firmware-linux-nonfree" }
       - { name: "firmware-amd-graphics" }
       - { name: "firmware-realtek" }
-      - { name: "linux-firmware", requires: { distribution: "ubuntu" } }
-      #- { name: "linux-firmware-nonfree", requires: { distribution: "ubuntu" } }
 
   tasks:
 
