@@ -1,0 +1,16 @@
+[Desktop Entry]
+Name=Firefox
+Comment=Web Browser
+Exec=/usr/local/bin/firefox %u
+Terminal=false
+Type=Application
+Icon=firefox
+Categories=Network;WebBrowser;
+MimeType=text/html;text/xml;application/xhtml+xml;application/xml;application/vnd.mozilla.xul+xml;application/rss+xml;application/rdf+xml;image/gif;image/jpeg;image/png;x-scheme-handler/http;x-scheme-handler/https;
+StartupNotify=true
+Actions=Private;
+
+[Desktop Action Private]
+Exec=/usr/local/bin/firefox --private-window %u
+Name=Open in private mode
+
