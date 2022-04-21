@@ -1,0 +1,33 @@
+
+
+- hosts: "all"
+  become: true
+  become_user: "root"
+
+  tasks:
+
+    - name: "Setup Plymouth: Initialize Kernel Command Line"
+      lineinfile:
+        dest: "/etc/default/grub"
+        regexp: '^\s*#\s*GRUB_CMDLINE_LINUX_DEFAULT=(?:"?\s*(.*?)\s*"?)?\s*$'
+        line: 'GRUB_CMDLINE_LINUX_DEFAULT="\1"'
+        backrefs: "yes"
+      notify:
+        - "Update GRUB Boot Loader"
+
+    - name: "Setup Plymouth: Enable Splash in Kernel Command Line"
+      kernel_options_in_file:
+        dest: "/etc/default/grub"
+        region: '^GRUB_CMDLINE_LINUX_DEFAULT="(.*)"$'
+        state: 'present'
+        target: 'flag'
+        flag: 'splash'
+      notify:
+        - "Update GRUB Boot Loader"
+
+  handlers:
+
+    - name: "Update GRUB Boot Loader"
+      command: "update-grub"
+
+

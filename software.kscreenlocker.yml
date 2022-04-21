@@ -1,0 +1,17 @@
+
+
+- hosts: "all"
+  become: true
+  become_user: "root"
+
+  tasks:
+
+    - name: "Setup KScreenLocker: Update Configuration File"
+      template:
+        dest: "/etc/xdg/kscreenlockerrc"
+        src: "{{ playbook_dir }}/files/etc/xdg/kscreenlockerrc"
+        owner: "root"
+        group: "root"
+        mode: "0644"
+
+

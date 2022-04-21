@@ -1,0 +1,29 @@
+
+
+- hosts: "all"
+  become: true
+  become_user: "root"
+
+  tasks:
+
+    - name: "Setup Grub: Divert Theme Script for Local Patching"
+      shell: "dpkg-divert --divert /etc/grub.d/05_debian_theme.dpkg-diverted --rename /etc/grub.d/05_debian_theme"
+      args:
+        creates: "/etc/grub.d/05_debian_theme.dpkg-diverted"
+
+    - name: "Setup Grub: Install Patched Theme Script"
+      copy:
+        dest: "/etc/grub.d/05_debian_theme"
+        src: "{{ playbook_dir }}/files/etc/grub.d/05_debian_theme"
+        owner: "root"
+        group: "root"
+        mode: "0755"
+      notify:
+        - "Update GRUB Boot Loader"
+
+  handlers:
+
+    - name: "Update GRUB Boot Loader"
+      command: "update-grub"
+
+
