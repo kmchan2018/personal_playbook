@@ -9,40 +9,12 @@
 
   vars:
 
-    service_bumblebee_primus_version: "0~20150328-13"
-    service_bumblebee_primus_directory: "/usr/local/lib/primus-0~20150328-13"
-    service_bumblebee_primus_source_url: "http://archive.ubuntu.com/ubuntu/pool/universe/p/primus/primus_0~20150328.orig.tar.gz"
-    service_bumblebee_primus_debian_url: "http://archive.ubuntu.com/ubuntu/pool/universe/p/primus/primus_0~20150328-13.debian.tar.xz"
-    service_bumblebee_primus_source_checksum: "sha256:be1fe16bd891b4b542c2020fd69c983ed1783752c475be9d3bbe2fc1205812c0"
-    service_bumblebee_primus_debian_checksum: "sha256:50a9e4adea4dbbb056060d2a79145c3ad63a6231200b9b4d74c73f7f4363b6c5"
-    service_bumblebee_primus_source_archive: "/usr/local/lib/primus-0~20150328-13/primus_0~20150328.orig.tar.gz"
-    service_bumblebee_primus_debian_archive: "/usr/local/lib/primus-0~20150328-13/primus_0~20150328-13.debian.tar.xz"
-
-    service_bumblebee_primus_vk_version: "1.6.1-1"
-    service_bumblebee_primus_vk_directory: "/usr/local/lib/primus-vk-1.6.1-1"
-    service_bumblebee_primus_vk_source_url: "http://archive.ubuntu.com/ubuntu/pool/multiverse/p/primus-vk/primus-vk_1.6.1.orig.tar.gz"
-    service_bumblebee_primus_vk_debian_url: "http://archive.ubuntu.com/ubuntu/pool/multiverse/p/primus-vk/primus-vk_1.6.1-1.debian.tar.xz"
-    service_bumblebee_primus_vk_source_checksum: "sha256:9a8abe678b07fba3cbf71064e532d081b78624c0d1fde25f062a36dc806e81ee"
-    service_bumblebee_primus_vk_debian_checksum: "sha256:529cfc350766303a6e67d5f68a1286302092f302fd6470b43ddf112f67bc63ff"
-    service_bumblebee_primus_vk_source_archive: "/usr/local/lib/primus-vk-1.6.1-1/primus-vk_1.6.1.orig.tar.gz"
-    service_bumblebee_primus_vk_debian_archive: "/usr/local/lib/primus-vk-1.6.1-1/primus-vk_1.6.1-1.debian.tar.xz"
-
     service_bumblebee_dependencies:
       - { name: "bumblebee" }
       - { name: "bumblebee-nvidia" }
-      - { name: "build-essential" }
-      - { name: "gcc-multilib-i686-linux-gnu" }
-      - { name: "g++-multilib-i686-linux-gnu" }
-      - { name: "libglapi-mesa" }
-      - { name: "libglapi-mesa:i386" }
-      - { name: "libvulkan-dev" }
-      - { name: "libvulkan-dev:i386" }
-      - { name: "libwayland-dev" }
-      - { name: "libwayland-dev:i386" }
-      - { name: "libx11-dev" }
-      - { name: "libx11-dev:i386" }
-      - { name: "mesa-common-dev" }
-      - { name: "mesa-common-dev:i386" }
+      - { name: "primus" }
+      - { name: "primus-nvidia" }
+      - { name: "nvidia-driver" }
 
   tasks:
 
@@ -59,16 +31,6 @@
             mode: "{{ item.mode|default('0755') }}"
           loop:
             - { path: "/etc/systemd/system/bumblebeed.service.d" }
-            - { path: "{{ service_bumblebee_primus_directory }}" }
-            - { path: "{{ service_bumblebee_primus_vk_directory }}" }
-            - { path: "{{ service_bumblebee_primus_vk_directory }}/lib" }
-            - { path: "{{ service_bumblebee_primus_vk_directory }}/lib/i386-linux-gnu" }
-            - { path: "{{ service_bumblebee_primus_vk_directory }}/lib/x86_64-linux-gnu" }
-            - { path: "/usr/local/lib/i386-linux-gnu" }
-            - { path: "/usr/local/lib/x86_64-linux-gnu" }
-            - { path: "/usr/local/share/man/man1" }
-            - { path: "/usr/local/share/vulkan/icd.d" }
-            - { path: "/usr/local/share/vulkan/implicit_layer.d" }
 
         - name: "Setup Bumblebee Service: Install Packages"
           apt:
@@ -79,148 +41,6 @@
             default_release: "{{ item.release|default(ansible_distribution_release) }}"
           loop: "{{ service_bumblebee_dependencies|select('distribution', distro, release, attribute='requires')|list }}"
 
-        - name: "Setup Bumblebee Service: Download Primus Source Archive"
-          get_url:
-            url: "{{ service_bumblebee_primus_source_url }}"
-            dest: "{{ service_bumblebee_primus_source_archive }}"
-            checksum: "{{ service_bumblebee_primus_source_checksum }}"
-            owner: "root"
-            group: "root"
-            mode: "0644"
-
-        - name: "Setup Bumblebee Service: Download Primus Debian Build File"
-          get_url:
-            url: "{{ service_bumblebee_primus_debian_url }}"
-            dest: "{{ service_bumblebee_primus_debian_archive }}"
-            checksum: "{{ service_bumblebee_primus_debian_checksum }}"
-            owner: "root"
-            group: "root"
-            mode: "0644"
-
-        - name: "Setup Bumblebee Service: Download Primus VK Source Archive"
-          get_url:
-            url: "{{ service_bumblebee_primus_vk_source_url }}"
-            dest: "{{ service_bumblebee_primus_vk_source_archive }}"
-            checksum: "{{ service_bumblebee_primus_vk_source_checksum }}"
-            owner: "root"
-            group: "root"
-            mode: "0644"
-
-        - name: "Setup Bumblebee Service: Download Primus VK Debian Build File"
-          get_url:
-            url: "{{ service_bumblebee_primus_vk_debian_url }}"
-            dest: "{{ service_bumblebee_primus_vk_debian_archive }}"
-            checksum: "{{ service_bumblebee_primus_vk_debian_checksum }}"
-            owner: "root"
-            group: "root"
-            mode: "0644"
-
-        - name: "Setup Bumblebee Service: Unpack Primus Source Archive"
-          shell: "tar --extract --no-same-owner --strip-components 1 --file {{ service_bumblebee_primus_source_archive }}"
-          args:
-            chdir: "{{ service_bumblebee_primus_directory }}"
-            creates: "{{ service_bumblebee_primus_directory }}/README.md"
-            warn: false
-
-        - name: "Setup Bumblebee Service: Unpack Primus Debian Build File"
-          shell: "tar --extract --no-same-owner --file {{ service_bumblebee_primus_debian_archive }}"
-          args:
-            chdir: "{{ service_bumblebee_primus_directory }}"
-            creates: "{{ service_bumblebee_primus_directory }}/debian"
-            warn: false
-
-        - name: "Setup Bumblebee Service: Unpack Primus VK Source Archive"
-          shell: "tar --extract --no-same-owner --strip-components 1 --file {{ service_bumblebee_primus_vk_source_archive }}"
-          args:
-            chdir: "{{ service_bumblebee_primus_vk_directory }}"
-            creates: "{{ service_bumblebee_primus_vk_directory }}/README.md"
-            warn: false
-
-        - name: "Setup Bumblebee Service: Unpack Primus VK Debian Build File"
-          shell: "tar --extract --no-same-owner --file {{ service_bumblebee_primus_vk_debian_archive }}"
-          args:
-            chdir: "{{ service_bumblebee_primus_vk_directory }}"
-            creates: "{{ service_bumblebee_primus_vk_directory }}/debian"
-            warn: false
-
-        - name: "Setup Bumblebee Service: Patch Primus Library"
-          shell: "for PATCH in $(cat debian/patches/series); do cat debian/patches/$PATCH | patch -p1; done; touch patched"
-          args:
-            chdir: "{{ service_bumblebee_primus_directory }}"
-            creates: "{{ service_bumblebee_primus_vk_directory }}/patched"
-            warn: false
-
-        - name: "Setup Bumblebee Service: Patch Primus VK Library"
-          shell: "for PATCH in $(cat debian/patches/series); do cat debian/patches/$PATCH | patch -p1; done; touch patched"
-          args:
-            chdir: "{{ service_bumblebee_primus_vk_directory }}"
-            creates: "{{ service_bumblebee_primus_vk_directory }}/patched"
-            warn: false
-
-        - name: "Setup Bumblebee Service: Compile Primus Library (64-bit)"
-          shell: "LIBDIR=lib/x86_64-linux-gnu/primus DEB_HOST_MULTIARCH=x86_64-linux-gnu make"
-          args:
-            chdir: "{{ service_bumblebee_primus_directory }}"
-            creates: "{{ service_bumblebee_primus_directory }}/lib/x86_64-linux-gnu/primus/libGL.so.1"
-            warn: false
-
-        - name: "Setup Bumblebee Service: Compile Primus Library (32-bit)"
-          shell: "LIBDIR=lib/i386-linux-gnu/primus DEB_HOST_MULTIARCH=i386-linux-gnu CXX=i686-linux-gnu-g++ make"
-          args:
-            chdir: "{{ service_bumblebee_primus_directory }}"
-            creates: "{{ service_bumblebee_primus_directory }}/lib/i386-linux-gnu/primus/libGL.so.1"
-            warn: false
-
-        - name: "Setup Bumblebee Service: Compile Primus VK Library (64-bit)"
-          shell: "make clean && make && mv libprimus_vk.so libnv_vulkan_wrapper.so lib/x86_64-linux-gnu"
-          args:
-            chdir: "{{ service_bumblebee_primus_vk_directory }}"
-            creates: "{{ service_bumblebee_primus_vk_directory }}/lib/x86_64-linux-gnu/libprimus_vk.so"
-            warn: false
-
-        - name: "Setup Bumblebee Service: Compile Primus VK Library (32-bit)"
-          shell: "make clean && CXX=i686-linux-gnu-g++ make && mv libprimus_vk.so libnv_vulkan_wrapper.so lib/i386-linux-gnu"
-          args:
-            chdir: "{{ service_bumblebee_primus_vk_directory }}"
-            creates: "{{ service_bumblebee_primus_vk_directory }}/lib/i386-linux-gnu/libprimus_vk.so"
-            warn: false
-
-        - name: "Setup Bumblebee Service: Patch primusrun script"
-          lineinfile:
-            path: "{{ service_bumblebee_primus_directory }}/primusrun"
-            line: "PRIMUS_libGL=${PRIMUS_libGL:-/usr/local/lib/x86_64-linux-gnu/primus:/usr/local/lib/i386-linux-gnu/primus}"
-            regexp: "^PRIMUS_libGL=.*$"
-            state: "present"
-
-        - name: "Setup Bumblebee Service: Symlink Library Files"
-          file:
-            path: "{{ item.target }}"
-            src: "{{ item.source }}"
-            state: "link"
-            force: true
-          loop:
-            - { source: "{{ service_bumblebee_primus_directory }}/primusrun", target: "/usr/local/bin/primusrun" }
-            - { source: "{{ service_bumblebee_primus_directory }}/primusrun.1", target: "/usr/local/share/man/man1/primusrun.1" }
-            - { source: "{{ service_bumblebee_primus_directory }}/lib/i386-linux-gnu/primus", target: "/usr/local/lib/i386-linux-gnu/primus" }
-            - { source: "{{ service_bumblebee_primus_directory }}/lib/x86_64-linux-gnu/primus", target: "/usr/local/lib/x86_64-linux-gnu/primus" }
-            - { source: "{{ service_bumblebee_primus_vk_directory }}/lib/i386-linux-gnu/libprimus_vk.so", target: "/usr/local/lib/i386-linux-gnu/libprimus_vk.so" }
-            - { source: "{{ service_bumblebee_primus_vk_directory }}/lib/i386-linux-gnu/libnv_vulkan_wrapper.so", target: "/usr/local/lib/i386-linux-gnu/libnv_vulkan_wrapper.so" }
-            - { source: "{{ service_bumblebee_primus_vk_directory }}/lib/x86_64-linux-gnu/libprimus_vk.so", target: "/usr/local/lib/x86_64-linux-gnu/libprimus_vk.so" }
-            - { source: "{{ service_bumblebee_primus_vk_directory }}/lib/x86_64-linux-gnu/libnv_vulkan_wrapper.so", target: "/usr/local/lib/x86_64-linux-gnu/libnv_vulkan_wrapper.so" }
-            - { source: "{{ service_bumblebee_primus_vk_directory }}/lib/i386-linux-gnu/libprimus_vk.so", target: "/usr/local/lib/i386-linux-gnu/libprimus_vk.so.1" }
-            - { source: "{{ service_bumblebee_primus_vk_directory }}/lib/i386-linux-gnu/libnv_vulkan_wrapper.so", target: "/usr/local/lib/i386-linux-gnu/libnv_vulkan_wrapper.so.1" }
-            - { source: "{{ service_bumblebee_primus_vk_directory }}/lib/x86_64-linux-gnu/libprimus_vk.so", target: "/usr/local/lib/x86_64-linux-gnu/libprimus_vk.so.1" }
-            - { source: "{{ service_bumblebee_primus_vk_directory }}/lib/x86_64-linux-gnu/libnv_vulkan_wrapper.so", target: "/usr/local/lib/x86_64-linux-gnu/libnv_vulkan_wrapper.so.1" }
-            - { source: "{{ service_bumblebee_primus_vk_directory }}/primus_vk.json", target: "/usr/local/share/vulkan/implicit_layer.d/primus_vk.json" }
-            - { source: "{{ service_bumblebee_primus_vk_directory }}/nv_vulkan_wrapper.json", target: "/usr/local/share/vulkan/icd.d/nv_vulkan_wrapper.json" }
-
-        - name: "Setup Bumblebee Service: Set System OpenGL Library Location"
-          lineinfile:
-            path: "/etc/bumblebee/bumblebee.conf"
-            line: "LibraryPath=/usr/lib/x86_64-linux-gnu:/usr/lib/i386-linux-gnu"
-            regexp: "^#?LibraryPath=(.*)$"
-            state: "present"
-
         - name: "Setup Bumblebee Service: Select Primus Backend"
           lineinfile:
             path: "/etc/bumblebee/bumblebee.conf"
@@ -228,25 +48,11 @@
             regexp: "^#?Bridge=(.*)$"
             state: "present"
 
-        - name: "Setup Bumblebee Service: Set Primus OpenGL Library Location"
-          lineinfile:
-            path: "/etc/bumblebee/bumblebee.conf"
-            line: "PrimusLibraryPath=/usr/local/lib/x86_64-linux-gnu/primus:/usr/local/lib/i386-linux-gnu/primus"
-            regexp: "^#?PrimusLibraryPath=(.*)$"
-            state: "present"
-
         - name: "Setup Bumblebee Service: Select Xorg Video Driver"
           lineinfile:
             path: "/etc/bumblebee/bumblebee.conf"
             line: "Driver=nvidia"
             regexp: "^#?Driver=(.*)$"
-            state: "present"
-
-        - name: "Setup Bumblebee Service: Set Xorg Module Location"
-          lineinfile:
-            path: "/etc/bumblebee/bumblebee.conf"
-            line: "XorgModulePath=/usr/lib/x86_64-linux-gnu/nvidia/xorg,/usr/lib/xorg/modules"
-            regexp: "^#?XorgModulePath=(.*)$"
             state: "present"
 
         - name: "Setup Bumblebee Service: Set Xorg Video Device"
@@ -264,38 +70,6 @@
             insertbefore: "^EndSection$"
             state: "present"
 
-        #######################################################################
-        #
-        # Primus VK Support for Optirun
-        #
-        # Note that when bumblebee is updated to inject ENABLE_PRIMUS_LAYER
-        # environment variable for Primus VK support, the following two stanza
-        # can be removed.
-        #
-        # When this is the case, existing setup can be kept as is. However, if
-        # one want, manual intervention can be done to delete the wrapper
-        # script and undivert the file.
-        #
-
-        - name: "Setup Bumblebee Service: Divert Optirun"
-          shell: "dpkg-divert --divert /usr/bin/optirun.distrib --local --rename --add /usr/bin/optirun"
-          args:
-            creates: "/usr/bin/optirun.distrib"
-            warn: false
-
-        - name: "Setup Bumblebee Service: Replace Optirun with Wrapper Script"
-          copy:
-            dest: "/usr/local/bin/optirun"
-            src: "{{ playbook_dir }}/files/usr/local/bin/optirun"
-            owner: "root"
-            group: "root"
-            mode: "0755"
-
-        #
-        # End Primus VK Support for Optirun
-        #
-        #######################################################################
-
         - name: "Setup Bumblebee Service: Setup Local Bumblebee Service Options"
           template:
             dest: "/etc/systemd/system/bumblebeed.service.d/local.conf"
@@ -303,6 +77,15 @@
             owner: "root"
             group: "root"
             mode: "0644"
+
+        - name: "Setup Bumblebee Service: Setup Primus VK environment variables"
+          template:
+            dest: "/etc/profile.d/bumblebee.sh"
+            src: "{{ playbook_dir }}/files/etc/profile.d/bumblebee.sh.j2"
+            owner: "root"
+            group: "root"
+            mode: "0644"
+
 
         - name: "Setup Bumblebee Service: Enable Bumblebee Daemon"
           service:
