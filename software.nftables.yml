@@ -1,0 +1,40 @@
+
+
+- hosts: "all"
+  become: true
+  become_user: "root"
+
+  tasks:
+
+    - name: "Setup NFTables: Install Software Packages"
+      apt:
+        name: "{{ item.name }}"
+        state: "latest"
+        update_cache: true
+        cache_valid_time: 86400
+        default_release: "{{ item.release|default(ansible_distribution_release) }}"
+      loop:
+        - { name: "nftables" }
+        - { name: "iptables" }
+
+    - name: "Setup NFTables: Create Configuration Directory"
+      file:
+        path: "/etc/nftables"
+        state: "directory"
+        owner: "root"
+        group: "root"
+        mode: "0755"
+
+    - name: "Setup NFTables: Enable Configuration Directory"
+      lineinfile:
+        path: "/etc/nftables.conf"
+        line: "include \"/etc/nftables/*.nft\""
+        regexp: "#?\\s*include \"/etc/nftables/\\*\\.nft\""
+        state: "present"
+
+    - name: "Setup NFTables: Enable Service"
+      service:
+        name: "nftables.service"
+        enabled: true
+
+
