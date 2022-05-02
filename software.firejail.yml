@@ -1,0 +1,48 @@
+
+
+- import_playbook: "software.nftables.yml"
+
+
+- hosts: "all"
+  become: true
+  become_user: "root"
+
+  tasks:
+
+    - name: "Setup Firejail"
+      when: "software_firejail_enabled|default(false)"
+      block:
+
+        - name: "Setup Firejail: Install Software Packages"
+          apt:
+            name: "{{ item.name }}"
+            state: "latest"
+            update_cache: true
+            cache_valid_time: 86400
+            default_release: "{{ item.release|default(ansible_distribution_release) }}"
+          loop:
+            - { name: "firejail" }
+
+        - name: "Setup Firejail: Enable Networking Options"
+          lineinfile:
+            path: "/etc/firejail/firejail.config"
+            regexp: "#?\\\\s*restricted-network\\\\s+(yes|no)"
+            line: "restricted-network no"
+            state: "present"
+
+        - name: "Setup Firejail: Install Configuration Files"
+          template:
+            dest: "{{ item.path }}"
+            src: "{{ playbook_dir }}/files/{{ item.path }}.j2"
+            owner: "kmchan"
+            group: "kmchan"
+            mode: "{{ item.mode|default('0644') }}"
+          loop:
+            - { path: "/etc/firejail/internet_only.net" }
+            - { path: "/etc/firejail/local_only.net" }
+            - { path: "/etc/firejail/unrestricted.net" }
+            - { path: "/etc/network/interfaces.d/firejail" }
+            - { path: "/etc/nftables/firejail.nft" }
+            - { path: "/etc/sysctl.d/99-firejail-options.conf" }
+
+

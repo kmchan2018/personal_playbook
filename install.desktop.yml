@@ -18,7 +18,6 @@
       - { name: "fcitx-table-cangjie5" }
       - { name: "fcitx-table-quick3" }
       - { name: "fcitx-table-quick5" }
-      - { name: "firejail" }
       - { name: "geeqie" }
       - { name: "gimp" }
       - { name: "gtk2-engines-oxygen" }

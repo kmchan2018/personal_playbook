@@ -1,0 +1,9 @@
+
+{% if software_firejail_enabled|default(false) == true %}
+#
+# Enable IP forwarding on the all network interfaces
+#
+
+net.ipv4.conf.firejail.forwarding = 1
+{% endif %}
+
