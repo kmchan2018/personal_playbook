@@ -250,3 +250,21 @@ software_firejail_netmask: "255.255.255.0"
 software_firejail_gateway: "192.168.193.1"
 
 
+#
+# Network Manager Settings
+#
+
+software_network_manager_enabled: true
+software_network_manager_forwarding_enabled: true
+software_network_manager_forwarding_interfaces: [ "en", "wl" ]
+software_network_manager_options:
+  connection-ethernet:
+    match-device: type:ethernet
+    ipv4.route-metric: 101
+    ipv6.route-metric: 101
+  connection-wifi:
+    match-device: type:wifi
+    ipv4.route-metric: 100
+    ipv6.route-metric: 100
+
+

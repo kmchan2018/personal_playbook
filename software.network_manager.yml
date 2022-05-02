@@ -1,0 +1,57 @@
+
+
+- hosts: "all"
+  become: true
+  become_user: "root"
+
+  tasks:
+
+    - name: "Setup Network Manager"
+      when: "software_network_manager_enabled|default(false)"
+      block:
+
+        - name: "Setup Network Manager: Install Packages"
+          apt:
+            name: "{{ item.name }}"
+            state: "latest"
+            update_cache: true
+            cache_valid_time: 86400
+            default_release: "{{ item.release|default(ansible_distribution_release) }}"
+          loop:
+            - { name: "network-manager" }
+            - { name: "network-manager-fortisslvpn" }
+            - { name: "network-manager-l2tp" }
+            - { name: "network-manager-openconnect" }
+            - { name: "network-manager-openvpn" }
+            - { name: "network-manager-pptp" }
+            - { name: "network-manager-ssh" }
+            - { name: "network-manager-strongswan" }
+            - { name: "network-manager-vpnc" }
+
+        - name: "Setup Network Manager: Install Configuration Files"
+          template:
+            dest: "{{ item.path }}"
+            src: "{{ playbook_dir }}/files/{{ item.path }}.j2"
+            owner: "{{ item.owner|default('root') }}"
+            group: "{{ item.group|default('root') }}"
+            mode: "{{ item.mode|default('0755') }}"
+          loop:
+            - { path: "/etc/NetworkManager/conf.d/local.conf" }
+
+        - name: "Setup Network Manager: Install Dispatcher Scripts for IP Forwarding"
+          template:
+            dest: "{{ item.path }}"
+            src: "{{ playbook_dir }}/files/{{ item.path }}.j2"
+            owner: "{{ item.owner|default('root') }}"
+            group: "{{ item.group|default('root') }}"
+            mode: "{{ item.mode|default('0755') }}"
+          loop:
+            - { path: "/etc/NetworkManager/dispatcher.d/enable-forwarding" }
+            - { path: "/etc/NetworkManager/dispatcher.d/pre-down.d/disable-forwarding" }
+
+        - name: "Setup Network Manager: Enable Service"
+          service:
+            name: "NetworkManager.service"
+            enabled: true
+
+

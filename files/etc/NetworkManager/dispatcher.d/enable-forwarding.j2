@@ -1,0 +1,21 @@
+#!/bin/bash
+
+{% if software_network_manager_enabled|default(false) == true %}
+{% if software_network_manager_forwarding_enabled|default(false) == true %}
+if [[ "x$NM_DISPATCHER_ACTION" == "xup" ]]; then
+{% if software_network_manager_forwarding_interfaces|default('all') == 'all' %}
+	sysctl -w "net.ipv4.conf.${DEVICE_IP_IFACE}.forwarding=1"
+{% elif software_network_manager_forwarding_interfaces is iterable %}
+{% for prefix in software_network_manager_forwarding_interfaces %}
+{% if loop.first == false %}
+
+{% endif %}
+	if [[ "x${DEVICE_IP_IFACE}" = x{{ prefix }}* ]]; then
+		sysctl -w "net.ipv4.conf.${DEVICE_IP_IFACE}.forwarding=1"
+	fi
+{% endfor %}
+{% endif %}
+fi
+{% endif %}
+{% endif %}
+
