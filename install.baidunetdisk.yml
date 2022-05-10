@@ -23,7 +23,7 @@
 
         - name: "Install Baidu Net Disk: Install Packages"
           apt:
-            deb: "https://issuecdn.baidupcs.com/issue/netdisk/LinuxGuanjia/3.5.0/baidunetdisk_3.5.0_amd64.deb"
+            deb: "https://issuecdn.baidupcs.com/issue/netdisk/LinuxGuanjia/4.3.0/baidunetdisk_4.3.0_amd64.deb"
             state: "present"
             allow_unauthenticated: true
             update_cache: true
