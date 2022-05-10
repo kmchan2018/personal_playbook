@@ -1,129 +1,46 @@
 #!/bin/bash
 
 
-{% set name = item[0].name -%}
-{%- set title = item[0].title -%}
-{%- set account = item[0].account -%}
+{% set title = guest.title -%}
+{% set account = guest.account -%}
 
-{%- set config_directory = "/etc/default/guest" -%}
-{%- set data_directory = guest_data_prefix ~ "/" ~ name -%}
-{%- set socket_directory = guest_socket_prefix ~ "/" ~ name -%}
-{%- set ivshmem_directory = guest_ivshmem_prefix ~ "/" ~ name -%}
+{% set config_directory = "/etc/default/guest" -%}
+{% set data_directory = service_guest_data_prefix ~ "/" ~ name -%}
+{% set socket_directory = service_guest_socket_prefix ~ "/" ~ name -%}
+{% set ivshmem_directory = service_guest_ivshmem_prefix ~ "/" ~ name -%}
 
-{%- set config_file = config_directory ~ "/" ~ name -%}
-{%- set bios_file = data_directory ~ '/OVMF_VARS.fd' -%}
-{%- set monitor_socket = socket_directory ~ '/monitor' -%}
-{%- set spice_socket = socket_directory ~ '/spice' -%}
+{% set config_file = config_directory ~ "/" ~ name -%}
+{% set bios_file = data_directory ~ '/OVMF_VARS.fd' -%}
+{% set monitor_socket = socket_directory ~ '/monitor' -%}
+{% set spice_socket = socket_directory ~ '/spice.socket' -%}
 
-{%- set temp_buses = namespace(items=[], index=4) -%}
-{%- set temp_cards = namespace(items=[], index=0) -%}
-{%- set temp_disks = namespace(items=[], index=0) -%}
-{%- set temp_networks = namespace(items=[], index=1) -%}
-{%- set temp_scripts = namespace(prepare=[], cleanup=[]) -%}
+{% set processor_socket = guest.processor_socket|default(1) -%}
+{% set processor_core = guest.processor_core|default(4) -%}
+{% set processor_thread = guest.processor_thread|default(1) -%}
 
-{%- if guest_disks is defined -%}
-	{%- if item[0].disks is defined -%}
-		{%- for disk in guest_disks if disk.name in item[0].disks -%}
-			{%- if disk.type == 'file' -%}
-				{%- set path = disk.path -%}
-				{%- set format = disk.format|default('raw') -%}
-				{%- set options = "cache=writeback,discard=unmap,detect-zeroes=unmap" -%}
-				{%- set temp_disks.items = temp_disks.items + [ dict(index=temp_disks.index, path=path, format=format, options=options) ] -%}
-				{%- set temp_disks.index = temp_disks.index + 1 -%}
-			{%- elif disk.type == 'device' -%}
-				{%- set path = '/dev/' ~ disk.device -%}
-				{%- set format = 'raw' -%}
-				{%- set options = "cache=none,aio=native,discard=unmap,detect-zeroes=unmap" -%}
-				{%- set temp_disks.items = temp_disks.items + [ dict(index=temp_disks.index, path=path, format=format, options=options) ] -%}
-				{%- set temp_disks.index = temp_disks.index + 1 -%}
-			{%- elif disk.type == 'lvm' -%}
-				{%- set path = '/dev/mapper/' ~ disk.volume_group ~ '-' ~ disk.logical_volume -%}
-				{%- set format = 'raw' -%}
-				{%- set options = "cache=none,aio=native,discard=unmap,detect-zeroes=unmap" -%}
-				{%- set temp_disks.items = temp_disks.items + [ dict(index=temp_disks.index, path=path, format=format, options=options) ] -%}
-				{%- set temp_disks.index = temp_disks.index + 1 -%}
-			{%- endif -%}
-		{%- endfor -%}
-	{%- endif -%}
-{%- endif -%}
+{% set memory_size = guest.memory_size|default(4) -%}
+{% set memory_prealloc = guest.memory_prealloc|default(4) -%}
 
-{%- if item[0].networks is defined -%}
-	{%- for key in item[0].networks -%}
-		{%- set device = key ~ '-' ~ name -%}
-		{%- set master = key -%}
-		{%- set temp_networks.items = temp_networks.items + [ dict(index=temp_networks.index, bus=temp_buses.index, device=device, master=master) ] -%}
-		{%- set temp_networks.index = temp_networks.index + 1 -%}
-		{%- set temp_buses.items = temp_buses.items + [ dict(index=temp_buses.index) ] -%}
-		{%- set temp_buses.index = temp_buses.index + 1 -%}
-	{%- endfor -%}
-{%- endif -%}
+{% set looking_glass_file = ivshmem_directory ~ '/looking_glass' -%}
+{% set looking_glass_size = 64 -%}
 
-{%- if hardware_pci_devices is defined and hardware_vfio_devices is defined and item[0].passthroughs is defined -%}
-	{%- for device in item[0].passthroughs if device in hardware_vfio_devices and hardware_vfio_devices[device].device in hardware_pci_devices -%}
-		{%- for address in hardware_pci_devices[hardware_vfio_devices[device].device].addresses -%}
-			{%- set temp_cards.items = temp_cards.items + [ dict(index=temp_cards.index, bus=temp_buses.index, address=address, options='') ] -%}
-			{%- set temp_cards.index = temp_cards.index + 1 -%}
-		{%- endfor -%}
-		{%- set temp_scripts.prepare = temp_scripts.prepare + [ '/usr/local/sbin/vfio-bind-' + device ] -%}
-		{%- set temp_scripts.cleanup = temp_scripts.cleanup + [ '/usr/local/sbin/vfio-unbind-' + device ] -%}
-		{%- set temp_buses.items = temp_buses.items + [ dict(index=temp_buses.index) ] -%}
-		{%- set temp_buses.index = temp_buses.index + 1 -%}
-	{%- endfor -%}
-{%- endif -%}
+{% set scream_file = ivshmem_directory ~ '/scream' -%}
+{% set scream_size = 2 -%}
 
-{#
-{%- if guest_passthroughs is defined -%}
-	{%- if item[0].passthroughs is defined -%}
-		{%- for passthrough in guest_passthroughs if passthrough.name in item[0].passthroughs -%}
-			{%- for bus in passthrough.tree -%}
-				{%- for function in bus -%}
-					{%- set address = function.address -%}
-					{%- set options = ',' ~ function.options if function.options is defined and function.options != '' else '' -%}
-					{%- set temp_cards.items = temp_cards.items + [ dict(index=temp_cards.index, bus=temp_buses.index, address=address, options=options) ] -%}
-					{%- set temp_cards.index = temp_cards.index + 1 -%}
-				{%- endfor -%}
-				{%- set temp_buses.items = temp_buses.items + [ dict(index=temp_buses.index) ] -%}
-				{%- set temp_buses.index = temp_buses.index + 1 -%}
-			{%- endfor -%}
-		{%- endfor -%}
-	{%- endif -%}
-{%- endif -%}
-#}
+{% set rendernode = "" -%}
 
-{%- set processor_socket = item[0].processor_socket|default(1) -%}
-{%- set processor_core = item[0].processor_core|default(4) -%}
-{%- set processor_thread = item[0].processor_thread|default(1) -%}
-
-{%- set memory_size = item[0].memory_size|default(4) -%}
-{%- set memory_prealloc = item[0].memory_prealloc|default(4) -%}
-
-{%- set video_hardware = item[0].video_hardware|default('qxl') -%}
-{%- set sound_hardware = item[0].sound_hardware|default('hda') -%}
-
-{%- set looking_glass = item[0].looking_glass|default(true) -%}
-{%- set looking_glass_file = ivshmem_directory ~ '/looking_glass' -%}
-{%- set looking_glass_size = 32 -%}
-
-{%- set piper = item[0].piper|default(true) -%}
-{%- set piper_playback_file = socket_directory ~ '/playback' -%}
-{%- set piper_capture_file = socket_directory ~ '/capture' -%}
-{%- set piper_format = "S16_LE" -%}
-{%- set piper_rate = 44100 -%}
-{%- set piper_channels = 2 -%}
-{%- set piper_period_time = 10 -%}
-{%- set piper_period_size = (piper_rate * piper_period_time / 1000)|int -%}
-
-{%- set scream = item[0].scream|default(true) -%}
-{%- set scream_file = ivshmem_directory ~ '/scream' -%}
-{%- set scream_size = 2 -%}
-
-{%- set buses = temp_buses.items -%}
-{%- set cards = temp_cards.items -%}
-{%- set disks = temp_disks.items -%}
-{%- set networks = temp_networks.items -%}
-
-{%- set prepare_scripts = temp_scripts.prepare -%}
-{%- set cleanup_scripts = temp_scripts.cleanup -%}
+{% if hardware_pci_devices is defined and hardware_video_device is defined -%}
+{% if hardware_video_device in hardware_pci_devices -%}
+  {% set address = hardware_pci_devices[hardware_video_device].addresses[0] -%}
+  {% set rendernode = "/dev/dri/by-path/pci-%04x:%02x:%02x.%x-render" % (
+      address['domain']|default("0")|int(base=16), 
+      address['bus']|int(base=16),
+      address['device']|int(base=16),
+      address['function']|int(base=16)
+    )
+  -%}
+{% endif -%}
+{% endif -%}
 
 
 if [[ -f "{{ config_file }}" ]] ; then
@@ -137,11 +54,27 @@ fi
 #
 
 start() {
-	if [[ $EUID -eq 0 ]]; then
-	  exec systemctl start {{ name }}.service
-	else
-	  exec sudo systemctl start {{ name }}.service
-	fi
+  exec systemctl start {{ name }}.service
+}
+
+
+#
+# Reset the guest.
+# Usage: reset
+#
+
+reset() {
+  echo "system_reset" | socat - "UNIX-CONNECT:{{ monitor_socket }}"
+}
+
+
+#
+# Quit the guest.
+# Usage: quit
+#
+
+quit() {
+  echo "quit" | socat - "UNIX-CONNECT:{{ monitor_socket }}"
 }
 
 
@@ -151,90 +84,37 @@ start() {
 #
 
 viewer() {
-{% if looking_glass %}
-	if [[ "x$BOOTSTRAP" != "x" ]]; then
-		exec spicy --uri "spice+unix://{{ spice_socket }}"
-	else
-		looking-glass-client -f "{{ looking_glass_file }}" -c "{{ spice_socket }}" -p 0 -o "opengl:amdPinnedMem=0" -o "win:title={{ title }}" -a &
-		LOOKING_GLASS_PID=$!
+{% if guest.video_hardware|default('qxl') == 'passthrough' %}
+  if [[ "x$FALLBACK" != "x" ]]; then
+    exec spicy --uri "spice+unix://{{ spice_socket }}"
+  else
+    looking-glass-client -f "{{ looking_glass_file }}" -c "{{ spice_socket }}" -p 0 -a -n -r \
+      "win:title={{ title }}" \
+      "win:size={{ guest.looking_glass_viewport|default('1280x720') }}" \
+      &
+    LOOKING_GLASS_PID=$!
 
-{% if scream %}
-		env "PULSE_PROP_OVERRIDE_application.name={{ title }}" "PULSE_PROP_OVERRIDE_application.process.id=$LOOKING_GLASS_PID" scream-ivshmem-pulse "{{ scream_file }}" &
-		SCREAM_PID=$!
-
-		wait $LOOKING_GLASS_PID
-		kill -TERM $SCREAM_PID
-		wait $SCREAM_PID
-{% elif piper %}
-		env "PULSE_PROP_OVERRIDE_application.name={{ title }}" "PULSE_PROP_OVERRIDE_application.process.id=$LOOKING_GLASS_PID" piper drain "{{ piper_playback_file }}" alsa &
-		PIPER_PID=$!
-
-		wait $LOOKING_GLASS_PID
-		kill -TERM $PIPER_PID
-		wait $PIPER_PID
+{% if guest.looking_glass_audio|default('spice') == 'scream' %}
+    env "PULSE_PROP_OVERRIDE_application.name={{ title }}" "PULSE_PROP_OVERRIDE_application.process.id=$LOOKING_GLASS_PID" scream \
+{% if guest.scream_transport|default('network') == 'ivshmem' %}
+      -m "{{ scream_file }}" &
 {% else %}
-		wait $LOOKING_GLASS_PID
+      -g "{{ scream_group|default('239.255.77.77') }}" \
+      -p "{{ scream_port|default(4010) }}" 
+      -i guest &
 {% endif %}
-	fi
+    SCREAM_PID=$!
+
+    wait $LOOKING_GLASS_PID
+    kill -TERM $SCREAM_PID
+    wait $SCREAM_PID
 {% else %}
-	exec spicy --uri "spice+unix://{{ spice_socket }}"
+    wait $LOOKING_GLASS_PID
 {% endif %}
-}
-
-
-#
-# Attach a USB device to the guest.
-# Usage: attach-usb <name> <usb-bus> <usb-addr>
-#
-
-attach_usb() {
-	if [[ $# -ge 3 ]]; then
-		echo "device_add usb-host,id=$1,hostbus=$2,hostaddr=$3" | socat - "UNIX-CONNECT:{{ monitor_socket }}"
-	else
-		echo "info usbhost" | socat - "UNIX-CONNECT:{{ monitor_socket }}"
-	fi
-}
-
-
-#
-# Detach a USB device from the guest.
-# Usage: detach-usb <name>
-#
-
-detach_usb() {
-	if [[ $# -ge 1 ]]; then
-	  echo "device_del $1" | socat - "UNIX-CONNECT:{{ monitor_socket }}"
-	else
-	  echo "info usbhost" | socat - "UNIX-CONNECT:{{ monitor_socket }}"
-	fi
-}
-
-
-#
-# Insert a disk to a CD/DVD drive in the guest.
-# Usage: insert-cdrom <drive> <image-file>
-#
-
-insert_cdrom() {
-	if [[ $# -ge 2 ]]; then
-  	echo "change $1 $2" | socat - "UNIX-CONNECT:{{ monitor_socket }}"
-	else
-	  echo "info block" | socat - "UNIX-CONNECT:{{ monitor_socket }}"
-	fi
-}
-
-
-#
-# Eject a CD/DVD drive in the guest.
-# Usage: insert-cdrom <drive>
-#
-
-eject_cdrom() {
-	if [[ $# -ge 1 ]]; then
-  	echo "eject $1" | socat - "UNIX-CONNECT:{{ monitor_socket }}"
-	else
-	  echo "info block" | socat - "UNIX-CONNECT:{{ monitor_socket }}"
-	fi
+  fi
+{% else %}
+  exec spicy --uri "spice+unix://{{ spice_socket }}"
+{% endif %}
 }
 
 
@@ -244,7 +124,85 @@ eject_cdrom() {
 #
 
 monitor() {
-	exec socat - "UNIX-CONNECT:{{ monitor_socket }}"
+  exec socat - "UNIX-CONNECT:{{ monitor_socket }}"
+}
+
+
+#
+# Attach input devices to the guest.
+# Usage: attach-input
+#
+
+attach_input() {
+  echo "object_add input-linux,id=mousein,evdev={{ service_guest_mouse }}" | socat - "UNIX-CONNECT:{{ monitor_socket }}"
+  echo "object_add input-linux,id=keyboardin,evdev={{ service_guest_keyboard }},grab_all=on,repeat=on" | socat - "UNIX-CONNECT:{{ monitor_socket }}"
+}
+
+
+#
+# Detach input devices from the guest.
+# Usage: detach-input
+#
+
+detach_input() {
+  echo "object_del mousein" | socat - "UNIX-CONNECT:{{ monitor_socket }}"
+  echo "object_del keyboardin" | socat - "UNIX-CONNECT:{{ monitor_socket }}"
+}
+
+
+#
+# Attach a USB device to the guest.
+# Usage: attach-usb <name> <usb-bus> <usb-addr>
+#
+
+attach_usb() {
+  if [[ $# -ge 3 ]]; then
+    echo "device_add usb-host,id=$1,hostbus=$2,hostaddr=$3" | socat - "UNIX-CONNECT:{{ monitor_socket }}"
+  else
+    echo "info usbhost" | socat - "UNIX-CONNECT:{{ monitor_socket }}"
+  fi
+}
+
+
+#
+# Detach a USB device from the guest.
+# Usage: detach-usb <name>
+#
+
+detach_usb() {
+  if [[ $# -ge 1 ]]; then
+    echo "device_del $1" | socat - "UNIX-CONNECT:{{ monitor_socket }}"
+  else
+    echo "info usbhost" | socat - "UNIX-CONNECT:{{ monitor_socket }}"
+  fi
+}
+
+
+#
+# Insert a disk to a CD/DVD drive in the guest.
+# Usage: insert-cdrom <drive> <image-file>
+#
+
+insert_cdrom() {
+  if [[ $# -ge 2 ]]; then
+    echo "change $1 $(realpath $2)" | socat - "UNIX-CONNECT:{{ monitor_socket }}"
+  else
+    echo "info block" | socat - "UNIX-CONNECT:{{ monitor_socket }}"
+  fi
+}
+
+
+#
+# Eject a CD/DVD drive in the guest.
+# Usage: insert-cdrom <drive>
+#
+
+eject_cdrom() {
+  if [[ $# -ge 1 ]]; then
+    echo "eject $1" | socat - "UNIX-CONNECT:{{ monitor_socket }}"
+  else
+    echo "info block" | socat - "UNIX-CONNECT:{{ monitor_socket }}"
+  fi
 }
 
 
@@ -254,54 +212,54 @@ monitor() {
 #
 
 prepare() {
-  if [[ ! -d "{{ guest_data_prefix }}" ]]; then
-		install -o root -g root -m 755 -d "{{ guest_data_prefix }}"
-		install -o "{{ account }}" -g "{{ account }}" -m 0755 -d "{{ data_directory }}"
-		install -o "{{ account }}" -g "{{ account }}" -m 0644 /usr/share/OVMF/OVMF_VARS.fd "{{ bios_file }}"
-	elif [[ ! -d "{{ data_directory }}" ]]; then
-		install -o "{{ account }}" -g "{{ account }}" -m 0755 -d "{{ data_directory }}"
-		install -o "{{ account }}" -g "{{ account }}" -m 0644 /usr/share/OVMF/OVMF_VARS.fd "{{ bios_file }}"
-	elif [[ ! -f "{{ bios_file }}" ]]; then
-		install -o "{{ account }}" -g "{{ account }}" -m 0644 /usr/share/OVMF/OVMF_VARS.fd "{{ bios_file }}"
-	fi
+  if [[ ! -d "{{ service_guest_data_prefix }}" ]]; then
+    install -o root -g root -m 755 -d "{{ service_guest_data_prefix }}"
+    install -o "{{ account }}" -g "{{ account }}" -m 0755 -d "{{ data_directory }}"
+    install -o "{{ account }}" -g "{{ account }}" -m 0644 /usr/share/OVMF/OVMF_VARS_4M.fd "{{ bios_file }}"
+  elif [[ ! -d "{{ data_directory }}" ]]; then
+    install -o "{{ account }}" -g "{{ account }}" -m 0755 -d "{{ data_directory }}"
+    install -o "{{ account }}" -g "{{ account }}" -m 0644 /usr/share/OVMF/OVMF_VARS_4M.fd "{{ bios_file }}"
+  elif [[ ! -f "{{ bios_file }}" ]]; then
+    install -o "{{ account }}" -g "{{ account }}" -m 0644 /usr/share/OVMF/OVMF_VARS_4M.fd "{{ bios_file }}"
+  fi
 
-	if [[ ! -d "{{ guest_socket_prefix }}" ]]; then
-		install -o root -g root -m 755 -d "{{ guest_socket_prefix }}"
-		install -o "{{ account }}" -g "{{ account }}" -m 0755 -d "{{ socket_directory }}"
-	elif [[ ! -d "{{ socket_directory }}" ]]; then
-		install -o "{{ account }}" -g "{{ account }}" -m 0755 -d "{{ socket_directory }}"
-	fi
+  if [[ ! -d "{{ service_guest_socket_prefix }}" ]]; then
+    install -o root -g root -m 755 -d "{{ service_guest_socket_prefix }}"
+    install -o "{{ account }}" -g "{{ account }}" -m 0755 -d "{{ socket_directory }}"
+  elif [[ ! -d "{{ socket_directory }}" ]]; then
+    install -o "{{ account }}" -g "{{ account }}" -m 0755 -d "{{ socket_directory }}"
+  fi
 
-	if [[ ! -d "{{ guest_ivshmem_prefix }}" ]]; then
-		install -o root -g root -m 755 -d "{{ guest_ivshmem_prefix }}"
-		install -o "{{ account }}" -g "{{ account }}" -m 0755 -d "{{ ivshmem_directory }}"
-	elif [[ ! -d "{{ ivshmem_directory }}" ]]; then
-		install -o "{{ account }}" -g "{{ account }}" -m 0755 -d "{{ ivshmem_directory }}"
-	fi
-{% if looking_glass %}
+  if [[ ! -d "{{ service_guest_ivshmem_prefix }}" ]]; then
+    install -o root -g root -m 755 -d "{{ service_guest_ivshmem_prefix }}"
+    install -o "{{ account }}" -g "{{ account }}" -m 0755 -d "{{ ivshmem_directory }}"
+  elif [[ ! -d "{{ ivshmem_directory }}" ]]; then
+    install -o "{{ account }}" -g "{{ account }}" -m 0755 -d "{{ ivshmem_directory }}"
+  fi
+{% if guest.video_hardware|default('qxl') == 'passthrough' %}
 
-	touch "{{ looking_glass_file }}"
-	chown "{{ account }}:{{ account }}" "{{ looking_glass_file }}"
-	chmod 0660 "{{ looking_glass_file }}"
-{% endif %}
-{% if scream %}
+  touch "{{ looking_glass_file }}"
+  chown "{{ account }}:{{ account }}" "{{ looking_glass_file }}"
+  chmod 0660 "{{ looking_glass_file }}"
 
-	touch "{{ scream_file }}"
-	chown "{{ account }}:{{ account }}" "{{ scream_file }}"
-	chmod 0660 "{{ scream_file }}"
-{% endif %}
-{% for network in networks %}
+{% if guest.looking_glass_audio|default('spice') == 'scream' -%}
+{% if guest.scream_transport|default('network') == 'ivshmem' %}
+  touch "{{ scream_file }}"
+  chown "{{ account }}:{{ account }}" "{{ scream_file }}"
+  chmod 0660 "{{ scream_file }}"
+{% endif -%}
+{% endif -%}
+{% endif -%}
+{% if guest.passthroughs|length > 0 %}
 
-	ip tuntap add "{{ network.device }}" mode tap user "{{ account }}" group "{{ account }}"
-	ip link set "{{ network.device }}" up
-	ip link set "{{ network.device }}" master "{{ network.master }}"
-{% endfor %}
-{% if prepare_scripts|length > 0 %}
-
-{% for script in prepare_scripts %}
-  {{ script }}
+{% for device in guest.passthroughs|default([]) if device in hardware_vfio_devices|default({}) and hardware_vfio_devices[device].device in hardware_pci_devices|default({}) %}
+  /usr/local/sbin/vfio-bind-{{ device }}
 {% endfor %}
 {% endif %}
+
+  ip tuntap add "guest-{{ name }}" mode tap user "{{ account }}" group "{{ account }}"
+  ip link set "guest-{{ name }}" up
+  ip link set "guest-{{ name }}" master "guest"
 }
 
 
@@ -311,28 +269,26 @@ prepare() {
 #
 
 cleanup() {
-  if [[ ! -d "{{ guest_data_prefix }}" ]]; then
-		install -o root -g root -m 755 -d "{{ guest_data_prefix }}"
-		install -o "{{ account }}" -g "{{ account }}" -m 0755 -d "{{ data_directory }}"
-		install -o "{{ account }}" -g "{{ account }}" -m 0644 /usr/share/OVMF/OVMF_VARS.fd "{{ bios_file }}"
-	elif [[ ! -d "{{ data_directory }}" ]]; then
-		install -o "{{ account }}" -g "{{ account }}" -m 0755 -d "{{ data_directory }}"
-		install -o "{{ account }}" -g "{{ account }}" -m 0644 /usr/share/OVMF/OVMF_VARS.fd "{{ bios_file }}"
-	elif [[ ! -f "{{ bios_file }}" ]]; then
-		install -o "{{ account }}" -g "{{ account }}" -m 0644 /usr/share/OVMF/OVMF_VARS.fd "{{ bios_file }}"
-	fi
-{% if cleanup_scripts|length > 0 %}
+  if [[ ! -d "{{ service_guest_data_prefix }}" ]]; then
+    install -o root -g root -m 755 -d "{{ service_guest_data_prefix }}"
+    install -o "{{ account }}" -g "{{ account }}" -m 0755 -d "{{ data_directory }}"
+    install -o "{{ account }}" -g "{{ account }}" -m 0644 /usr/share/OVMF/OVMF_VARS_4M.fd "{{ bios_file }}"
+  elif [[ ! -d "{{ data_directory }}" ]]; then
+    install -o "{{ account }}" -g "{{ account }}" -m 0755 -d "{{ data_directory }}"
+    install -o "{{ account }}" -g "{{ account }}" -m 0644 /usr/share/OVMF/OVMF_VARS_4M.fd "{{ bios_file }}"
+  elif [[ ! -f "{{ bios_file }}" ]]; then
+    install -o "{{ account }}" -g "{{ account }}" -m 0644 /usr/share/OVMF/OVMF_VARS_4M.fd "{{ bios_file }}"
+  fi
 
-{% for script in cleanup_scripts %}
-  {{ script }}
+  ip link set "guest-{{ name }}" nomaster
+  ip link set "guest-{{ name }}" down
+  ip tuntap del "guest-{{ name }}" mode tap
+{% if guest.passthroughs|length > 0 %}
+
+{% for device in guest.passthroughs|default([]) if device in hardware_vfio_devices|default({}) and hardware_vfio_devices[device].device in hardware_pci_devices|default({}) %}
+  /usr/local/sbin/vfio-unbind-{{ device }}
 {% endfor %}
 {% endif %}
-{% for network in networks %}
-
-	ip link set "{{ network.device }}" nomaster
-	ip link set "{{ network.device }}" down
-	ip tuntap del "{{ network.device }}" mode tap
-{% endfor %}
 }
 
 
@@ -342,99 +298,128 @@ cleanup() {
 #
 
 run() {
-	VGA="{{ video_hardware }}"
-
-	if [[ "x$BOOTSTRAP" != "x" ]]; then
-		VGA="qxl"
-	fi
-
-{% if piper %}
-	export QEMU_AUDIO_DRV="alsa"
-	export QEMU_AUDIO_DAC_FIXED_FREQ="{{ piper_rate }}"
-	export QEMU_AUDIO_ADC_FIXED_FREQ="{{ piper_rate }}"
-	export QEMU_AUDIO_TIMER_PERIOD="{{ (2 * 1000 / audio_period_time)|int }}"
-	export QEMU_ALSA_DAC_DEV="piper"
-	export QEMU_ALSA_DAC_PERIOD_SIZE="{{ piper_period_size }}"
-	export QEMU_ALSA_ADC_DEV="piper"
-	export QEMU_ALSA_ADC_PERIOD_SIZE="{{ piper_period_size }}"
-
+{% if guest.audio_hardware|default('hda') == 'none' %}
+  AUDIO_DEVICE="pci-testdev,id=sound,bus=pcie.0"
+{% elif guest.audio_hardware|default('hda') == 'ac97' %}
+  AUDIO_DEVICE="ac97,id=sound,bus=pcie.0"
 {% else %}
-	export QEMU_AUDIO_DRV="none"
+  AUDIO_DEVICE="ich9-intel-hda,id=sound,bus=pcie.0"
+{% endif -%}
+{% if guest.video_hardware|default('qxl') == 'passthrough' %}
+  VIDEO_DEVICE="pci-testdev,id=video,bus=pcie.0"
+  SPICE_OPTION=""
+{% elif guest.video_hardware|default('qxl') == 'virtio' -%}
+{% if rendernode != "" %}
+  VIDEO_DEVICE="virtio-vga,id=video,bus=pcie.0,virgl=on"
+  SPICE_OPTION=",gl=on,rendernode={{ rendernode }}"
+{% else %}
+  VIDEO_DEVICE="virtio-vga,id=video,bus=pcie.0,virgl=on"
+  SPICE_OPTION=",gl=on"
+{% endif -%}
+{% else %}
+  VIDEO_DEVICE="qxl-vga,id=video,bus=pcie.0"
+  SPICE_OPTION=""
+{% endif %}
 
+  if [[ "x$FALLBACK" != "x" ]]; then
+    AUDIO_DEVICE="ich9-intel-hda,id=sound,bus=pcie.0"
+    VIDEO_DEVICE="qxl-vga,id=video,bus=pcie.0"
+    SPICE_OPTION=""
+  fi
+
+{% if guest.inhibition_lock|default('none') == 'all' %}
+  exec systemd-inhibit --what 'sleep:shutdown' --who '{{ guest.title|default(name) }}' --why 'Waiting for {{ guest.title|default(name) }} to shutdown' qemu-system-x86_64 \
+{% elif guest.inhibition_lock|default('none') == 'sleep' %}
+  exec systemd-inhibit --what 'sleep' --who '{{ guest.title|default(name) }}' --why 'Waiting for {{ guest.title|default(name) }} to shutdown' qemu-system-x86_64 \
+{% elif guest.inhibition_lock|default('none') == 'shutdown' %}
+  exec systemd-inhibit --what 'shutdown' --who '{{ guest.title|default(name) }}' --why 'Waiting for {{ guest.title|default(name) }} to shutdown' qemu-system-x86_64 \
+{% else %}
+  exec qemu-system-x86_64 \
 {% endif %}
-	exec qemu-system-x86_64 \
-	  -name "{{ name }}" \
-	  -monitor "unix:{{ monitor_socket }},server,nowait" \
-	  -pidfile "{{ socket_directory }}/pid" \
-	  -spice "unix,addr={{ spice_socket }},disable-ticketing" \
-	  -enable-kvm \
-	  -machine "q35,accel=kvm,sata=on,usb=on,mem-merge=off" \
-	  -cpu "host,kvm=off,hv_relaxed,hv_spinlocks=0x1fff,hv_vapic,hv_time,hv_vendor_id=dummy" \
-	  -smp "sockets={{ processor_socket }},cores={{ processor_core }},threads={{ processor_thread }}" \
-	  -m "{{ memory_size }}G" {% if memory_prealloc -%} -mem-prealloc {%- endif %} \
-	  -display "none" \
-	  -nographic \
-	  -vga "$VGA" \
-{% if sound_hardware in ['all', 'sb16', 'es1370', 'ac97', 'adlib', 'gus', 'cs4231a', 'hda', 'pcspk'] %}
-		-soundhw "{{ sound_hardware }}" \
+    -name "{{ name }}" \
+    -pidfile "{{ socket_directory }}/pid" \
+    -monitor "unix:{{ monitor_socket }},server,nowait" \
+    -spice "unix,addr={{ spice_socket }},disable-ticketing${SPICE_OPTION}" \
+    -enable-kvm \
+    -nographic \
+    -machine "q35,accel=kvm,mem-merge=off,sata=on,usb=on" \
+    -cpu "host,kvm=off,hv_relaxed,hv_vapic,hv_spinlocks=0x1fff,hv_vpindex,hv_runtime,hv_time,hv_synic,hv_stimer,hv_tlbflush,hv_ipi,hv_frequencies,hv_vendor_id=dummy" \
+    -smp "sockets={{ processor_socket }},cores={{ processor_core }},threads={{ processor_thread }}" \
+    -m "{{ memory_size }}G" {% if memory_prealloc -%} -mem-prealloc {%- endif %} \
+    -display "none" \
+    -audiodev "spice,id=sound" \
+    -usb \
+    -rtc "base=localtime" \
+    -vga "none" \
+    -serial "none" \
+    -parallel "none" \
+{% if guest.hpet|default(true) == false %}
+    -no-hpet \
 {% endif %}
-	  -usb \
-	  -rtc "base=localtime" \
-	  -serial "none" \
-	  -parallel "none" \
-	  -drive "if=pflash,id=flash.0,file=/usr/share/OVMF/OVMF_CODE.fd,format=raw,readonly" \
-	  -drive "if=pflash,id=flash.1,file={{ bios_file }},format=raw" \
-	  -drive "if=none,id=cd.0,media=cdrom,readonly" \
-	  -drive "if=none,id=cd.1,media=cdrom,readonly" \
-{% for disk in disks %}
-	  -drive "if=none,id=hd.{{ disk.index }},file={{ disk.path }},format={{ disk.format }},media=disk,{{ disk.options }}" \
+    -drive "if=pflash,id=flash0,index=0,file=/usr/share/OVMF/OVMF_CODE_4M.fd,format=raw,readonly" {# enable UEFI boot using OVMF firmware #}\
+    -drive "if=pflash,id=flash1,index=1,file={{ bios_file }},format=raw" {# enable UEFI boot using OVMF firmware #}\
+    -device "${VIDEO_DEVICE}" \
+    -device "${AUDIO_DEVICE}" \
+    -device "virtio-keyboard,id=keyboard,bus=pcie.0" \
+    -device "virtio-mouse,id=mouse,bus=pcie.0" \
+    -device "virtio-balloon-pci,id=balloon,bus=pcie.0" \
+    -device "virtio-scsi-pci,id=scsi,bus=pcie.0,iothread=iothread1,num_queues=4,disable-legacy=off,disable-modern=on" \
+    -device "virtio-serial,id=serial,bus=pcie.0" {# virtio-serial bus for spice #}\
+    -device "nec-usb-xhci,id=usb3,bus=pcie.0" {# usb bus for spice #}\
+    -drive "if=none,id=cd0,media=cdrom,readonly" {# note that if=ide does not work for q35; attach to the machine using ide-cd device below #}\
+    -drive "if=none,id=cd1,media=cdrom,readonly" {# note that if=ide does not work for q35; attach to the machine using ide-cd device below #}\
+    -device "ide-cd,id=drive0,bus=ide.0,drive=cd0,bootindex=1" \
+    -device "ide-cd,id=drive1,bus=ide.1,drive=cd1,bootindex=2" \
+{% for name in guest.disks|default([]) if name in service_guest_disks -%}
+{% set disk = service_guest_disks[name] -%}
+{% set diskidx = loop.index0 -%}
+{% set driveidx = loop.index0 + 2 -%}
+{% set bootidx = loop.index0 + 3 -%}
+{% if disk.type == 'file' %}
+    -drive "if=none,id=hd{{ diskidx }},file={{ disk.path }},format={{ disk.format|default('raw') }},media=disk,cache=writeback,aio=threads,discard=unmap,detect-zeroes=unmap" \
+    -device "scsi-hd,id=drive{{ driveidx }},bus=scsi.0,drive=hd{{ diskidx }},bootindex={{ bootidx }}" \
+{% elif disk.type == 'device' %}
+    -drive "if=none,id=hd{{ diskidx }},file=/dev/{{ disk.device }},format=raw,media=disk,cache=none,aio=threads,discard=unmap,detect-zeroes=unmap" \
+    -device "scsi-hd,id=drive{{ driveidx }},bus=scsi.0,drive=hd{{ diskidx }},bootindex={{ bootidx }}" \
+{% elif disk.type == 'lvm' %}
+    -drive "if=none,id=hd{{ diskidx }},file=/dev/mapper/{{ disk.volume_group }}-{{ disk.logical_volume }},format=raw,media=disk,cache=none,aio=threads,discard=unmap,detect-zeroes=unmap" \
+    -device "scsi-hd,id=drive{{ driveidx }},bus=scsi.0,drive=hd{{ diskidx }},bootindex={{ bootidx }}" \
+{% endif -%}
 {% endfor %}
-	  -netdev "user,id=network.0,restrict=on" \
-{% for network in networks %}
-	  -netdev "tap,id=network.{{ network.index }},ifname={{ network.device }},script=no,downscript=no" \
-{% endfor %}
-	  -chardev "spicevmc,id=spice.agent,name=vdagent,debug=0" \
-	  -chardev "spicevmc,id=spice.usbredir.0,name=usbredir" \
-	  -chardev "spicevmc,id=spice.usbredir.1,name=usbredir" \
-	  -chardev "spicevmc,id=spice.usbredir.2,name=usbredir" \
-	  -chardev "spicevmc,id=spice.usbredir.3,name=usbredir" \
-	  -device "ioh3420,id=pcie.1,bus=pcie.0,addr=1c.0,port=1,chassis=1,multifunction=on" \
-	  -device "ioh3420,id=pcie.2,bus=pcie.0,addr=1c.1,port=2,chassis=2,multifunction=on" \
-	  -device "ioh3420,id=pcie.3,bus=pcie.0,addr=1c.2,port=3,chassis=3,multifunction=on" \
-{% for bus in buses %}
-	  -device "ioh3420,id=pcie.{{ bus.index }},bus=pcie.0,addr=1c.{{ bus.index - 1 }},port={{ bus.index }},chassis={{ bus.index }},multifunction=on" \
-{% endfor %}
-	  -device "virtio-balloon-pci,id=balloon,bus=pcie.1" \
-	  -device "virtio-scsi-pci,id=scsi,bus=pcie.2" \
-	  -device "virtio-net-pci,id=nic.0,bus=pcie.3,netdev=network.0" \
-{% for network in networks %}
-	  -device "virtio-net-pci,id=nic.{{ network.index }},bus=pcie.{{ network.bus }},netdev=network.{{ network.index }}" \
-{% endfor %}
-{% for card in cards %}
-	  -device "vfio-pci,id=card.{{ card.index }},bus=pcie.{{ card.bus }},host={{ card.address|pciaddr('pciutils') }}" \
-{% endfor %}
-	  -device "ide-cd,id=drive.cd.0,bus=ide.0,unit=0,drive=cd.0,bootindex=0" \
-	  -device "ide-cd,id=drive.cd.1,bus=ide.1,unit=0,drive=cd.1,bootindex=1" \
-{% for disk in disks %}
-	  -device "scsi-hd,id=drive.hd.{{ disk.index }},bus=scsi.0,drive=hd.{{ disk.index }},bootindex={{ disk.index + 2 }}" \
-{% endfor %}
-{% if looking_glass %}
-	  -device "ivshmem-plain,memdev=looking_glass,bus=pcie.0" \
-	  -object "memory-backend-file,id=looking_glass,share=on,mem-path={{ looking_glass_file }},size={{ looking_glass_size }}M" \
+    -netdev "tap,id=network0,ifname=guest-{{ name }},script=no,downscript=no" \
+    -device "virtio-net-pci,id=nic0,netdev=network0,bus=pcie.0" \
+{% for device in guest.passthroughs|default([]) if device in hardware_vfio_devices|default({}) and hardware_vfio_devices[device].device in hardware_pci_devices|default({}) -%}
+{% set card = hardware_pci_devices[hardware_vfio_devices[device].device].addresses -%}
+{% set cardidx = loop.index0 -%}
+{% set slotidx = loop.index0 + 1 %}
+    -device "pcie-root-port,id=card{{ cardidx }},bus=pcie.0,slot={{ slotidx }},x-speed=8,x-width=16{%- if card|length > 1 -%},multifunction=on{%- endif -%}" \
+{% for function in card -%}
+{% set funcidx = loop.index0 %}
+    -device "vfio-pci,id=card{{ cardidx }}.{{ funcidx }},bus=card{{ cardidx }},addr=00.{{ funcidx }},host={{ function|pciaddr('pciutils') }}{%- if card|length > 1 -%},multifunction=on{%- endif -%}" \
+{% endfor -%}
+{% endfor -%}
+{% if guest.video_hardware|default('qxl') == 'passthrough' %}
+    -device "ivshmem-plain,memdev=looking_glass,bus=pcie.0" \
+    -object "memory-backend-file,id=looking_glass,share=on,mem-path={{ looking_glass_file }},size={{ looking_glass_size }}M" \
+{% if guest.looking_glass_audio|default('spice') == 'scream' -%}
+{% if guest.scream_transport|default('network') == 'ivshmem' %}
+    -device "ivshmem-plain,memdev=scream,bus=pcie.0" \
+    -object "memory-backend-file,id=scream,share=on,mem-path={{ scream_file }},size={{ scream_size }}M" \
+{% endif -%}
+{% endif -%}
 {% endif %}
-{% if scream %}
-	  -device "ivshmem-plain,memdev=scream,bus=pcie.0" \
-	  -object "memory-backend-file,id=scream,share=on,mem-path={{ scream_file }},size={{ scream_size }}M" \
-{% endif %}
-	  -device "virtio-serial" \
-	  -device "virtserialport,chardev=spice.agent,name=com.redhat.spice.0" \
-	  -device "ich9-usb-ehci2,id=ehci.1,bus=pcie.0,addr=1a.7,multifunction=on" \
-	  -device "ich9-usb-uhci4,id=uhci.1,bus=pcie.0,addr=1a.0,masterbus=ehci.1.0,firstport=0,multifunction=on" \
-	  -device "ich9-usb-uhci5,id=uhci.2,bus=pcie.0,addr=1a.1,masterbus=ehci.1.0,firstport=2,multifunction=on" \
-	  -device "ich9-usb-uhci6,id=uhci.3,bus=pcie.0,addr=1a.2,masterbus=ehci.1.0,firstport=4,multifunction=on" \
-	  -device "usb-redir,id=usbredir.0,chardev=spice.usbredir.0" \
-	  -device "usb-redir,id=usbredir.1,chardev=spice.usbredir.1" \
-	  -device "usb-redir,id=usbredir.2,chardev=spice.usbredir.2" \
-	  -device "usb-redir,id=usbredir.3,chardev=spice.usbredir.3"
+    -chardev "spicevmc,id=agent,debug=0,name=vdagent" {# create chardev for spice agent channel for guest agent #}\
+    -device "virtserialport,bus=serial.0,nr=1,chardev=agent,name=com.redhat.spice.0" {# attach spice agent channel chardev to serial bus #}\
+    -chardev "spiceport,id=webdav,debug=0,name=org.spice-space.webdav.0" {# create chardev for spice webdav VDI port for folder sharing #}\
+    -device "virtserialport,bus=serial.0,nr=2,chardev=webdav,name=org.spice-space.webdav.0" {# attach spice webdav VDI port to serial bus #}\
+    -chardev "spicevmc,id=usbredirch0,name=usbredir" {# create chardev for spice usb channel #}\
+    -chardev "spicevmc,id=usbredirch1,name=usbredir" {# create chardev for spice usb channel #}\
+    -chardev "spicevmc,id=usbredirch2,name=usbredir" {# create chardev for spice usb channel #}\
+    -chardev "spicevmc,id=usbredirch3,name=usbredir" {# create chardev for spice usb channel #}\
+    -device "usb-redir,id=usbredir0,chardev=usbredirch0,bus=usb3.0" {# attach spice usb channel chardev to usb bus #}\
+    -device "usb-redir,id=usbredir1,chardev=usbredirch1,bus=usb3.0" {# attach spice usb channel chardev to usb bus #}\
+    -device "usb-redir,id=usbredir2,chardev=usbredirch2,bus=usb3.0" {# attach spice usb channel chardev to usb bus #}\
+    -device "usb-redir,id=usbredir3,chardev=usbredirch3,bus=usb3.0" {# attach spice usb channel chardev to usb bus #}\
+    -object "iothread,id=iothread1"
 }
 

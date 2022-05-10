@@ -1,4 +1,4 @@
 
-%{{ item[0].account }} ALL=(root) NOPASSWD:/usr/local/bin/{{ item[0].name }}-start
-%{{ item[0].account }} ALL=({{ item[0].account }}) ALL
+%{{ guest.account }} ALL=(root) NOPASSWD:/usr/local/bin/{{ name }}-start
+%{{ guest.account }} ALL=({{ guest.account }}) ALL
 

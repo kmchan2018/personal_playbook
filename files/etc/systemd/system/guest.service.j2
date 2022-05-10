@@ -1,29 +1,35 @@
 
 [Unit]
-Description=Lanuch hypervisor daemon for {{ item[0].name }} guest virtual machine
+Description=Lanuch hypervisor daemon for {{ guest.title|default(name) }} guest virtual machine
 {% if service_bumblebee_enabled|default(false) %}
-{% for passthrough in item[0].passthroughs %}
+{% for passthrough in guest.passthroughs|default([]) %}
 {% if hardware_vfio_devices[passthrough].device == service_bumblebee_device %}
 After=bumblebeed.service
 {% endif %}
 {% endfor %}
 {% endif %}
-{% for passthrough in item[0].passthroughs %}
+{% for passthrough in guest.passthroughs|default([]) %}
 AssertPathExists=!/run/vfio-{{ passthrough }}.lock
 {% endfor %}
 
 [Service]
 Type=simple
-ExecStart=/usr/local/sbin/{{ item[0].name }}-daemon
-ExecStartPre=/usr/local/sbin/{{ item[0].name }}-initialize
-ExecStopPost=/usr/local/sbin/{{ item[0].name }}-finalize
-User={{ item[0].account }}
-Group={{ item[0].account }}
-WorkingDirectory=~
+ExecStart=/usr/local/sbin/{{ name }}-daemon
+ExecStartPre=/usr/local/sbin/{{ name }}-initialize
+ExecStopPost=/usr/local/sbin/{{ name }}-finalize
+User={{ guest.account }}
+Group={{ guest.account }}
+WorkingDirectory=/
 PermissionsStartOnly=yes
-Nice=0
 UMask=0002
 PrivateTmp=yes
+NoNewPrivileges=true
 LimitMEMLOCK=infinity
-CPUAffinity=8-15
+NUMAPolicy=local
+{% if guest.nice is defined %}
+Nice={{ guest.nice }}
+{% endif %}
+{% if guest.cpuset is defined %}
+CPUAffinity={{ guest.cpuset }}
+{% endif %}
 

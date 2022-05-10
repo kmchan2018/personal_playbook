@@ -1,0 +1,320 @@
+
+
+- import_playbook: "hardware.kvm.yml"
+- import_playbook: "hardware.vfio.yml"
+- import_playbook: "software.dpkg.yml"
+- import_playbook: "software.nftables.yml"
+
+
+- hosts: "all"
+  become: true
+  become_user: "root"
+
+  vars:
+
+    service_guest_data_prefix: "/var/lib/guest"
+    service_guest_socket_prefix: "/var/run/guest"
+    service_guest_ivshmem_prefix: "/dev/shm/guest"
+
+    service_guest_packages:
+      - { name: "binutils-dev" }
+      - { name: "build-essential" }
+      - { name: "cmake" }
+      - { name: "dnsmasq" }
+      - { name: "fonts-dejavu-core" }
+      - { name: "libegl-dev" }
+      - { name: "libfontconfig1-dev" }
+      - { name: "libgl-dev" }
+      - { name: "libgles-dev" }
+      - { name: "libpulse-dev" }
+      - { name: "libssl-dev" }
+      - { name: "libspice-protocol-dev" }
+      - { name: "libwayland-dev" }
+      - { name: "libx11-dev" }
+      - { name: "libxcursor-dev" }
+      - { name: "libxi-dev" }
+      - { name: "libxinerama-dev" }
+      - { name: "libxkbcommon-dev" }
+      - { name: "libxpresent-dev" }
+      - { name: "libxss-dev" }
+      - { name: "nettle-dev" }
+      - { name: "ovmf" }
+      - { name: "qemu" }
+      - { name: "qemu-system" }
+      - { name: "qemu-system-common" }
+      - { name: "qemu-system-x86" }
+      - { name: "qemu-block-extra" }
+      - { name: "qemu-utils" }
+      - { name: "qemu-efi" }
+      - { name: "spice-client-gtk" }
+      - { name: "wayland-protocols" }
+
+    service_guest_looking_glass_version: "B5.0.1"
+    service_guest_looking_glass_url: "https://github.com/gnif/LookingGlass/"
+    service_guest_looking_glass_directory: "/usr/local/lib/LookingGlass-B5.0.1"
+
+    service_guest_scream_version: "3.9"
+    service_guest_scream_url: "https://github.com/duncanthrax/scream/archive/3.9.tar.gz"
+    service_guest_scream_checksum: "sha256:0a089ddc26930bcd9014c473245282081ea7e97f3727d771816eebef998c676e"
+    service_guest_scream_archive: "/usr/local/lib/scream-3.9/scream-3.9.tar.gz"
+    service_guest_scream_directory: "/usr/local/lib/scream-3.9"
+
+  tasks:
+
+    - name: "Setup Guest Service"
+      when: "service_guest_enabled|default(false)"
+      block:
+
+        - name: "Setup Guest Service: Create Directories"
+          file:
+            path: "{{ directory.path }}"
+            state: "directory"
+            owner: "{{ directory.owner|default('root') }}"
+            group: "{{ directory.group|default('root') }}"
+            mode: "{{ directory.mode|default('0755') }}"
+          loop:
+            - { path: "{{ service_guest_scream_directory }}" }
+            - { path: "/usr/local/lib/guest/" }
+          loop_control:
+            loop_var: "directory"
+            label: "{{ directory.path }}"
+
+        - name: "Setup Guest Service: Install Packages"
+          apt:
+            name: "{{ item.name }}"
+            state: "latest"
+            update_cache: true
+            cache_valid_time: 86400
+            default_release: "{{ item.release|default(ansible_distribution_release) }}"
+          loop: "{{ service_guest_packages|select('distribution', distro, release, attribute='requires')|list }}"
+
+        - name: "Setup Guest Service: Download Looking Glass"
+          git:
+            dest: "{{ service_guest_looking_glass_directory }}"
+            repo: "{{ service_guest_looking_glass_url }}"
+            version: "{{ service_guest_looking_glass_version }}"
+            clone: "yes"
+            update: "yes"
+            remote: "origin"
+            accept_hostkey: "yes"
+
+        - name: "Setup Guest Service: Create Looking Glass Build Directory"
+          file:
+            path: "{{ service_guest_looking_glass_directory }}/client/build"
+            state: "directory"
+            owner: "root"
+            group: "root"
+            mode: "0755"
+
+        - name: "Setup Guest Service: Configure Looking Glass"
+          shell: "cmake -DENABLE_BACKTRACE=0 .."
+          args:
+            chdir: "{{ service_guest_looking_glass_directory }}/client/build"
+            creates: "{{ service_guest_looking_glass_directory }}/client/build/Makefile"
+            warn: false
+
+        - name: "Setup Guest Service: Compile Looking Glass"
+          shell: "make"
+          args:
+            chdir: "{{ service_guest_looking_glass_directory }}/client/build"
+            creates: "{{ service_guest_looking_glass_directory }}/client/build/looking-glass-client"
+            warn: false
+
+        - name: "Setup Guest Service: Symlink Looking Glass"
+          file:
+            path: "/usr/local/bin/looking-glass-client"
+            src: "{{ service_guest_looking_glass_directory }}/client/build/looking-glass-client"
+            state: "link"
+            force: true
+
+        - name: "Setup Guest Service: Download Scream"
+          get_url:
+            url: "{{ service_guest_scream_url }}"
+            dest: "{{ service_guest_scream_archive }}"
+            checksum: "{{ service_guest_scream_checksum }}"
+            owner: "root"
+            group: "root"
+            mode: "0644"
+
+        - name: "Setup Guest Service: Unpack Scream"
+          shell: "tar --extract --no-same-owner --strip-components 1 --file {{ service_guest_scream_archive }}"
+          args:
+            chdir: "{{ service_guest_scream_directory }}"
+            creates: "{{ service_guest_scream_directory }}/README.md"
+            warn: false
+
+        - name: "Setup Guest Service: Create Scream Build Directory"
+          file:
+            path: "{{ service_guest_scream_directory }}/Receivers/unix/build"
+            state: "directory"
+            owner: "root"
+            group: "root"
+            mode: "0755"
+
+        - name: "Setup Guest Service: Configure Scream"
+          shell: "cmake .."
+          args:
+            chdir: "{{ service_guest_scream_directory }}/Receivers/unix/build"
+            creates: "{{ service_guest_scream_directory }}/Receivers/unix/build/Makefile"
+            warn: false
+
+        - name: "Setup Guest Service: Compile Scream"
+          shell: "make"
+          args:
+            chdir: "{{ service_guest_scream_directory }}/Receivers/unix/build"
+            creates: "{{ service_guest_scream_directory }}/Receivers/unix/build/scream"
+            warn: false
+
+        - name: "Setup Guest Service: Symlink Scream"
+          file:
+            path: "/usr/local/bin/scream"
+            src: "{{ service_guest_scream_directory }}/Receivers/unix/build/scream"
+            state: "link"
+            force: true
+
+        - name: "Setup Guest Service: Create Storage Groups"
+          group:
+            name: "{{ disk.account }}"
+            state: "present"
+            system: "yes"
+          when: "disk.type is defined and disk.account is defined"
+          loop: "{{ service_guest_disks|default({})|dict2items }}"
+          loop_control:
+            label: "{{ item.value.account }}"
+          vars:
+            name: "{{ item.key }}"
+            disk: "{{ item.value }}"
+
+        - name: "Setup Guest Service: Create Instance Groups"
+          group:
+            name: "{{ instance.account }}"
+            state: "present"
+            system: "yes"
+          loop: "{{ service_guest_instances|default({})|dict2items }}"
+          loop_control:
+            label: "{{ instance.account }}"
+          vars:
+            name: "{{ item.key }}"
+            instance: "{{ item.value }}"
+
+        - name: "Setup Guest Service: Create Storage Users"
+          user:
+            name: "{{ disk.account }}"
+            state: "present"
+            system: "yes"
+            home: "/"
+            createhome: "no"
+            group: "{{ disk.account }}"
+          when: "disk.type is defined and disk.account is defined"
+          loop: "{{ service_guest_disks|default({})|dict2items }}"
+          loop_control:
+            label: "{{ item.value.account }}"
+          vars:
+            name: "{{ item.key }}"
+            disk: "{{ item.value }}"
+
+        - name: "Setup Guest Service: Create Instance Users"
+          user:
+            name: "{{ instance.account }}"
+            state: "present"
+            system: "yes"
+            home: "/var/lib/guest/{{ instance.account }}"
+            shell: "/sbin/nologin"
+            createhome: "yes"
+            group: "{{ instance.account }}"
+            groups: "{{ instance.groups|default([])|union(['input', 'kvm', 'plugdev', 'render', 'usbdev', 'vfio'])|join(',') }}"
+          loop: "{{ service_guest_instances|default({})|dict2items }}"
+          loop_control:
+            label: "{{ instance.account }}"
+          vars:
+            name: "{{ item.key }}"
+            instance: "{{ item.value }}"
+
+        - name: "Setup Guest Service: Setup Network"
+          template:
+            dest: "{{ file.path }}"
+            src: "{{ playbook_dir }}/files/{{ file.path }}.j2"
+            owner: "{{ file.owner|default('root') }}"
+            group: "{{ file.group|default('root') }}"
+            mode: "{{ file.mode|default('0644') }}"
+          loop:
+            - { path: "/etc/dnsmasq.d/guest.conf" }
+            - { path: "/etc/network/interfaces.d/guest" }
+            - { path: "/etc/nftables/guest.nft" }
+            - { path: "/etc/sysctl.d/99-guest.conf" }
+          loop_control:
+            loop_var: "file"
+            label: "{{ file.path }}"
+
+        - name: "Setup Guest Service: Setup Storage"
+          template:
+            dest: "{{ file.path }}"
+            src: "{{ playbook_dir }}/files/{{ file.path }}.j2"
+            owner: "{{ file.owner|default('root') }}"
+            group: "{{ file.group|default('root') }}"
+            mode: "{{ file.mode|default('0644') }}"
+          loop:
+            - { path: "/etc/udev/rules.d/99-guest.rules" }
+          loop_control:
+            loop_var: "file"
+            label: "{{ file.path }}"
+          notify:
+            - "Reload Udev Service"
+            - "Apply Udev Configuration"
+
+        - name: "Setup Guest Service: Install Instance Files"
+          template:
+            dest: "{{ file.path|replace(file.placeholder|default('guest'), name) }}"
+            src: "{{ playbook_dir }}/files/{{ file.path }}.j2"
+            owner: "{{ file.owner|default('root') }}"
+            group: "{{ file.group|default('root') }}"
+            mode: "{{ file.mode|default('0644') }}"
+          loop: "{{ service_guest_instances|default({})|dict2items|product(files) }}"
+          loop_control:
+            label: "{{ file.path|replace(file.placeholder|default('guest'), name) }}"
+          vars:
+            files:
+              - { path: "/etc/systemd/system/guest.service" }
+              - { path: "/etc/polkit-1/localauthority/50-local.d/guest.pkla", mode: "0600" }
+              - { path: "/etc/sudoers.d/guest", mode: "0600" }
+              - { path: "/usr/local/bin/guest-attach-input", mode: "0755" }
+              - { path: "/usr/local/bin/guest-attach-usb", mode: "0755" }
+              - { path: "/usr/local/bin/guest-detach-input", mode: "0755" }
+              - { path: "/usr/local/bin/guest-detach-usb", mode: "0755" }
+              - { path: "/usr/local/bin/guest-eject-cdrom", mode: "0755" }
+              - { path: "/usr/local/bin/guest-insert-cdrom", mode: "0755" }
+              - { path: "/usr/local/bin/guest-monitor", mode: "0755" }
+              - { path: "/usr/local/bin/guest-quit", mode: "0755" }
+              - { path: "/usr/local/bin/guest-reset", mode: "0755" }
+              - { path: "/usr/local/bin/guest-start", mode: "0755" }
+              - { path: "/usr/local/bin/guest-viewer", mode: "0755" }
+              - { path: "/usr/local/sbin/guest-daemon", mode: "0755" }
+              - { path: "/usr/local/sbin/guest-initialize", mode: "0755" }
+              - { path: "/usr/local/sbin/guest-finalize", mode: "0755" }
+              - { path: "/usr/local/lib/guest/functions", placeholder: "functions" }
+            name: "{{ item[0].key }}"
+            guest: "{{ item[0].value }}"
+            file: "{{ item[1] }}"
+
+        - name: "Setup Guest Service: Enable Admin Access to Guest Instances"
+          user:
+            name: "{{ item[1] }}"
+            state: "present"
+            groups: "{{ item[0].account }}"
+            append: "yes"
+          loop: "{{ service_guest_instances|default({})|dict2items|map(attribute='value')|subelements('admins') }}"
+
+        - name: "Setup Guest Service: Enable Dnsmasq Service"
+          service:
+            name: "dnsmasq.service"
+            enabled: true
+
+  handlers:
+
+    - name: "Reload Udev Service"
+      command: "udevadm control --reload"
+
+    - name: "Apply Udev Configuration"
+      command: "udevadm trigger"
+
+

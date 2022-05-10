@@ -1,0 +1,10 @@
+
+{% if service_guest_enabled|default(false) == true %}
+auto guest
+iface guest inet static
+  address {{ service_guest_gateway }}
+  netmask {{ service_guest_netmask }}
+  mtu 9000
+  bridge_ports none
+{% endif %}
+

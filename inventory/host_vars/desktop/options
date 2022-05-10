@@ -32,15 +32,11 @@ install_emscripten_enabled: true
 install_firefox_enabled: true
 install_golang_enabled: true
 install_java_enabled: true
-install_looking_glass_enabled: true
 install_netbeans_enabled: true
 install_node_enabled: true
 install_php_enabled: true
-install_piper_enabled: true
 install_python_enabled: true
-install_qemu_enabled: true
 install_sass_enabled: true
-install_scream_enabled: true
 install_skype_enabled: true
 install_wine_enabled: true
 install_zoom_enabled: true
@@ -143,43 +139,6 @@ hardware_video_x11_driver: amdgpu
 
 
 #
-# Guest Configuration
-#
-
-guest_disks:
-  - name: windows-root
-    type: "lvm"
-    volume_group: "System"
-    logical_volume: "Windows"
-    account: "windows-disk"
-  - name: windows-data
-    type: "lvm"
-    volume_group: "Data"
-    logical_volume: "Windows"
-    account: "windows-disk"
-
-guest_instances:
-  - name: "windows"
-    title: "Windows"
-    account: "windows-machine"
-    groups: [ "windows-disk" ]
-    admins: [ "kmchan" ]
-    processor_socket: 1
-    processor_core: 6
-    processor_thread: 1
-    memory_size: 8
-    memory_prealloc: true
-    video_hardware: 'none'
-    sound_hardware: 'none'
-    looking_glass: true
-    piper: false
-    scream: true
-    disks: [ "windows-root", "windows-data" ]
-    networks: [ "bridge" ]
-    passthroughs: [ "shared-video" ]
-
-
-#
 # Network Configuration
 #
 
@@ -238,6 +197,52 @@ service_ddclient_hosts:
   - { provider: "namecheap", domain: "kmchan3.space", host: "desktop" }
   - { provider: "namecheap", domain: "kmchan3.space", host: "firefox" }
   - { provider: "namecheap", domain: "kmchan3.space", host: "test" }
+
+
+#
+# Guest Services Settings
+#
+
+service_guest_enabled: true
+
+service_guest_disks:
+  windows-root:
+    type: "lvm"
+    volume_group: "System"
+    logical_volume: "Windows"
+    account: "windows-disk"
+
+service_guest_instances:
+  windows:
+    title: "Windows"
+    account: "windows-machine"
+    groups: [ "windows-disk" ]
+    admins: [ "kmchan" ]
+    processor_socket: 1
+    processor_core: 6
+    processor_thread: 1
+    memory_size: 12
+    memory_prealloc: true
+    video_hardware: "passthrough"
+    audio_hardware: "hda"
+    disks: [ "windows-root" ]
+    passthroughs: [ "shared-video" ]
+    looking_glass_viewport: "1600x900"
+    looking_glass_audio: "scream"
+    scream_transport: "ivshmem"
+    cpuset: "8-15"
+    nice: "-5"
+    inhibition_lock: "all"
+    hpet: false
+
+service_guest_keyboard: "/dev/input/by-id/usb-Logitech_USB_Receiver-if01-event-kbd"
+service_guest_mouse: "/dev/input/by-id/usb-Logitech_USB_Receiver-if01-event-mouse"
+
+service_guest_network: "192.168.192.0"
+service_guest_netmask: "255.255.255.0"
+service_guest_gateway: "192.168.192.1"
+service_guest_dhcp_lower: "192.168.192.100"
+service_guest_dhcp_upper: "192.168.192.199"
 
 
 #

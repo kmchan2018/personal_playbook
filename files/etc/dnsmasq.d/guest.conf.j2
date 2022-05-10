@@ -1,0 +1,6 @@
+
+{% if service_guest_enabled|default(false) %}
+interface=guest
+dhcp-range=guest,{{ service_guest_dhcp_lower }},{{ service_guest_dhcp_upper }},4h
+{% endif %}
+

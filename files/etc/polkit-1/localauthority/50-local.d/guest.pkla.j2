@@ -1,0 +1,23 @@
+
+[Allow {{ guest.title|default(name) }} to Use Logind]
+Identity=unix-user:{{ guest.account }}
+Action=org.freedesktop.login1.*
+ResultActive=yes
+ResultInactive=yes
+ResultAny=yes
+
+
+[Allow {{ guest.title|default(name) }} to Block Shutdown]
+Identity=unix-user:{{ guest.account }}
+Action=org.freedesktop.login1.inhibit-block-shutdown
+ResultActive=yes
+ResultInactive=yes
+ResultAny=yes
+
+[Allow {{ guest.title|default(name) }} to Block Sleep]
+Identity=unix-user:{{ guest.account }}
+Action=org.freedesktop.login1.inhibit-block-sleep
+ResultActive=yes
+ResultInactive=yes
+ResultAny=yes
+
