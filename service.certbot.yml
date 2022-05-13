@@ -10,11 +10,6 @@
       when: "service_certbot_enabled|default(false)"
       block:
 
-        - name: "Setup Certbot Service: Enable Certbot PPA"
-          apt_repository:
-            repo: "ppa:certbot/certbot"
-            state: "present"
-
         - name: "Setup Certbot Service: Install Certbot Package"
           apt:
             name: "certbot"
@@ -23,7 +18,14 @@
             cache_valid_time: 86400
             default_release: "{{ ansible_distribution_release }}"
 
-        - name: "Setup Certbot Service: Create Data Directories"
+        - name: "Setup Certbot Service: Configure Path for Webroot Authenticator"
+          lineinfile:
+            path: "/etc/letsencrypt/cli.ini"
+            line: "webroot-path = /var/www/certbot"
+            regexp: "^\\s*#*\\s*webroot-path\\s*=\\s*.*$"
+            state: "present"
+
+        - name: "Setup Certbot Service: Create Data Directoriy for Webroot Authenticator"
           file:
             dest: "/var/www/certbot/.well-known/acme-challenge"
             state: "directory"
@@ -31,21 +33,19 @@
             group: "root"
             mode: "0755"
 
-        - name: "Setup Certbot Service: Install Configuration Files"
+        - name: "Setup Certbot Service: Install Configuration File for Webroot Authenticator"
           template:
-            dest: "{{ item.path }}"
-            src: "files/{{ item.path }}.j2"
-            owner: "{{ item.owner|default('root') }}"
-            group: "{{ item.group|default('root') }}"
-            mode: "{{ item.group|default('0644') }}"
-          loop:
-            - { path: "/etc/apache2/conf-available/zzz-certbot.conf" }
+            dest: "/etc/apache2/conf-available/certbot.conf"
+            src: "files/etc/apache2/conf-available/certbot.conf.j2"
+            owner: "root"
+            group: "root"
+            mode: "0644"
 
         - name: "Setup Apache Service: Enable Modules"
           shell: "a2enmod -q alias"
 
         - name: "Setup Apache Service: Enable Configurations"
-          shell: "a2enconf -q zzz-certbot"
+          shell: "a2enconf -q certbot"
 
         - name: "Setup Certbot Service: Enable Certbot Cron Job"
           service:
