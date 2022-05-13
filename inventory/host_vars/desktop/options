@@ -179,6 +179,7 @@ service_apache_http_port: 80
 service_apache_https_port: 443
 service_apache_http_proxy_port: 8080
 service_apache_https_proxy_port: 8443
+service_apache_default_virtual_host: "desktop.kmchan3.space"
 
 
 #

@@ -10,22 +10,18 @@
       - { name: "apache2" }
       - { name: "apache2-dev" }
 
-    service_apache_proxy_protocol_rules:
-      - { name: "mod_proxy_protocol", directive: "ProxyProtocol",         requires: { distribution: "debian", until: "stretch" } }
-      - { name: "mod_proxy_protocol", directive: "ProxyProtocol",         requires: { distribution: "ubuntu", until: "bionic" } }
-      - { name: "mod_remoteip",       directive: "RemoteIPProxyProtocol", requires: { distribution: "debian", since: "buster" } }
-      - { name: "mod_remoteip",       directive: "RemoteIPProxyProtocol", requires: { distribution: "ubuntu", since: "cosmic" } }
-      - { name: "mod_remoteip" }
-
-    service_apache_mod_proxy_protocol_version: "78cd88c2e9fb7b1226ec524830fa1624f73b77b7"
-    service_apache_mod_proxy_protocol_url: "https://github.com/roadrunner2/mod-proxy-protocol.git"
-    service_apache_mod_proxy_protocol_directory: "/usr/local/lib/mod_proxy_protocol"
-
   tasks:
 
     - name: "Setup Apache Service"
       when: "service_apache_enabled|default(false)"
       block:
+
+        - name: "Setup Apache Service: Find Usable SSL Certificates"
+          find:
+            paths: "/etc/letsencrypt/live/"
+            file_type: "directory"
+            recurse: false
+          register: "certificates"
 
         - name: "Setup Apache Service: Install Apache Packages"
           apt:
@@ -36,25 +32,6 @@
             default_release: "{{ item.release|default(ansible_distribution_release) }}"
           loop: "{{ service_apache_packages|select('distribution', distro, release, attribute='requires')|list }}"
 
-        - name: "Setup Apache Service: Clone Proxy Protocol Module Source"
-          git:
-            dest: "{{ service_apache_mod_proxy_protocol_directory }}"
-            repo: "{{ service_apache_mod_proxy_protocol_url }}"
-            version: "{{ service_apache_mod_proxy_protocol_version }}"
-            clone: "yes"
-            update: "yes"
-            remote: "origin"
-            accept_hostkey: "yes"
-          when: "(service_apache_proxy_protocol_rules|select('distribution', distro, release, attribute='requires')|first)['name'] == 'mod_proxy_protocol'"
-
-        - name: "Setup Apache Service: Compile Proxy Protocol Module Source"
-          shell: "make"
-          args:
-            chdir: "{{ service_apache_mod_proxy_protocol_directory }}"
-            creates: "{{ service_apache_mod_proxy_protocol_directory }}/.libs/mod_proxy_protocol.so"
-            warn: false
-          when: "(service_apache_proxy_protocol_rules|select('distribution', distro, release, attribute='requires')|first)['name'] == 'mod_proxy_protcool'"
-
         - name: "Setup Apache Service: Create Required Directories"
           file:
             dest: "{{ item.path }}"
@@ -64,6 +41,7 @@
             mode: "{{ item.group|default('0755') }}"
           loop:
             - { path: "/etc/systemd/system/apache2.service.d" }
+            - { path: "/etc/apache2/includes/" }
 
         - name: "Setup Apache Service: Install Configuration Files"
           template:
@@ -74,31 +52,38 @@
             mode: "{{ item.group|default('0644') }}"
           loop:
             - { path: "/etc/systemd/system/apache2.service.d/local.conf" }
-            - { path: "/etc/apache2/proxy.on.inc" }
+            - { path: "/etc/apache2/conf-available/apache2-overrides.conf" }
+            - { path: "/etc/apache2/conf-available/ports-overrides.conf" }
+            - { path: "/etc/apache2/conf-available/security-overrides.conf" }
+            - { path: "/etc/apache2/conf-available/ssl-overrides.conf" }
+            - { path: "/etc/apache2/sites-available/000-local.conf" }
+            - { path: "/etc/apache2/sites-available/000-local-ssl.conf" }
             - { path: "/etc/apache2/proxy.off.inc" }
-            - { path: "/etc/apache2/conf-available/zzz-alt_port.conf" }
-            - { path: "/etc/apache2/conf-available/zzz-hide_info.conf" }
-            - { path: "/etc/apache2/conf-available/zzz-hide_vcs.conf" }
-            - { path: "/etc/apache2/conf-available/zzz-sanitize_docroot_options.conf" }
-            - { path: "/etc/apache2/conf-available/zzz-sanitize_logging_options.conf" }
-            - { path: "/etc/apache2/conf-available/zzz-tighten_limits.conf" }
-            - { path: "/etc/apache2/conf-available/zzz-tighten_ssl.conf" }
-            - { path: "/etc/apache2/mods-available/zzz-proxy_protocol.load" }
+            - { path: "/etc/apache2/proxy.on.inc" }
+            - { path: "/etc/apache2/includes/proxy.conf" }
+            - { path: "/var/www/html/index.html" }
 
         - name: "Setup Apache Service: Enable Modules"
-          shell: "a2enmod -q remoteip rewrite socache_shmcb ssl zzz-proxy_protocol"
+          shell: "a2enmod -q remoteip rewrite socache_shmcb ssl"
 
         - name: "Setup Apache Service: Disable Modules"
-          shell: "a2dismod -q autoindex status"
+          shell: "a2dismod -q status"
 
         - name: "Setup Apache Service: Enable Configurations"
-          shell: "a2enconf -q zzz-alt_port zzz-hide_info zzz-hide_vcs zzz-sanitize_docroot_options zzz-sanitize_logging_options zzz-tighten_limits zzz-tighten_ssl"
+          shell: "a2enconf -q apache2-overrides ports-overrides security-overrides ssl-overrides"
 
-        - name: "Setup Apache Service: Disable Site"
+        - name: "Setup Apache Service: Disable Configurations"
           shell: "a2disconf -q serve-cgi-bin"
 
+        - name: "Setup Apache Service: Enable Site over HTTP"
+          shell: "a2ensite -q 000-local"
+
+        - name: "Setup Apache Service: Enable Site over HTTPS"
+          shell: "a2ensite -q 000-local-ssl"
+          when: "'/etc/letsencrypt/live/' ~ service_apache_default_virtual_host in certificates.files|map(attribute='path')"
+
         - name: "Setup Apache Service: Disable Site"
-          shell: "a2dissite -q 000-default"
+          shell: "a2dissite -q 000-default default-ssl"
 
         - name: "Setup Apache Service: Enable Apache Daemon"
           service:

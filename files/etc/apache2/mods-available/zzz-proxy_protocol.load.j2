@@ -1,5 +1,0 @@
-
-{% if (service_apache_proxy_protocol_rules|select('distribution', distro, release, attribute='requires')|first)['name'] == 'mod_proxy_protocol' %}
-LoadModule proxy_protocol_module /usr/local/lib/mod_proxy_protocol/.libs/mod_proxy_protocol.so
-{% endif %}
-
