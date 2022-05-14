@@ -21,4 +21,18 @@
             update_cache: true
             cache_valid_time: 86400
 
+        - name: "Install Skype: Install Custom Profile Modification for Electron Apps"
+          template:
+            dest: "/etc/firejail/electron.local"
+            src: "{{ playbook_dir }}/files/etc/firejail/electron.local.j2"
+            owner: "root"
+            group: "root"
+            mode: "0644"
+
+        - name: "Install Skype: Install Custom AppArmor Rule for Firejail"
+          lineinfile:
+            path: "/etc/apparmor.d/local/firejail-default"
+            line: "/{,run/firejail/mnt/oroot/}usr/share/skypeforlinux/** ix,"
+            state: "present"
+
 
