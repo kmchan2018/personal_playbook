@@ -7,26 +7,130 @@
   become: true
   become_user: "root"
 
+  vars:
+
+    install_baidunetdisk_version: "4.3.0"
+    install_baidunetdisk_directory: "/usr/local/lib/baidunetdisk-4.3.0"
+    install_baidunetdisk_binaries: [ "baidunetdisk" ]
+
+    install_baidunetdisk_electron_url: "https://github.com/electron/electron/releases/download/v9.4.4/electron-v9.4.4-linux-x64.zip"
+    install_baidunetdisk_electron_checksum: "sha256:781d6ca834d415c71078e1c2c198faba926d6fce19e31448bbf4450869135450"
+    install_baidunetdisk_electron_archive: "/usr/local/lib/baidunetdisk-4.3.0/electron-v9.4.4-linux-x64.zip"
+  
+    install_baidunetdisk_package_url: "https://issuepcdn.baidupcs.com/issue/netdisk/LinuxGuanjia/4.3.0/baidunetdisk_4.3.0_amd64.deb"
+    install_baidunetdisk_package_checksum: "sha256:43aa0ad4ef8fe17fa62592a366bd955984d71e56320b5a7b3ab2aee0b49be5e6"
+    install_baidunetdisk_package_archive: "/usr/local/lib/baidunetdisk-4.3.0/baidunetdisk_4.3.0_amd64.deb"
+
   tasks:
 
     - name: "Install Baidu Net Disk"
       when: "install_baidunetdisk_enabled|default(false)"
       block:
 
-        - name: "Install Baidu Net Disk: Install Dependencies"
-          apt:
-            name: "desktop-file-utils"
-            state: "latest"
-            update_cache: true
-            cache_valid_time: 86400
-            default_release: "{{ ansible_distribution_release }}"
+        - name: "Install Baidu Net Disk: Create Package Directory"
+          file:
+            path: "{{ install_baidunetdisk_directory }}"
+            state: "directory"
+            owner: "root"
+            group: "root"
+            mode: "0755"
 
-        - name: "Install Baidu Net Disk: Install Packages"
-          apt:
-            deb: "https://issuecdn.baidupcs.com/issue/netdisk/LinuxGuanjia/4.3.0/baidunetdisk_4.3.0_amd64.deb"
-            state: "present"
-            allow_unauthenticated: true
-            update_cache: true
-            cache_valid_time: 86400
+        - name: "Install Golang Toolchain: Download Electron"
+          get_url:
+            url: "{{ install_baidunetdisk_electron_url }}"
+            dest: "{{ install_baidunetdisk_electron_archive }}"
+            checksum: "{{ install_baidunetdisk_electron_checksum }}"
+            owner: "root"
+            group: "root"
+            mode: "0644"
+
+        - name: "Install Golang Toolchain: Download Debian Package"
+          get_url:
+            url: "{{ install_baidunetdisk_package_url }}"
+            dest: "{{ install_baidunetdisk_package_archive }}"
+            checksum: "{{ install_baidunetdisk_package_checksum }}"
+            owner: "root"
+            group: "root"
+            mode: "0644"
+
+        - name: "Install Baidu Net Disk: Extract Electron"
+          shell: "unzip {{ install_baidunetdisk_electron_archive }}"
+          args:
+            chdir: "{{ install_baidunetdisk_directory }}"
+            creates: "{{ install_baidunetdisk_directory }}/chrome-sandbox"
+            warn: false
+
+        - name: "Install Baidu Net Disk: Extract Debian Package"
+          shell: "ar p {{ install_baidunetdisk_package_archive }} data.tar.xz | tar --extract --file - -J --no-same-owner --strip-components 3 ./opt/baidunetdisk/libbrowserengine.so ./opt/baidunetdisk/libkernel.so ./opt/baidunetdisk/libplayer.so ./opt/baidunetdisk/libminosagent.so ./opt/baidunetdisk/baidunetdiskv.desktop ./opt/baidunetdisk/baidunetdisk.svg ./opt/baidunetdisk/baiduNetdiskContext.conf ./opt/baidunetdisk/resources"
+          args:
+            chdir: "{{ install_baidunetdisk_directory }}"
+            creates: "{{ install_baidunetdisk_directory }}/libbrowserengine.so"
+            warn: false
+
+        - name: "Install Baidu Net Disk: Hardlink Executable"
+          file:
+            path: "{{ install_baidunetdisk_directory }}/baidunetdisk"
+            src: "{{ install_baidunetdisk_directory }}/electron"
+            state: "hard"
+            force: true
+
+        - name: "Install Baidu Net Disk: Patch Desktop File Exec Path"
+          replace:
+            path: "{{ install_baidunetdisk_directory }}/baidunetdiskv.desktop"
+            regexp: "\/opt\/baidunetdisk"
+            replace: "{{ install_baidunetdisk_directory }}"
+
+        - name: "Install Baidu Net Disk: Patch Desktop File Icon Path"
+          ini_file:
+            path: "{{ install_baidunetdisk_directory }}/baidunetdiskv.desktop"
+            section: "Desktop Entry"
+            option: "Icon"
+            value: "baidunetdisk"
+            no_extra_spaces: true
+
+        - name: "Install Baidu Net Disk: Patch Desktop File Mime Type Support"
+          ini_file:
+            path: "{{ install_baidunetdisk_directory }}/baidunetdiskv.desktop"
+            section: "Desktop Entry"
+            option: "MimeType"
+            value: "x-scheme/baiduyunguanjia"
+            no_extra_spaces: true
+
+        - name: "Install Baidu Net Disk: Install Executable"
+          file:
+            path: "/usr/local/bin/baidunetdisk"
+            src: "{{ install_baidunetdisk_directory }}/baidunetdisk"
+            state: "link"
+            force: true
+
+        - name: "Install Baidu Net Disk: Install Desktop File"
+          file:
+            path: "/usr/share/applications/baidunetdisk.desktop"
+            src: "{{ install_baidunetdisk_directory }}/baidunetdiskv.desktop"
+            state: "link"
+            force: true
+
+        - name: "Install Baidu Net Disk: Install Icon File"
+          file:
+            path: "/usr/share/icons/hicolor/scalable/apps/baidunetdisk.svg"
+            src: "{{ install_baidunetdisk_directory }}/baidunetdisk.svg"
+            state: "link"
+            force: true
+
+        - name: "Install Baidu Net Disk: Install Custom Profile Modification for Electron Apps"
+          template:
+            dest: "/etc/firejail/electron.local"
+            src: "{{ playbook_dir }}/files/etc/firejail/electron.local.j2"
+            owner: "root"
+            group: "root"
+            mode: "0644"
+
+        - name: "Install Baidu Net Disk: Install Custom Profile for Baidu Net Disk"
+          template:
+            dest: "/etc/firejail/baidunetdisk.profile"
+            src: "{{ playbook_dir }}/files/etc/firejail/baidunetdisk.profile.j2"
+            owner: "root"
+            group: "root"
+            mode: "0644"
 
 
