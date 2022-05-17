@@ -1,0 +1,5 @@
+
+net firejail
+dns {{ software_firejail_network_address|ipaddr('address') }}
+defaultgw {{ software_firejail_network_address|ipaddr('address') }}
+

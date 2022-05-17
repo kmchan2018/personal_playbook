@@ -1,0 +1,6 @@
+
+net firejail
+dns {{ software_firejail_network_address|ipaddr('address') }}
+defaultgw {{ software_firejail_network_address|ipaddr('address') }}
+iprange {{ software_firejail_network_partitions.shared|ipaddr('next_usable') }},{{ software_firejail_network_partitions.shared|ipaddr('last_usable') }}
+

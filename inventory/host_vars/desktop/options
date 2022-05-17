@@ -251,9 +251,10 @@ service_guest_dhcp_upper: "192.168.192.199"
 #
 
 software_firejail_enabled: true
-software_firejail_network: "192.168.193.0"
-software_firejail_netmask: "255.255.255.0"
-software_firejail_gateway: "192.168.193.1"
+software_firejail_network_address: "192.168.193.1/24"
+software_firejail_network_partitions:
+  shared: "192.168.193.128/25"
+  kmchan: "192.168.193.16/28"
 
 
 #

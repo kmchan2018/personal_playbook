@@ -1,0 +1,6 @@
+
+{% if software_firejail_enabled|default(false) %}
+interface=firejail
+no-dhcp-interface=firejail
+{% endif %}
+
