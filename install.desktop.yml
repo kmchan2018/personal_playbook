@@ -38,7 +38,7 @@
       when: "install_desktop_enabled|default(false)"
       block:
 
-        - name: "Install Desktop Software"
+        - name: "Install Desktop Software: Install Packages"
           apt:
             name: "{{ item.name }}"
             state: "latest"
@@ -46,5 +46,17 @@
             cache_valid_time: 86400
             default_release: "{{ item.release|default(ansible_distribution_release) }}"
           loop: "{{ install_desktop_packages|select('distribution', distro, release, attribute='requires')|list }}"
+
+        - name: "Install Desktop Software: Install Firejail Customizations"
+          template:
+            dest: "{{ item.path }}"
+            src: "{{ playbook_dir }}/files/{{ item.path }}.j2"
+            owner: "{{ item.owner|default('root') }}"
+            group: "{{ item.group|default('root') }}"
+            mode: "{{ item.mode|default('0644') }}"
+          loop:
+            - { path: "/etc/firejail/chromium-common.local" }
+            - { path: "/etc/firejail/qbittorrent.local" }
+            - { path: "/etc/firejail/steam.local" }
 
 

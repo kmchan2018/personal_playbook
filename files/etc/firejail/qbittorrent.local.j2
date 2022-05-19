@@ -1,0 +1,34 @@
+
+ignore dbus-system none
+ignore dbus-user none
+
+dbus-system filter
+dbus-user filter
+
+#
+# The following DBus interfaces are allowed for showing notifications
+# to users.
+#
+
+dbus-user.talk org.freedesktop.Notifications
+dbus-user.talk org.freedesktop.StatusNotifierItem
+dbus-user.talk org.kde.knotifications
+dbus-user.talk org.kde.StatusNotifierWatcher
+
+#
+# The following DBus interfaces are allowed for stopping suspension,
+# hibernation, shutdown, etc while busy downloading something.
+#
+
+dbus-user.talk org.freedesktop.PowerManagement
+dbus-user.talk org.gnome.SessionManager
+
+#
+# The following DBus interfaces are allowed for shutting down, suspending
+# or hibernating the system after download is done.
+#
+
+dbus-system.talk org.freedesktop.ConsoleKit
+dbus-system.talk org.freedesktop.UPower
+dbus-system.talk org.freedesktop.login1
+

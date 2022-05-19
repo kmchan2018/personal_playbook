@@ -1,0 +1,16 @@
+
+#
+# Allow games to make use of controllers by accessing devices under
+# /dev/input. However, it also allows games to access other device
+# nodes as well.
+#
+
+ignore private-dev
+
+#
+# The seccomp filter breaks steam and prevents the window to show
+# up. Hence, the filter is disabled here.
+#
+
+ignore seccomp
+
