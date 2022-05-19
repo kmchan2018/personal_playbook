@@ -15,8 +15,31 @@ account_golang_enabled: true
 account_mysql_enabled: true
 account_postgresql_enabled: true
 account_server_enabled: true
-account_skype_enabled: true
 account_steam_enabled: true
+
+
+#
+# Account Specific Skype Settings
+#
+
+account_skype_enabled: true
+account_skype_firejail_options:
+  - name: "include networking options"
+    rules:
+      - "include ${CFG}/isolate-networking-with-random-ip.inc"
+      - "include ${CFG}/allow-connection-to-internet.inc"
+  - name: "enable access to some parts of the download folders"
+    rules:
+      - "noblacklist ${DOWNLOADS}"
+      - "noblacklist /mnt"
+      - "noblacklist /mnt/download"
+      - "noblacklist /mnt/ramdrive"
+      - "whitelist /mnt/download/kmchan"
+      - "whitelist /mnt/ramdrive/kmchan"
+      - "blacklist /mnt/download/kmchan/alternative"
+      - "blacklist /mnt/download/kmchan/private"
+      - "blacklist /mnt/ramdrive/kmchan/alternative"
+      - "blacklist /mnt/ramdrive/kmchan/private"
 
 
 #
