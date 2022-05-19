@@ -10,14 +10,21 @@
       when: "account_zoom_enabled|default(false)"
       block:
 
-        - name: "Applying Zoom Settings to Account: Copying Configuration Files"
-          copy:
-            dest: "/home/kmchan/{{ item.path }}"
-            src: "{{ playbook_dir }}/files/home/kmchan/{{ item.path }}"
+        - name: "Applying Zoom Settings to Account: Install Desktop File"
+          firejail_xdg_desktop_file:
+            dest: "/home/kmchan/.local/share/applications/Zoom.desktop"
+            src: "/usr/share/applications/Zoom.desktop"
+            parameters: "--profile=zoom"
             owner: "kmchan"
             group: "kmchan"
-            mode: "{{ item.mode }}"
-          loop:
-            - { path: ".local/share/applications/Zoom.desktop", mode: "0644" }
+            mode: "0644"
+
+        - name: "Applying Zoom Settings to Account: Install Custom Firejail Profile"
+          template:
+            dest: "/home/kmchan/.config/firejail/zoom.profile"
+            src: "{{ playbook_dir }}/files/home/kmchan/.config/firejail/zoom.profile.j2"
+            owner: "kmchan"
+            group: "kmchan"
+            mode: "0644"
 
 
