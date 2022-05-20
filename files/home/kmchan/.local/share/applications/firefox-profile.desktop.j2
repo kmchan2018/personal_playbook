@@ -1,7 +1,7 @@
 [Desktop Entry]
 Name=Firefox ({{ profile.directory }} Profile)
 Comment=Web Browser
-Exec=firejail --profile=firefox-{{ profile.name }} /usr/local/bin/firefox -P {{ profile.directory }} %u
+Exec=firejail --profile=firefox-{{ profile.name }} /usr/local/bin/firefox -P {{ profile.directory }} {% if profile.options|default('') != '' %}{{ profile.options }} {% endif %}%u
 Terminal=false
 Type=Application
 Icon=firefox
@@ -13,6 +13,6 @@ StartupNotify=true
 Actions=Private;
 
 [Desktop Action Private]
-Exec=firejail --profile=firefox-{{ profile.name }} /usr/local/bin/firefox -P {{ profile.directory }} --private-window %u
+Exec=firejail --profile=firefox-{{ profile.name }} /usr/local/bin/firefox -P {{ profile.directory }} --private-window {% if profile.options|default('') != '' %}{{ profile.options }} {% endif %}%u
 Name=Open in private mode
 

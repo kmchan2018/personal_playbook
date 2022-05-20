@@ -48,11 +48,11 @@ account_baidunetdisk_firejail_options:
 
 account_firefox_enabled: true
 account_firefox_profiles:
-  - { name: "default",     directory: "Default",     default: true }
-  - { name: "alternative", directory: "Alternative", default: false }
-  - { name: "private",     directory: "Private",     default: false }
-  - { name: "work",        directory: "Work",        default: false }
-  - { name: "test",        directory: "Test",        default: false }
+  - { name: "default",     directory: "Default",     options: "",             default: true }
+  - { name: "alternative", directory: "Alternative", options: "--marionette", default: false }
+  - { name: "private",     directory: "Private",     options: "",             default: false }
+  - { name: "work",        directory: "Work",        options: "",             default: false }
+  - { name: "test",        directory: "Test",        options: "",             default: false }
 account_firefox_firejail_options:
   - name: "enable fcitx input method"
     rules:
