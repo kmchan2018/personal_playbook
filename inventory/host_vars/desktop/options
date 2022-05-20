@@ -41,6 +41,28 @@ account_baidunetdisk_firejail_options:
 
 
 #
+# Account Specific qBittorrent Settings
+#
+
+account_qbittorrent_enabled: true
+account_qbittorrent_firejail_options:
+  - name: "include networking options"
+    rules:
+      - "include ${CFG}/isolate-networking-with-random-ip.inc"
+      - "include ${CFG}/allow-connection-to-internet.inc"
+  - name: "enable access to some parts of the download folders"
+    rules:
+      - "noblacklist ${DOWNLOADS}"
+      - "noblacklist /mnt"
+      - "noblacklist /mnt/download"
+      - "noblacklist /mnt/ramdrive"
+      - "whitelist /mnt/download/kmchan"
+      - "whitelist /mnt/ramdrive/kmchan"
+      - "blacklist /mnt/download/kmchan/private"
+      - "blacklist /mnt/ramdrive/kmchan/private"
+
+
+#
 # Account Specific Skype Settings
 #
 
