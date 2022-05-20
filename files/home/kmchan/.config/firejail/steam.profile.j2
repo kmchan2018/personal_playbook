@@ -1,0 +1,23 @@
+
+#
+# ensure the sandbox name
+#
+
+join-or-start kmchan-steam
+
+{% for section in account_steam_firejail_options|default([]) %}
+#
+# {{ section.name }}
+#
+
+{% for line in section.rules %}
+{{ line }}
+{% endfor %}
+
+{% endfor %}
+#
+# include the system profile
+#
+
+include ${CFG}/steam.profile
+
