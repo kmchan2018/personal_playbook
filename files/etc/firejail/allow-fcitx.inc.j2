@@ -1,0 +1,21 @@
+
+# Normally, fcitx will run a private dbus process and use it to communicate
+# with its frontends. Connecting to it in firejail sandbox is difficult, or
+# even impossible in some configuration. Luckily, fcitx also listens to
+# session bus which allows us to sidestep the problem. Note that the fcitx
+# service name depends on X display number so we need to whitelist multiple
+# dbus services instead of a single one.
+
+ignore dbus-user none
+dbus-user filter
+dbus-user.talk org.fcitx.Fcitx-0
+dbus-user.talk org.fcitx.Fcitx-1
+dbus-user.talk org.fcitx.Fcitx-2
+dbus-user.talk org.fcitx.Fcitx-3
+dbus-user.talk org.fcitx.Fcitx-4
+dbus-user.talk org.fcitx.Fcitx-5
+dbus-user.talk org.fcitx.Fcitx-6
+dbus-user.talk org.fcitx.Fcitx-7
+dbus-user.talk org.fcitx.Fcitx-8
+dbus-user.talk org.fcitx.Fcitx-9
+

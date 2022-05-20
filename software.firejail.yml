@@ -46,6 +46,7 @@
             - { path: "/etc/firejail/allow-connection-to-internet.net" }
             - { path: "/etc/firejail/allow-connection-to-lan.inc" }
             - { path: "/etc/firejail/allow-connection-to-lan.net" }
+            - { path: "/etc/firejail/allow-fcitx.inc" }
             - { path: "/etc/firejail/isolate-networking-with-no-ip.inc" }
             - { path: "/etc/firejail/isolate-networking-with-random-ip.inc" }
             - { path: "/etc/network/interfaces.d/firejail" }

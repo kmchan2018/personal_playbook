@@ -25,6 +25,9 @@ account_baidunetdisk_firejail_options:
     rules:
       - "include ${CFG}/isolate-networking-with-random-ip.inc"
       - "include ${CFG}/allow-connection-to-internet.inc"
+  - name: "enable fcitx input method"
+    rules:
+      - "include ${CFG}/allow-fcitx.inc"
   - name: "enable access to some parts of the download folders"
     rules:
       - "noblacklist ${DOWNLOADS}"
@@ -51,6 +54,9 @@ account_firefox_profiles:
   - { name: "work",        directory: "Work",        default: false }
   - { name: "test",        directory: "Test",        default: false }
 account_firefox_firejail_options:
+  - name: "enable fcitx input method"
+    rules:
+      - "include ${CFG}/allow-fcitx.inc"
   - name: "enable access to some parts of the download folders"
     profiles: [ "default", "work", "test" ]
     rules:
@@ -102,6 +108,9 @@ account_qbittorrent_firejail_options:
     rules:
       - "include ${CFG}/isolate-networking-with-random-ip.inc"
       - "include ${CFG}/allow-connection-to-internet.inc"
+  - name: "enable fcitx input method"
+    rules:
+      - "include ${CFG}/allow-fcitx.inc"
   - name: "enable access to some parts of the download folders"
     rules:
       - "noblacklist ${DOWNLOADS}"
@@ -124,6 +133,9 @@ account_skype_firejail_options:
     rules:
       - "include ${CFG}/isolate-networking-with-random-ip.inc"
       - "include ${CFG}/allow-connection-to-internet.inc"
+  - name: "enable fcitx input method"
+    rules:
+      - "include ${CFG}/allow-fcitx.inc"
   - name: "enable access to some parts of the download folders"
     rules:
       - "noblacklist ${DOWNLOADS}"
@@ -151,6 +163,9 @@ account_steam_firejail_options:
     rules:
       - "env BUMBLEBEE_SOCKET=/home/kmchan/.bumblebee.socket"
       - "whitelist ${HOME}/.bumblebee.socket"
+  - name: "enable fcitx input method"
+    rules:
+      - "include ${CFG}/allow-fcitx.inc"
   - name: "whitelist directories for Creeper World 3"
     rules:
       - "whitelist ${HOME}/.config/creeperworld3"
@@ -184,6 +199,9 @@ account_zoom_firejail_options:
     rules:
       - "include ${CFG}/isolate-networking-with-random-ip.inc"
       - "include ${CFG}/allow-connection-to-internet.inc"
+  - name: "enable fcitx input method"
+    rules:
+      - "include ${CFG}/allow-fcitx.inc"
   - name: "enable access to some parts of the download folders"
     rules:
       - "noblacklist ${DOWNLOADS}"
