@@ -8,7 +8,6 @@ account_bash_enabled: true
 account_bumblebee_enabled: true
 account_conky_enabled: true
 account_docker_enabled: true
-account_firefox_enabled: true
 account_geeqie_enabled: true
 account_golang_enabled: true
 account_mysql_enabled: true
@@ -38,6 +37,59 @@ account_baidunetdisk_firejail_options:
       - "blacklist /mnt/download/kmchan/private"
       - "blacklist /mnt/ramdrive/kmchan/alternative"
       - "blacklist /mnt/ramdrive/kmchan/private"
+
+
+#
+# Account Specific Firefox Settings
+#
+
+account_firefox_enabled: true
+account_firefox_profiles:
+  - { name: "default",     directory: "Default",     default: true }
+  - { name: "alternative", directory: "Alternative", default: false }
+  - { name: "private",     directory: "Private",     default: false }
+  - { name: "work",        directory: "Work",        default: false }
+  - { name: "test",        directory: "Test",        default: false }
+account_firefox_firejail_options:
+  - name: "enable access to some parts of the download folders"
+    profiles: [ "default", "work", "test" ]
+    rules:
+      - "noblacklist /mnt"
+      - "noblacklist /mnt/download"
+      - "noblacklist /mnt/ramdrive"
+      - "whitelist /mnt/download/kmchan"
+      - "whitelist /mnt/ramdrive/kmchan"
+      - "blacklist /mnt/download/kmchan/alternative"
+      - "blacklist /mnt/download/kmchan/private"
+      - "blacklist /mnt/ramdrive/kmchan/alternative"
+      - "blacklist /mnt/ramdrive/kmchan/private"
+  - name: "enable access to some parts of the download folders"
+    profiles: [ "alternative" ]
+    rules:
+      - "noblacklist /mnt"
+      - "noblacklist /mnt/download"
+      - "noblacklist /mnt/ramdrive"
+      - "whitelist /mnt/download/kmchan"
+      - "whitelist /mnt/ramdrive/kmchan"
+      - "blacklist /mnt/download/kmchan/private"
+      - "blacklist /mnt/ramdrive/kmchan/private"
+  - name: "enable access to some parts of the download folders"
+    profiles: [ "private" ]
+    rules:
+      - "noblacklist /mnt"
+      - "noblacklist /mnt/download"
+      - "noblacklist /mnt/ramdrive"
+      - "whitelist /mnt/download/kmchan"
+      - "whitelist /mnt/ramdrive/kmchan"
+      - "blacklist /mnt/download/kmchan/alternative"
+      - "blacklist /mnt/ramdrive/kmchan/alternative"
+  - name: "block firefox from using nvidia cards for 3d/video acceleration"
+    rules:
+      - "blacklist /dev/nvidia0"
+      - "blacklist /dev/nvidiactl"
+      - "blacklist /dev/nvidia-modeset"
+      - "blacklist /dev/nvidia-uvm"
+      - "blacklist /dev/nvidia-uvm-tools"
 
 
 #

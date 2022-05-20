@@ -1,0 +1,41 @@
+
+#
+# ensure the sandbox name
+#
+
+join-or-start kmchan-firefox-{{ profile.name }}
+
+#
+# blacklist other profile directories
+#
+
+{% for item in account_firefox_profiles|default([]) -%}
+{% if item.name != profile.name %}
+blacklist ${HOME}/.cache/mozilla/firefox/{{ item.directory }}
+{% endif -%}
+{% endfor %}
+
+{% for item in account_firefox_profiles|default([]) -%}
+{% if item.name != profile.name %}
+blacklist ${HOME}/.mozilla/firefox/{{ item.directory }}
+{% endif -%}
+{% endfor %}
+
+{% for section in account_firefox_firejail_options|default([]) -%}
+{% if section.profiles is not defined or section.profiles == 'all' or profile.name in section.profiles %}
+#
+# {{ section.name }}
+#
+
+{% for line in section.rules %}
+{{ line }}
+{% endfor %}
+
+{% endif -%}
+{% endfor %}
+#
+# include the system profile
+#
+
+include ${CFG}/firefox.profile
+

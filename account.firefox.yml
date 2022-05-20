@@ -10,35 +10,37 @@
       when: "account_firefox_enabled|default(false)"
       block:
 
-        - name: "Applying Firefox Settings to Account: Copying Configuration Files"
-          copy:
-            dest: "/home/kmchan/{{ item.path }}"
-            src: "{{ playbook_dir }}/files/home/kmchan/{{ item.path }}"
-            owner: "kmchan"
-            group: "kmchan"
-            mode: "{{ item.mode }}"
-          loop:
-            - { path: ".config/firejail/firefox-alternative.profile", mode: "0644" }
-            - { path: ".config/firejail/firefox-default.profile", mode: "0644" }
-            - { path: ".config/firejail/firefox-private.profile", mode: "0644" }
-            - { path: ".config/firejail/firefox-test.profile", mode: "0644" }
-            - { path: ".config/firejail/firefox-work.profile", mode: "0644" }
-            - { path: ".config/firejail/firefox.inc", mode: "0644" }
-            - { path: ".local/share/applications/firefox-esr.desktop", mode: "0644" }
-            - { path: ".local/share/applications/firefox.desktop", mode: "0644" }
-
-        - name: "Applying Firefox Settings to Account: Writing Configuration Files"
+        - name: "Applying Firefox Settings to Account: Hide System Desktop Files"
           template:
-            dest: "/home/kmchan/{{ item.path }}"
-            src: "{{ playbook_dir }}/files/home/kmchan/{{ item.path }}.j2"
+            dest: "{{ item.path }}"
+            src: "{{ playbook_dir }}/files/{{ item.path }}"
             owner: "kmchan"
             group: "kmchan"
-            mode: "{{ item.mode }}"
+            mode: "0644"
           loop:
-            - { path: ".local/share/applications/firefox-alternative.desktop", mode: "0644" }
-            - { path: ".local/share/applications/firefox-default.desktop", mode: "0644" }
-            - { path: ".local/share/applications/firefox-private.desktop", mode: "0644" }
-            - { path: ".local/share/applications/firefox-test.desktop", mode: "0644" }
-            - { path: ".local/share/applications/firefox-work.desktop", mode: "0644" }
+            - { path: "/home/kmchan/.local/share/applications/firefox.desktop" }
+            - { path: "/home/kmchan/.local/share/applications/firefox-esr.desktop" }
+
+        - name: "Applying Firefox Settings to Account: Install Custom Desktop Files"
+          template:
+            dest: "/home/kmchan/.local/share/applications/firefox-{{ profile.name }}.desktop"
+            src: "{{ playbook_dir }}/files/home/kmchan/.local/share/applications/firefox-profile.desktop.j2"
+            owner: "kmchan"
+            group: "kmchan"
+            mode: "0644"
+          loop: "{{ account_firefox_profiles|default([]) }}"
+          loop_control:
+            loop_var: "profile"
+
+        - name: "Applying Firefox Settings to Account: Install Custom Firejail Profiles"
+          template:
+            dest: "/home/kmchan/.config/firejail/firefox-{{ profile.name }}.profile"
+            src: "{{ playbook_dir }}/files/home/kmchan/.config/firejail/firefox-profile.profile.j2"
+            owner: "kmchan"
+            group: "kmchan"
+            mode: "0644"
+          loop: "{{ account_firefox_profiles|default([]) }}"
+          loop_control:
+            loop_var: "profile"
 
 
