@@ -57,6 +57,9 @@ account_firefox_firejail_options:
   - name: "enable fcitx input method"
     rules:
       - "include ${CFG}/allow-fcitx.inc"
+  - name: "enable inhibition of screen saver"
+    rules:
+      - "include ${CFG}/allow-screensaver-inhibition.inc"
   - name: "enable access to some parts of the download folders"
     profiles: [ "default", "work", "test" ]
     rules:

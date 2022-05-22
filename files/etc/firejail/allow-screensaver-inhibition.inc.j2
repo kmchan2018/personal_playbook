@@ -1,0 +1,15 @@
+
+# Most desktop environment implements dbus service to inhibit screensaver
+# activation. The following code allows sandboxes apps to access these
+# services. The freedesktop ones are single-purpose, so we can allow
+# communication between the service and the apps. But GNOME session
+# manager provides extra operation apart from inhibition, so only the
+# required method calls are whitelisted.
+
+ignore dbus-user none
+dbus-user filter
+dbus-user.talk org.freedesktop.ScreenSaver
+dbus-user.talk org.freedesktop.PowerManager.Inhibit
+dbus-user.call org.gnome.SessionManager=org.gnome.SessionManager.Inhibit
+dbus-user.call org.gnome.SessionManager=org.gnome.SessionManager.Uninhibit
+
