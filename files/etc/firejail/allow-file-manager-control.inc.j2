@@ -1,0 +1,10 @@
+
+# Some apps needs to open directories in file manager. To support this
+# use case, some file manager exposes a dbus interface for external
+# control. This include file enables access to the dbus interface from
+# the sandbox
+
+ignore dbus-user none
+dbus-user filter
+dbus-user.talk org.freedesktop.FileManager1
+

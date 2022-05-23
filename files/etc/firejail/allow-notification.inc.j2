@@ -1,0 +1,12 @@
+
+# Some apps may need to send notification message to users. The include
+# file enables such functionanlities. Note that the list is probably
+# still incomplete.
+
+ignore dbus-user none
+dbus-user filter
+dbus-user.talk org.freedesktop.Notifications
+dbus-user.talk org.freedesktop.StatusNotifierItem
+dbus-user.talk org.kde.knotifications
+dbus-user.talk org.kde.StatusNotifierWatcher
+

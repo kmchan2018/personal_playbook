@@ -81,4 +81,12 @@
           warn: false
         loop: "{{ install_firefox_icons }}"
 
+      - name: "Install Desktop Software: Install Firejail Customizations"
+        template:
+          dest: "/etc/firejail/firefox.local"
+          src: "{{ playbook_dir }}/files/etc/firejail/firefox.local.j2"
+          owner: "root"
+          group: "root"
+          mode: "0644"
+
 
