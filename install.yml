@@ -7,6 +7,7 @@
 - import_playbook: "install.console.yml"
 - import_playbook: "install.desktop.yml"
 - import_playbook: "install.emscripten.yml"
+- import_playbook: "install.firefox.yml"
 - import_playbook: "install.golang.yml"
 - import_playbook: "install.java.yml"
 - import_playbook: "install.netbeans.yml"
@@ -15,8 +16,8 @@
 - import_playbook: "install.python.yml"
 - import_playbook: "install.sass.yml"
 - import_playbook: "install.skype.yml"
-- import_playbook: "install.steam.yml"
 - import_playbook: "install.system.yml"
+- import_playbook: "install.wine.yml"
 - import_playbook: "install.zoom.yml"
 
 
