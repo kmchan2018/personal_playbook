@@ -19,6 +19,18 @@
             group: "kmchan"
             mode: "0644"
 
+        - name: "Applying Steam Settings to Account: Extract User Information"
+          getent:
+            database: "passwd"
+            key: "kmchan"
+            split: ":"
+          when: "service_bumblebee_enabled|default(false)"
+
+        - name: "Applying Steam Settings to Account: Determine Bumblebee Proxy Socket Location"
+          set_fact:
+            bumblebee_socket: "/run/user/{{ ansible_facts.getent_passwd['kmchan'][1] }}/bumblebee"
+          when: "service_bumblebee_enabled|default(false)"
+
         - name: "Applying Steam Settings to Account: Install Local Firejail Customizations"
           template:
             dest: "/home/kmchan/.config/firejail/steam.profile"

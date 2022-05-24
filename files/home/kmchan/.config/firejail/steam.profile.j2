@@ -5,6 +5,15 @@
 
 join-or-start kmchan-steam
 
+{% if service_bumblebee_enabled|default(false) %}
+#
+# Enable bumblebee support
+#
+
+env BUMBLEBEE_SOCKET={{ bumblebee_socket }}
+whitelist {{ bumblebee_socket }}
+
+{% endif -%}
 {% for section in account_steam_firejail_options|default([]) %}
 #
 # {{ section.name }}

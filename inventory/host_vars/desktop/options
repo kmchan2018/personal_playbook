@@ -162,10 +162,6 @@ account_steam_firejail_options:
   - name: "prefer local libraries in games"
     rules:
       - "env STEAM_RUNTIME_PREFER_HOST_LIBRARIES=1"
-  - name: "enable bumblebee support"
-    rules:
-      - "env BUMBLEBEE_SOCKET=/home/kmchan/.bumblebee.socket"
-      - "whitelist ${HOME}/.bumblebee.socket"
   - name: "enable fcitx input method"
     rules:
       - "include ${CFG}/allow-fcitx-input.inc"

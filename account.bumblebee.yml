@@ -17,10 +17,24 @@
             groups: "bumblebee"
             append: "yes"
 
-        - name: "Applying Bumblebee Settings to Account: Install Socket Proxy"
-          copy:
+        # Note that the bumblebee socket has `root` as owner and `bumblebee` as group. The ownership
+        # situation can prevent bumblebee from being used in firejail sandboxes. Therefore, the playbook
+        # creates a forwarding socket with correct ownership.
+
+        - name: "Applying Bumblebee Settings to Account: Extract User Information"
+          getent:
+            database: "passwd"
+            key: "kmchan"
+            split: ":"
+
+        - name: "Applying Bumblebee Settings to Account: Determine Proxy Socket Location"
+          set_fact:
+            bumblebee_socket: "/run/user/{{ ansible_facts.getent_passwd['kmchan'][1] }}/bumblebee"
+
+        - name: "Applying Bumblebee Settings to Account: Install Proxy Service"
+          template:
             dest: "/home/kmchan/{{ item.path }}"
-            src: "{{ playbook_dir }}/files/home/kmchan/{{ item.path }}"
+            src: "{{ playbook_dir }}/files/home/kmchan/{{ item.path }}.j2"
             owner: "kmchan"
             group: "kmchan"
             mode: "{{ item.mode }}"
