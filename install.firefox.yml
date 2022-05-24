@@ -6,11 +6,11 @@
 
   vars:
 
-    install_firefox_version: "100.0"
-    install_firefox_url: "http://ftp.mozilla.org/pub/firefox/releases/100.0/linux-x86_64/en-US/firefox-100.0.tar.bz2"
-    install_firefox_checksum: "sha256:528845df1a15acf081fdc9e1e7276f0b4601acc9df3553324e02c9c6fb9b7d9d"
-    install_firefox_archive: "/usr/local/lib/firefox-100.0/firefox-100.0.tar.bz2"
-    install_firefox_directory: "/usr/local/lib/firefox-100.0"
+    install_firefox_version: "100.0.2"
+    install_firefox_url: "http://ftp.mozilla.org/pub/firefox/releases/100.0.2/linux-x86_64/en-US/firefox-100.0.2.tar.bz2"
+    install_firefox_checksum: "sha256:e7b42e9fd82bcd569cbca1fc95b7e1a364c3dbf4d44a0624b4466ec1bd67f836"
+    install_firefox_archive: "/usr/local/lib/firefox-100.0.2/firefox-100.0.2.tar.bz2"
+    install_firefox_directory: "/usr/local/lib/firefox-100.0.2"
 
     install_firefox_executables:
       - { path: "firefox" }
@@ -24,69 +24,73 @@
 
   tasks:
 
-      - name: "Install Firefox Browser for Debian: Create Installation Directory"
-        file:
-          path: "{{ install_firefox_directory }}"
-          state: "directory"
-          owner: "root"
-          group: "root"
-          mode: "0755"
+    - name: "Install Firefox Browser"
+      when: "install_desktop_enabled|default(false)"
+      block:
 
-      - name: "Install Firefox Browser for Debian: Download Release"
-        get_url:
-          url: "{{ install_firefox_url }}"
-          dest: "{{ install_firefox_archive }}"
-          checksum: "{{ install_firefox_checksum }}"
-          owner: "root"
-          group: "root"
-          mode: "0644"
+        - name: "Install Firefox Browser: Create Installation Directory"
+          file:
+            path: "{{ install_firefox_directory }}"
+            state: "directory"
+            owner: "root"
+            group: "root"
+            mode: "0755"
 
-      - name: "Install Firefox Browser for Debian: Unpack Release"
-        shell: "tar --extract --no-same-owner --strip-components 1 --file {{ install_firefox_archive }}"
-        args:
-          chdir: "{{ install_firefox_directory }}"
-          creates: "{{ install_firefox_directory }}/firefox"
-          warn: false
+        - name: "Install Firefox Browser: Download Release"
+          get_url:
+            url: "{{ install_firefox_url }}"
+            dest: "{{ install_firefox_archive }}"
+            checksum: "{{ install_firefox_checksum }}"
+            owner: "root"
+            group: "root"
+            mode: "0644"
 
-      - name: "Install Firefox Browser for Debian: Symlink Executables"
-        file:
-          path: "/usr/local/{{ item.directory|default('bin') }}/{{ item.name|default(item.path|basename) }}"
-          src: "{{ install_firefox_directory }}/{{ item.path }}"
-          state: "link"
-          force: true
-        loop: "{{ install_firefox_executables }}"
+        - name: "Install Firefox Browser: Unpack Release"
+          shell: "tar --extract --no-same-owner --strip-components 1 --file {{ install_firefox_archive }}"
+          args:
+            chdir: "{{ install_firefox_directory }}"
+            creates: "{{ install_firefox_directory }}/firefox"
+            warn: false
 
-      - name: "Install Firefox Browser for Debian: Create Desktop Entry Directory"
-        file:
-          path: "/usr/local/share/applications"
-          state: "directory"
-          owner: "root"
-          group: "root"
-          mode: "0755"
-          force: true
+        - name: "Install Firefox Browser: Symlink Executables"
+          file:
+            path: "/usr/local/{{ item.directory|default('bin') }}/{{ item.name|default(item.path|basename) }}"
+            src: "{{ install_firefox_directory }}/{{ item.path }}"
+            state: "link"
+            force: true
+          loop: "{{ install_firefox_executables }}"
 
-      - name: "Install Firefox Browser for Debian: Install Desktop Entry"
-        template:
-          dest: "/usr/local/share/applications/firefox.desktop"
-          src: "{{ playbook_dir }}/files/usr/local/share/applications/firefox.desktop.j2"
-          owner: "root"
-          group: "root"
-          mode: "0644"
+        - name: "Install Firefox Browser: Create Desktop Entry Directory"
+          file:
+            path: "/usr/local/share/applications"
+            state: "directory"
+            owner: "root"
+            group: "root"
+            mode: "0755"
+            force: true
 
-      - name: "Install Firefox Browser for Debian: Install Application Icons"
-        shell: "xdg-icon-resource install --novendor --mode system --context apps --size {{ item.size }} {{ install_firefox_directory }}/{{ item.path }} firefox"
-        args:
-          chdir: "{{ install_firefox_directory }}"
-          creates: "/usr/share/icons/hicolor/{{ item.size }}x{{ item.size }}/apps/firefox.png"
-          warn: false
-        loop: "{{ install_firefox_icons }}"
+        - name: "Install Firefox Browser: Install Desktop Entry"
+          template:
+            dest: "/usr/local/share/applications/firefox.desktop"
+            src: "{{ playbook_dir }}/files/usr/local/share/applications/firefox.desktop.j2"
+            owner: "root"
+            group: "root"
+            mode: "0644"
 
-      - name: "Install Desktop Software: Install Firejail Customizations"
-        template:
-          dest: "/etc/firejail/firefox.local"
-          src: "{{ playbook_dir }}/files/etc/firejail/firefox.local.j2"
-          owner: "root"
-          group: "root"
-          mode: "0644"
+        - name: "Install Firefox Browser: Install Application Icons"
+          shell: "xdg-icon-resource install --novendor --mode system --context apps --size {{ item.size }} {{ install_firefox_directory }}/{{ item.path }} firefox"
+          args:
+            chdir: "{{ install_firefox_directory }}"
+            creates: "/usr/share/icons/hicolor/{{ item.size }}x{{ item.size }}/apps/firefox.png"
+            warn: false
+          loop: "{{ install_firefox_icons }}"
+
+        - name: "Install Desktop Software: Install Firejail Customizations"
+          template:
+            dest: "/etc/firejail/firefox.local"
+            src: "{{ playbook_dir }}/files/etc/firejail/firefox.local.j2"
+            owner: "root"
+            group: "root"
+            mode: "0644"
 
 
