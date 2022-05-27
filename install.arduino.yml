@@ -10,22 +10,8 @@
 
   vars:
 
-    install_arduino_version: "1.8.13"
-    install_arduino_url: "https://downloads.arduino.cc/arduino-1.8.13-linux64.tar.xz"
-    install_arduino_checksum: "sha512:865a442ac7c2406794d93669afbff6b54a598c22bc9b6e39e5257ad8305a56cca5537aa4b19048a087688d8bf2f1fb046577f5565f66c471cbe14dd399004eb3"
-    install_arduino_archive: "/usr/local/lib/arduino-1.8.13/arduino-1.8.13-linux64.tar.xz"
-    install_arduino_directory: "/usr/local/lib/arduino-1.8.13"
-
-    install_arduino_icons:
-      - { path: "lib/icons/16x16/apps/arduino.png", size: 16 }
-      - { path: "lib/icons/24x24/apps/arduino.png", size: 24 }
-      - { path: "lib/icons/32x32/apps/arduino.png", size: 32 }
-      - { path: "lib/icons/48x48/apps/arduino.png", size: 48 }
-      - { path: "lib/icons/64x64/apps/arduino.png", size: 64 }
-      - { path: "lib/icons/72x72/apps/arduino.png", size: 72 }
-      - { path: "lib/icons/96x96/apps/arduino.png", size: 96 }
-      - { path: "lib/icons/128x128/apps/arduino.png", size: 128 }
-      - { path: "lib/icons/256x256/apps/arduino.png", size: 256 }
+    install_arduino_packages:
+      - { name: "arduino" }
 
   tasks:
 
@@ -33,90 +19,13 @@
       when: "install_arduino_enabled|default(false)"
       block:
 
-        - name: "Install Arduino Integrated Development Environment: Create Installation Directory"
-          file:
-            path: "{{ install_arduino_directory }}"
-            state: "directory"
-            owner: "root"
-            group: "root"
-            mode: "0755"
-
-        - name: "Install Arduino Integrated Development Environment: Download Release"
-          get_url:
-            url: "{{ install_arduino_url }}"
-            dest: "{{ install_arduino_archive }}"
-            checksum: "{{ install_arduino_checksum }}"
-            owner: "root"
-            group: "root"
-            mode: "0644"
-
-        - name: "Install Arduino Integrated Development Environment: Unpack Release"
-          shell: "tar --extract --no-same-owner --strip-components 1 --file {{ install_arduino_archive }}"
-          args:
-            chdir: "{{ install_arduino_directory }}"
-            creates: "{{ install_arduino_directory }}/arduino"
-            warn: false
-
-        - name: "Install Arduino Integrated Development Environment: Symlink Executables"
-          file:
-            path: "/usr/local/bin/arduino"
-            src: "{{ install_arduino_directory }}/arduino"
-            state: "link"
-            force: true
-
-        - name: "Install Arduino Integrated Development Environment: Build Desktop Entry"
-          copy:
-            dest: "{{ install_arduino_directory }}/lib/arduino-arduinoide.desktop"
-            src: "{{ install_arduino_directory }}/lib/desktop.template"
-            owner: "root"
-            group: "root"
-            mode: "0644"
-            remote_src: true
-
-        - name: "Install Arduino Integrated Development Environment: Patch Desktop Entry Path"
-          ini_file:
-            path: "{{ install_arduino_directory }}/lib/arduino-arduinoide.desktop"
-            section: "Desktop Entry"
-            option: "Exec"
-            value: "{{ install_arduino_directory }}/arduino"
-            state: "present"
-
-        - name: "Install Arduino Integrated Development Environment: Patch Desktop Entry Icon"
-          ini_file:
-            path: "{{ install_arduino_directory }}/lib/arduino-arduinoide.desktop"
-            section: "Desktop Entry"
-            option: "Icon"
-            value: "arduino-arduinoide"
-            state: "present"
-
-        - name: "Install Arduino Integrated Development Environment: Install Desktop Entry"
-          shell: "xdg-desktop-menu install --mode system {{ install_arduino_directory }}/lib/arduino-arduinoide.desktop"
-          args:
-            chdir: "{{ install_arduino_directory }}"
-            creates: "/usr/share/applications/arduino-arduinoide.desktop"
-            warn: false
-
-        - name: "Install Arduino Integrated Development Environment: Install Media Type Entry"
-          shell: "xdg-mime install --mode system {{ install_arduino_directory }}/lib/arduino-arduinoide.xml"
-          args:
-            chdir: "{{ install_arduino_directory }}"
-            creates: "/usr/share/mime/text/x-arduino.xml"
-            warn: false
-
-        - name: "Install Arduino Integrated Development Environment: Install Application Icons"
-          shell: "xdg-icon-resource install --mode system --context apps --size {{ item.size }} {{ install_arduino_directory }}/{{ item.path }} arduino-arduinoide"
-          args:
-            chdir: "{{ install_arduino_directory }}"
-            creates: "/usr/share/applications/arduino-arduinoide.desktop"
-            warn: false
-          loop: "{{ install_arduino_icons }}"
-
-        - name: "Install Arduino Integrated Development Environment: Install File Icons"
-          shell: "xdg-icon-resource install --mode system --context mimetypes --size {{ item.size }} {{ install_arduino_directory }}/{{ item.path }} text-x-arduino"
-          args:
-            chdir: "{{ install_arduino_directory }}"
-            creates: "/usr/share/applications/arduino-arduinoide.desktop"
-            warn: false
-          loop: "{{ install_arduino_icons }}"
+        - name: "Install Arduino Integrated Development Environment: Install Required Packages"
+          apt:
+            name: "{{ item.name }}"
+            state: "latest"
+            update_cache: true
+            cache_valid_time: 86400
+            default_release: "{{ item.release|default(ansible_distribution_release) }}"
+          loop: "{{ install_arduino_packages|select('distribution', distro, release, attribute='requires')|list }}"
 
 
