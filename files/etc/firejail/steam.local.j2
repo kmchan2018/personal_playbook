@@ -1,5 +1,12 @@
 
 #
+# Whitelist common files under /run/user/<uid>, in particular, the
+# pulseaudio socket.
+#
+
+include whitelist-runuser-common.inc
+
+#
 # Allow games to make use of controllers by accessing devices under
 # /dev/input. However, it also allows games to access other device
 # nodes as well.
