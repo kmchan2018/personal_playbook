@@ -51,13 +51,13 @@
 
     service_guest_looking_glass_version: "B5.0.1"
     service_guest_looking_glass_url: "https://github.com/gnif/LookingGlass/"
-    service_guest_looking_glass_directory: "/usr/local/lib/LookingGlass-B5.0.1"
+    service_guest_looking_glass_directory: "/usr/local/lib/looking-glass/LookingGlass-B5.0.1"
 
     service_guest_scream_version: "3.9"
     service_guest_scream_url: "https://github.com/duncanthrax/scream/archive/3.9.tar.gz"
     service_guest_scream_checksum: "sha256:0a089ddc26930bcd9014c473245282081ea7e97f3727d771816eebef998c676e"
-    service_guest_scream_archive: "/usr/local/lib/scream-3.9/scream-3.9.tar.gz"
-    service_guest_scream_directory: "/usr/local/lib/scream-3.9"
+    service_guest_scream_archive: "/usr/local/lib/scream/scream-3.9/scream-3.9.tar.gz"
+    service_guest_scream_directory: "/usr/local/lib/scream/scream-3.9"
 
   tasks:
 

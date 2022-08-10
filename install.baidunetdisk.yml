@@ -10,16 +10,16 @@
   vars:
 
     install_baidunetdisk_version: "4.3.0"
-    install_baidunetdisk_directory: "/usr/local/lib/baidunetdisk-4.3.0"
+    install_baidunetdisk_directory: "/usr/local/lib/baidunetdisk/baidunetdisk-4.3.0"
     install_baidunetdisk_binaries: [ "baidunetdisk" ]
 
     install_baidunetdisk_electron_url: "https://github.com/electron/electron/releases/download/v9.4.4/electron-v9.4.4-linux-x64.zip"
     install_baidunetdisk_electron_checksum: "sha256:781d6ca834d415c71078e1c2c198faba926d6fce19e31448bbf4450869135450"
-    install_baidunetdisk_electron_archive: "/usr/local/lib/baidunetdisk-4.3.0/electron-v9.4.4-linux-x64.zip"
+    install_baidunetdisk_electron_archive: "/usr/local/lib/baidunetdisk/baidunetdisk-4.3.0/electron-v9.4.4-linux-x64.zip"
   
     install_baidunetdisk_package_url: "https://issuepcdn.baidupcs.com/issue/netdisk/LinuxGuanjia/4.3.0/baidunetdisk_4.3.0_amd64.deb"
     install_baidunetdisk_package_checksum: "sha256:43aa0ad4ef8fe17fa62592a366bd955984d71e56320b5a7b3ab2aee0b49be5e6"
-    install_baidunetdisk_package_archive: "/usr/local/lib/baidunetdisk-4.3.0/baidunetdisk_4.3.0_amd64.deb"
+    install_baidunetdisk_package_archive: "/usr/local/lib/baidunetdisk/baidunetdisk-4.3.0/baidunetdisk_4.3.0_amd64.deb"
 
   tasks:
 
@@ -117,7 +117,7 @@
             state: "link"
             force: true
 
-        - name: "Install Baidu Net Disk: Install Custom Profile Modification for Electron Apps"
+        - name: "Install Baidu Net Disk: Install Custom Firejail Profile Modification for Electron Apps"
           template:
             dest: "/etc/firejail/electron.local"
             src: "{{ playbook_dir }}/files/etc/firejail/electron.local.j2"
@@ -125,7 +125,7 @@
             group: "root"
             mode: "0644"
 
-        - name: "Install Baidu Net Disk: Install Custom Profile for Baidu Net Disk"
+        - name: "Install Baidu Net Disk: Install Custom Firejail Profile for Baidu Net Disk"
           template:
             dest: "/etc/firejail/baidunetdisk.profile"
             src: "{{ playbook_dir }}/files/etc/firejail/baidunetdisk.profile.j2"

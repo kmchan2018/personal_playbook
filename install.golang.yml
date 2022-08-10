@@ -9,8 +9,8 @@
     install_golang_version: "1.18.1"
     install_golang_url: "https://golang.org/dl/go1.18.1.linux-amd64.tar.gz"
     install_golang_checksum: "sha256:b3b815f47ababac13810fc6021eb73d65478e0b2db4b09d348eefad9581a2334"
-    install_golang_archive: "/usr/local/lib/golang-1.18.1/golang-1.18.1.tar.gz"
-    install_golang_directory: "/usr/local/lib/golang-1.18.1"
+    install_golang_archive: "/usr/local/lib/golang/golang-1.18.1/golang-1.18.1.tar.gz"
+    install_golang_directory: "/usr/local/lib/golang/golang-1.18.1"
     install_golang_binaries: [ "go", "gofmt" ]
 
   tasks:
