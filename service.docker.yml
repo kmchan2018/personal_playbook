@@ -24,13 +24,16 @@
             default_release: "{{ item.release|default(ansible_distribution_release) }}"
           loop: "{{ service_docker_packages|select('distribution', distro, release, attribute='requires')|list }}"
 
-        - name: "Setup Docker Service: Hide Docker network interface from Network Manager"
-          copy:
-            dest: "/etc/NetworkManager/conf.d/docker.conf"
-            src: "{{ playbook_dir }}/files/etc/NetworkManager/conf.d/docker.conf"
-            owner: "root"
-            group: "root"
-            mode: "0644"
+        - name: "Setup Docker Service: Install network-related configuration files"
+          template:
+            dest: "{{ item.path }}"
+            src: "{{ playbook_dir }}/files/{{ item.path }}.j2"
+            owner: "{{ item.owner|default('root') }}"
+            group: "{{ item.group|default('root') }}"
+            mode: "{{ item.mode|default('0644') }}"
+          loop:
+            - { path: "/etc/NetworkManager/conf.d/docker.conf" }
+            - { path: "/etc/nftables/docker.nft" }
 
         - name: "Setup Docker Service: Enable Docker Daemon"
           service:

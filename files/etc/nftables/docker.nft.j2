@@ -1,0 +1,18 @@
+
+# Docker uses iptables to configure the firewall system with ZERO understanding
+# of nftables. It means that docker does not understand the concept of multiple
+# tables working on the same packet, and that the created rulesets will DROP all
+# forwarded packets other than docker ones. Worse still, due to how nftables work,
+# the drop cannot be reverted by other rules in the ruleset.
+#
+# To resolve the problem, we need to add custom rule to DOCKER-USER chain, telling
+# the docker ruleset to pass over anything that is not docker related.
+
+table ip filter {
+  chain DOCKER-USER {
+    iifname { docker0 } counter return
+		oifname { docker0 } counter return
+    counter accept
+  }
+}
+
