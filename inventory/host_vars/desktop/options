@@ -24,8 +24,8 @@ account_baidunetdisk_enabled: true
 account_baidunetdisk_firejail_options:
   - name: "include networking options"
     rules:
-      - "include ${CFG}/isolate-networking-with-random-ip.inc"
-      - "include ${CFG}/allow-connection-to-internet.inc"
+      - "# include ${CFG}/isolate-networking-with-random-ip.inc"
+      - "# include ${CFG}/allow-connection-to-internet.inc"
   - name: "enable fcitx input method"
     rules:
       - "include ${CFG}/allow-fcitx-input.inc"
@@ -110,8 +110,8 @@ account_qbittorrent_enabled: true
 account_qbittorrent_firejail_options:
   - name: "include networking options"
     rules:
-      - "include ${CFG}/isolate-networking-with-random-ip.inc"
-      - "include ${CFG}/allow-connection-to-internet.inc"
+      - "# include ${CFG}/isolate-networking-with-random-ip.inc"
+      - "# include ${CFG}/allow-connection-to-internet.inc"
   - name: "enable fcitx input method"
     rules:
       - "include ${CFG}/allow-fcitx-input.inc"
@@ -135,8 +135,8 @@ account_skype_enabled: true
 account_skype_firejail_options:
   - name: "include networking options"
     rules:
-      - "include ${CFG}/isolate-networking-with-random-ip.inc"
-      - "include ${CFG}/allow-connection-to-internet.inc"
+      - "# include ${CFG}/isolate-networking-with-random-ip.inc"
+      - "# include ${CFG}/allow-connection-to-internet.inc"
   - name: "enable fcitx input method"
     rules:
       - "include ${CFG}/allow-fcitx.inc"
@@ -199,8 +199,8 @@ account_zoom_enabled: true
 account_zoom_firejail_options:
   - name: "include networking options"
     rules:
-      - "include ${CFG}/isolate-networking-with-random-ip.inc"
-      - "include ${CFG}/allow-connection-to-internet.inc"
+      - "# include ${CFG}/isolate-networking-with-random-ip.inc"
+      - "# include ${CFG}/allow-connection-to-internet.inc"
   - name: "enable fcitx input method"
     rules:
       - "include ${CFG}/allow-fcitx-input.inc"
