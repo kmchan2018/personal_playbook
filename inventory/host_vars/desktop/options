@@ -359,6 +359,46 @@ network_devices:
             public_key: "{{ network_devices_wireguard_keypairs.home.server.public_key }}"
             allowed_ips: 192.168.254.0/24
 
+
+#
+# Network Mounts
+#
+
+network_mounts:
+  - path: /mnt/server/kmchan01
+    remote: "192.168.254.1:/mnt/data/kmchan01"
+    options: "nfsvers=4.2,rsize=131072,wsize=131072,noatime,nodiratime"
+    type: "nfs4"
+    on_boot: false
+    force_unmount: true
+    mount_timeout: 30
+    idle_timeout: 600
+  - path: /mnt/server/kmchan02
+    remote: "192.168.254.1:/mnt/data/kmchan02"
+    options: "nfsvers=4.2,rsize=131072,wsize=131072,noatime,nodiratime"
+    type: "nfs4"
+    on_boot: false
+    force_unmount: true
+    mount_timeout: 30
+    idle_timeout: 600
+  - path: /mnt/server/kmchan03
+    remote: "192.168.254.1:/mnt/data/kmchan03"
+    options: "nfsvers=4.2,rsize=131072,wsize=131072,noatime,nodiratime"
+    type: "nfs4"
+    on_boot: false
+    force_unmount: true
+    mount_timeout: 30
+    idle_timeout: 600
+  - path: /mnt/server/kmchan05
+    remote: "192.168.254.1:/mnt/data/kmchan05"
+    options: "nfsvers=4.2,rsize=131072,wsize=131072,noatime,nodiratime"
+    type: "nfs4"
+    on_boot: false
+    force_unmount: true
+    mount_timeout: 30
+    idle_timeout: 600
+
+
 network_initramfs_modules: []
 network_initramfs_reset_netplan: true
 

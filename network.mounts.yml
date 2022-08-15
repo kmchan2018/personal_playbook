@@ -1,0 +1,67 @@
+
+
+- hosts: "all"
+  become: true
+  become_user: "root"
+
+  vars:
+
+    network_mounts_packages:
+      - { name: "cifs-utils" }
+      - { name: "nfs-common" }
+
+  tasks:
+
+    - name: "Setup Network Mounts: Install Packages"
+      apt:
+        name: "{{ item.name }}"
+        state: "latest"
+        update_cache: true
+        cache_valid_time: 86400
+        default_release: "{{ item.release|default(ansible_distribution_release) }}"
+      loop: "{{ network_mounts_packages|select('distribution', distro, release, attribute='requires')|list }}"
+
+    - name: "Setup Network Mounts: Install Systemd Mount Unit for Mount Points"
+      template:
+        dest: "/etc/systemd/system/{{ item.path|replace('/', '-')|regex_replace('^-') }}.mount"
+        src: "{{ playbook_dir }}/files/etc/systemd/system/network.mounts.mount.j2"
+        owner: "root"
+        group: "root"
+        mode: "0644"
+      vars:
+        path: "{{ item.path }}"
+        remote: "{{ item.remote }}"
+        type: "{{ item.type|default('nfs') }}"
+        options: "{{ item.options|default('') }}"
+        on_boot: "{{ item.on_boot|default(true) }}"
+        lazy_unmount: "{{ item.lazy_unmount|default(false) }}"
+        force_unmount: "{{ item.force_unmount|default(false) }}"
+        mount_timeout: "{{ item.mount_timeout|default(30) }}"
+        idle_timeout: "{{ item.idle_timeout|default(0) }}"
+      loop: "{{ network_mounts|default([]) }}"
+      loop_control:
+        label: "{{ item.path }}"
+
+    - name: "Setup Network Mounts: Install Systemd Automount Unit for Mount Points"
+      template:
+        dest: "/etc/systemd/system/{{ item.path|replace('/', '-')|regex_replace('^-') }}.automount"
+        src: "{{ playbook_dir }}/files/etc/systemd/system/network.mounts.automount.j2"
+        owner: "root"
+        group: "root"
+        mode: "0644"
+      vars:
+        path: "{{ item.path }}"
+        remote: "{{ item.remote }}"
+        type: "{{ item.type|default('nfs') }}"
+        options: "{{ item.options|default('') }}"
+        on_boot: "{{ item.on_boot|default(true) }}"
+        lazy_unmount: "{{ item.lazy_unmount|default(false) }}"
+        force_unmount: "{{ item.force_unmount|default(false) }}"
+        mount_timeout: "{{ item.mount_timeout|default(30) }}"
+        idle_timeout: "{{ item.idle_timeout|default(0) }}"
+      when: "item.onboot|default(true)"
+      loop: "{{ network_mounts|default([]) }}"
+      loop_control:
+        label: "{{ item.path }}"
+
+

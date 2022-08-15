@@ -1,0 +1,28 @@
+
+[Unit]
+Description=Mount {{ path }}
+
+[Mount]
+What={{ remote }}
+Where={{ path }}
+Type={{ type }}
+{% if options != "" %}
+Options=_netdev,{{ options }}
+{% else %}
+Options=_netdev
+{% endif %}
+{% if mount_timeout != 0 %}
+TimeoutSec={{ mount_timeout }}
+{% endif %}
+{% if lazy_unmount == true %}
+LazyUnmount=yes
+{% endif %}
+{% if force_unmount == true %}
+ForceUnmount=yes
+{% endif %}
+
+{% if on_boot|default(true) %}
+[Install]
+WantedBy=multi-user.target
+{% endif %}
+
