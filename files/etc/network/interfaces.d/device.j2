@@ -1,0 +1,19 @@
+
+{% if options.auto|default(false) %}
+auto {{ device }}
+{% endif %}
+
+iface {{ device }} inet {{ options.method|default('static') }}
+{% if options.type|default('') == 'wireguard' %}
+	pre-up ip link add {{ device }} type wireguard
+	pre-up wg setconf {{ device }} /etc/wireguard/{{ device }}.conf
+	post-down ip link del {{ device }}
+{% endif %}
+{% if options.method|default('static') == 'static' %}
+	address {{ options.address|mandatory }}
+	netmask {{ options.netmask|mandatory }}
+{% endif %}
+{% for key, value in (options|default({})).items() if key not in [ 'auto', 'method', 'type', 'address', 'netmask' ] %}
+	{{ key }} {{ value }}
+{% endfor %}
+

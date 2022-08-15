@@ -341,21 +341,23 @@ hardware_video_x11_driver: amdgpu
 #
 
 network_devices:
-  ethernets:
-    port:
-      renderer: networkd
-      match: { macaddress: "70:85:c2:40:50:60" }
-  bridges:
-    bridge:
-      renderer: networkd
-      interfaces: [ "port" ]
-      macaddress: "70:85:c2:40:50:60"
-      dhcp4: true
-      parameters:
-        stp: false
-        forward-delay: 0
-      dhcp4-overrides:
-        route-metric: 999
+  wg0:
+    - template: /etc/network/interfaces.d/device
+      options:
+        auto: true
+        type: wireguard
+        method: static
+        address: 192.168.254.2
+        netmask: 255.255.255.0
+    - template: /etc/wireguard/device.conf
+      mode: "0600"
+      options:
+        private_key: "{{ network_devices_wireguard_keypairs.home.desktop.private_key }}"
+        listen_port: 51820
+        peers:
+          - endpoint: "kmchan-server.local:51820"
+            public_key: "{{ network_devices_wireguard_keypairs.home.server.public_key }}"
+            allowed_ips: 192.168.254.0/24
 
 network_initramfs_modules: []
 network_initramfs_reset_netplan: true

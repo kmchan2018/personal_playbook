@@ -4,21 +4,40 @@
   become: true
   become_user: "root"
 
+  vars:
+
+    network_devices_packages:
+      - { name: "bridge-utils" }
+      - { name: "wireguard" }
+      - { name: "wireguard-tools" }
+
   tasks:
 
-    - name: "Configuring Network Devices: Install Netplan Configuration"
+    - name: "Setup Network Devices: Install Packages"
+      apt:
+        name: "{{ item.name }}"
+        state: "latest"
+        update_cache: true
+        cache_valid_time: 86400
+        default_release: "{{ item.release|default(ansible_distribution_release) }}"
+      loop: "{{ network_devices_packages|select('distribution', distro, release, attribute='requires')|list }}"
+
+    - name: "Setup Network Devices: Load Secrets"
+      include_vars:
+        file: "secrets/network.devices.vault"
+
+    - name: "Setup Network Devices: Install Configuration Files"
       template:
-        dest: "/etc/netplan/99-network-devices.yaml"
-        src: "files/etc/netplan/99-network-devices.yaml.j2"
-        owner: "root"
-        group: "root"
-        mode: "0644"
-      notify:
-        - "Reload Netplan Service"
-
-  handlers:
-
-    - name: "Reload Netplan Service"
-      command: "netplan apply"
+        dest: "{{ item.1.template|replace('device', item.0.device) }}"
+        src: "{{ playbook_dir }}/files/{{ item.1.template }}.j2"
+        owner: "{{ item.1.owner|default('root') }}"
+        group: "{{ item.1.group|default('root') }}"
+        mode: "{{ item.1.mode|default('0644') }}"
+      vars:
+        device: "{{ item.0.device }}"
+        options: "{{ item.1.options|default({}) }}"
+      loop: "{{ network_devices|default({})|dict2items(key_name='device',value_name='files')|subelements('files') }}"
+      loop_control:
+        label: "{{ item.1.template|replace('device', item.0.device) }}"
 
 
