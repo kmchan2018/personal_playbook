@@ -6,11 +6,11 @@
 
   vars:
 
-    install_firefox_version: "103.0.2"
-    install_firefox_url: "http://ftp.mozilla.org/pub/firefox/releases/103.0.2/linux-x86_64/en-US/firefox-103.0.2.tar.bz2"
-    install_firefox_checksum: "sha256:7869a2d95e02d34b105b37baa669cf29e0fd075fd883eaf4b2bd4e0ced77f6ca"
-    install_firefox_archive: "/usr/local/lib/firefox/firefox-103.0.2/firefox-103.0.2.tar.bz2"
-    install_firefox_directory: "/usr/local/lib/firefox/firefox-103.0.2"
+    install_firefox_version: "104.0.2"
+    install_firefox_url: "http://ftp.mozilla.org/pub/firefox/releases/104.0.2/linux-x86_64/en-US/firefox-104.0.2.tar.bz2"
+    install_firefox_checksum: "sha256:89830b1a083ce589927e5807c632deb0a4d20d582b8bad558d2d63b731893420"
+    install_firefox_archive: "/usr/local/lib/firefox/firefox-104.0.2/firefox-104.0.2.tar.bz2"
+    install_firefox_directory: "/usr/local/lib/firefox/firefox-104.0.2"
 
     install_firefox_executables:
       - { path: "firefox" }
@@ -92,5 +92,17 @@
             owner: "root"
             group: "root"
             mode: "0644"
+
+        - name: "Install Firefox Browser: Enable Automatic Update"
+          copy:
+            dest: "/{{ item.path }}"
+            src: "{{ playbook_dir }}/files/{{ item.path }}"
+            owner: "{{ item.owner|default('root') }}"
+            group: "{{ item.group|default('root') }}"
+            mode: "{{ item.mode|default('0644') }}"
+          loop:
+            - { path: "/usr/local/sbin/update-firefox", mode: "0755" }
+            - { path: "/etc/systemd/system/update-firefox.service", mode: "0644" }
+            - { path: "/etc/systemd/system/update-firefox.timer", mode: "0644" }
 
 
