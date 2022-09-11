@@ -118,77 +118,81 @@
             install_wine_version: "{{ (ansible_facts.packages['winehq-stable'][0]['version']|regex_search('([0-9a-z\\.]+)', '\\1'))[0] }}"
             install_wine_prefix: "/opt/wine-stable"
 
-    - name: "Install Wine: Determine Wine Mono Version"
-      set_fact:
-        install_wine_mono_version: "{{ (install_wine_mono_lookup|selectattr('wine', 'version', install_wine_version, operator='le')|first)['mono'] }}"
-        install_wine_mono_url:     "{{ (install_wine_mono_lookup|selectattr('wine', 'version', install_wine_version, operator='le')|first)['url'] }}"
-        install_wine_mono_archive: "{{ ((install_wine_mono_lookup|selectattr('wine', 'version', install_wine_version, operator='le')|first)['url']|regex_search('/([^/]+)$', '\\1'))[0] }}"
+    - name: "Install Wine"
+      when: "install_wine_enabled|default(false)"
+      block:
 
-    - name: "Install Wine: Create Wine Mono Directory"
-      file:
-        path: "{{ install_wine_prefix }}/share/wine/mono"
-        state: "directory"
-        owner: "root"
-        group: "root"
-        mode: "0755"
+      - name: "Install Wine: Determine Wine Mono Version"
+        set_fact:
+          install_wine_mono_version: "{{ (install_wine_mono_lookup|selectattr('wine', 'version', install_wine_version, operator='le')|first)['mono'] }}"
+          install_wine_mono_url:     "{{ (install_wine_mono_lookup|selectattr('wine', 'version', install_wine_version, operator='le')|first)['url'] }}"
+          install_wine_mono_archive: "{{ ((install_wine_mono_lookup|selectattr('wine', 'version', install_wine_version, operator='le')|first)['url']|regex_search('/([^/]+)$', '\\1'))[0] }}"
 
-    - name: "Install Wine: Download Wine Mono Release Tarball"
-      get_url:
-        url: "{{ install_wine_mono_url }}"
-        dest: "{{ install_wine_prefix }}/share/wine/mono/{{ install_wine_mono_archive }}"
-        owner: "root"
-        group: "root"
-        mode: "0644"
+      - name: "Install Wine: Create Wine Mono Directory"
+        file:
+          path: "{{ install_wine_prefix }}/share/wine/mono"
+          state: "directory"
+          owner: "root"
+          group: "root"
+          mode: "0755"
 
-    - name: "Install Wine: Unpack Wine Mono Release Tarball"
-      shell: "tar --extract --no-same-owner --file {{ install_wine_mono_archive }}"
-      args:
-        chdir: "{{ install_wine_prefix }}/share/wine/mono"
-        creates: "{{ install_wine_prefix }}/share/wine/mono/wine-mono-{{ install_wine_mono_version }}"
-        warn: false
+      - name: "Install Wine: Download Wine Mono Release Tarball"
+        get_url:
+          url: "{{ install_wine_mono_url }}"
+          dest: "{{ install_wine_prefix }}/share/wine/mono/{{ install_wine_mono_archive }}"
+          owner: "root"
+          group: "root"
+          mode: "0644"
 
-    - name: "Install Wine: Determine Wine Gecko Version"
-      set_fact:
-        install_wine_gecko_version: "{{ (install_wine_gecko_lookup|selectattr('wine', 'version', install_wine_version, operator='le')|first)['gecko'] }}"
-        install_wine_gecko_url:     "{{ (install_wine_gecko_lookup|selectattr('wine', 'version', install_wine_version, operator='le')|first)['url'] }}"
-        install_wine_gecko_archive: "{{ ((install_wine_gecko_lookup|selectattr('wine', 'version', install_wine_version, operator='le')|first)['url']|regex_search('/([^/]+)$', '\\1'))[0] }}"
+      - name: "Install Wine: Unpack Wine Mono Release Tarball"
+        shell: "tar --extract --no-same-owner --file {{ install_wine_mono_archive }}"
+        args:
+          chdir: "{{ install_wine_prefix }}/share/wine/mono"
+          creates: "{{ install_wine_prefix }}/share/wine/mono/wine-mono-{{ install_wine_mono_version }}"
+          warn: false
 
-    - name: "Install Wine: Create Wine Gecko Directory"
-      file:
-        path: "{{ install_wine_prefix }}/share/wine/gecko"
-        state: "directory"
-        owner: "root"
-        group: "root"
-        mode: "0755"
+      - name: "Install Wine: Determine Wine Gecko Version"
+        set_fact:
+          install_wine_gecko_version: "{{ (install_wine_gecko_lookup|selectattr('wine', 'version', install_wine_version, operator='le')|first)['gecko'] }}"
+          install_wine_gecko_url:     "{{ (install_wine_gecko_lookup|selectattr('wine', 'version', install_wine_version, operator='le')|first)['url'] }}"
+          install_wine_gecko_archive: "{{ ((install_wine_gecko_lookup|selectattr('wine', 'version', install_wine_version, operator='le')|first)['url']|regex_search('/([^/]+)$', '\\1'))[0] }}"
 
-    - name: "Install Wine: Download Wine Gecko (x86 version) Release Tarball"
-      get_url:
-        url: "{{ install_wine_gecko_url|replace('ARCH', 'x86') }}"
-        dest: "{{ install_wine_prefix }}/share/wine/gecko/{{ install_wine_gecko_archive|replace('ARCH', 'x86') }}"
-        owner: "root"
-        group: "root"
-        mode: "0644"
+      - name: "Install Wine: Create Wine Gecko Directory"
+        file:
+          path: "{{ install_wine_prefix }}/share/wine/gecko"
+          state: "directory"
+          owner: "root"
+          group: "root"
+          mode: "0755"
 
-    - name: "Install Wine: Unpack Wine Gecko (x86 version) Release Tarball"
-      shell: "tar --extract --no-same-owner --file {{ install_wine_gecko_archive|replace('ARCH', 'x86') }}"
-      args:
-        chdir: "{{ install_wine_prefix }}/share/wine/gecko"
-        creates: "{{ install_wine_prefix }}/share/wine/gecko/wine-gecko-{{ install_wine_gecko_version }}-x86"
-        warn: false
+      - name: "Install Wine: Download Wine Gecko (x86 version) Release Tarball"
+        get_url:
+          url: "{{ install_wine_gecko_url|replace('ARCH', 'x86') }}"
+          dest: "{{ install_wine_prefix }}/share/wine/gecko/{{ install_wine_gecko_archive|replace('ARCH', 'x86') }}"
+          owner: "root"
+          group: "root"
+          mode: "0644"
 
-    - name: "Install Wine: Download Wine Gecko (x86_64 version) Release Tarball"
-      get_url:
-        url: "{{ install_wine_gecko_url|replace('ARCH', 'x86_64') }}"
-        dest: "{{ install_wine_prefix }}/share/wine/gecko/{{ install_wine_gecko_archive|replace('ARCH', 'x86_64') }}"
-        owner: "root"
-        group: "root"
-        mode: "0644"
+      - name: "Install Wine: Unpack Wine Gecko (x86 version) Release Tarball"
+        shell: "tar --extract --no-same-owner --file {{ install_wine_gecko_archive|replace('ARCH', 'x86') }}"
+        args:
+          chdir: "{{ install_wine_prefix }}/share/wine/gecko"
+          creates: "{{ install_wine_prefix }}/share/wine/gecko/wine-gecko-{{ install_wine_gecko_version }}-x86"
+          warn: false
 
-    - name: "Install Wine: Unpack Wine Gecko (x86_64 version) Release Tarball"
-      shell: "tar --extract --no-same-owner --file {{ install_wine_gecko_archive|replace('ARCH', 'x86_64') }}"
-      args:
-        chdir: "{{ install_wine_prefix }}/share/wine/gecko"
-        creates: "{{ install_wine_prefix }}/share/wine/gecko/wine-gecko-{{ install_wine_gecko_version }}-x86_64"
-        warn: false
+      - name: "Install Wine: Download Wine Gecko (x86_64 version) Release Tarball"
+        get_url:
+          url: "{{ install_wine_gecko_url|replace('ARCH', 'x86_64') }}"
+          dest: "{{ install_wine_prefix }}/share/wine/gecko/{{ install_wine_gecko_archive|replace('ARCH', 'x86_64') }}"
+          owner: "root"
+          group: "root"
+          mode: "0644"
+
+      - name: "Install Wine: Unpack Wine Gecko (x86_64 version) Release Tarball"
+        shell: "tar --extract --no-same-owner --file {{ install_wine_gecko_archive|replace('ARCH', 'x86_64') }}"
+        args:
+          chdir: "{{ install_wine_prefix }}/share/wine/gecko"
+          creates: "{{ install_wine_prefix }}/share/wine/gecko/wine-gecko-{{ install_wine_gecko_version }}-x86_64"
+          warn: false
 
 
