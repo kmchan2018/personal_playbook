@@ -10,6 +10,7 @@
   vars:
 
     install_wine_mono_lookup:
+      - { wine: "7.10",  mono: "7.3.0",    url: "https://dl.winehq.org/wine/wine-mono/7.3.0/wine-mono-7.3.0-x86.tar.xz" }
       - { wine: "7.6",   mono: "7.2.0",    url: "https://dl.winehq.org/wine/wine-mono/7.2.0/wine-mono-7.2.0-x86.tar.xz" }
       - { wine: "7.2",   mono: "7.1.1",    url: "https://dl.winehq.org/wine/wine-mono/7.1.1/wine-mono-7.1.1-x86.tar.xz" }
       - { wine: "6.22",  mono: "7.0.0",    url: "https://dl.winehq.org/wine/wine-mono/7.0.0/wine-mono-7.0.0-x86.tar.xz" }
@@ -107,7 +108,7 @@
             cache_valid_time: 86400
             default_release: "{{ item.release|default(ansible_distribution_release) }}"
           loop:
-            - { name: "winehq-stable" }
+            - { name: "winehq-{{ install_wine_from_upstream_branch|default('stable') }}" }
 
         - name: "Install Wine from Upstream: Pull Package List"
           package_facts:
@@ -115,8 +116,8 @@
 
         - name: "Install Wine from Upstream: Check Installed Wine Version"
           set_fact:
-            install_wine_version: "{{ (ansible_facts.packages['winehq-stable'][0]['version']|regex_search('([0-9a-z\\.]+)', '\\1'))[0] }}"
-            install_wine_prefix: "/opt/wine-stable"
+            install_wine_version: "{{ (ansible_facts.packages['winehq-' + install_wine_from_upstream_branch|default('stable')][0]['version']|regex_search('([0-9a-z\\.]+)', '\\1'))[0] }}"
+            install_wine_prefix: "/opt/wine-{{ install_wine_from_upstream_branch|default('stable') }}"
 
     - name: "Install Wine"
       when: "install_wine_enabled|default(false)"

@@ -241,6 +241,14 @@ install_zoom_enabled: true
 
 
 #
+# Wine Settings
+#
+
+install_wine_from: upstream
+install_wine_from_upstream_branch: devel
+
+
+#
 # Service List
 #
 
