@@ -35,6 +35,10 @@
       - { wine: "6.0",   gecko: "2.47.2",  url: "http://dl.winehq.org/wine/wine-gecko/2.47.2/wine-gecko-2.47.2-ARCH.tar.xz" }
       - { wine: "5.0",   gecko: "2.47.1",  url: "http://dl.winehq.org/wine/wine-gecko/2.47.1/wine-gecko-2.47.1-ARCH.tar.bz2" }
 
+    install_wine_winetricks_version: "20220411"
+    install_wine_winetricks_url: "https://github.com/Winetricks/winetricks/"
+    install_wine_winetricks_directory: "/usr/local/lib/winetricks/winetricks-20220411"
+
   tasks:
 
     - name: "Install Wine from Distribution"
@@ -195,5 +199,33 @@
           chdir: "{{ install_wine_prefix }}/share/wine/gecko"
           creates: "{{ install_wine_prefix }}/share/wine/gecko/wine-gecko-{{ install_wine_gecko_version }}-x86_64"
           warn: false
+
+      - name: "Install Wine: Download Winetricks"
+        git:
+          dest: "{{ install_wine_winetricks_directory }}"
+          repo: "{{ install_wine_winetricks_url }}"
+          version: "{{ install_wine_winetricks_version }}"
+          clone: "yes"
+          update: "yes"
+          remote: "origin"
+          accept_hostkey: "yes"
+
+      - name: "Install Wine: Symlink Winetricks Executable"
+        file:
+          dest: "/usr/local/bin/winetricks"
+          src: "{{ install_wine_winetricks_directory }}/src/winetricks"
+          state: "link"
+          owner: "root"
+          group: "root"
+          mode: "0755"
+
+      - name: "Install Wine: Symlink Winetricks Bash Autocomplete Configuration"
+        file:
+          dest: "/etc/bash_completion.d/winetricks.bash-completion"
+          src: "{{ install_wine_winetricks_directory }}/src/winetricks.bash-completion"
+          state: "link"
+          owner: "root"
+          group: "root"
+          mode: "0644"
 
 
