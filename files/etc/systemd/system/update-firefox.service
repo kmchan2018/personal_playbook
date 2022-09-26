@@ -30,7 +30,6 @@ NoNewPrivileges=yes
 ProcSubset=pid
 SystemCallArchitectures=native
 SystemCallFilter=@system-service
-SystemCallFilter=~@privileged
 SystemCallFilter=~@resources
 UMask=0022
 ReadWritePaths=-/usr/local/bin
