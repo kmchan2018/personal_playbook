@@ -1,0 +1,10 @@
+
+ignore dbus-user none
+dbus-user filter
+
+# Allows sandbox to access the XDG desktop portal for various use
+# case from sending notifications, taking screenshots to inhibit
+# screensavers.
+
+dbus-user.talk org.freedesktop.portal.Desktop
+

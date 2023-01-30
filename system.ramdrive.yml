@@ -1,0 +1,24 @@
+
+
+- hosts: "all"
+  become: true
+  become_user: "root"
+
+  tasks:
+
+    - name: "Setup Ramdrive: Install Systemd Mount Unit for Ramdrive"
+      ansible.builtin.template:
+        dest: "/etc/systemd/system/mnt-ramdrive.mount"
+        src: "{{ playbook_dir }}/files/etc/systemd/system/mnt-ramdrive.mount.j2"
+        owner: "root"
+        group: "root"
+        mode: "0644"
+
+    - name: "Setup Ramdrive: Enable Systemd Mount Unit for Ramdrive"
+      ansible.builtin.systemd_service:
+        name: "mnt-ramdrive.mount"
+        state: "started"
+        enabled: true
+        daemon_reload: true
+
+

@@ -1,13 +1,26 @@
 
-# Normally, fcitx will run a private dbus process and use it to communicate
+ignore dbus-user none
+dbus-user filter
+
+# Both ibus and fcitx 5 provide portal services over the session bus for
+# flatpak support. Commandeering such services allows both input method
+# apps to work in firejail sandboxes.
+
+dbus-user.talk org.freedesktop.portal.IBus
+dbus-user.talk org.freedesktop.portal.Fcitx
+
+# For ibus, a special environment variable can be used to force the use of
+# portal service outside flatpak environment.
+
+env IBUS_USE_PORTAL=1
+
+# Normally, fcitx 4 will run a private dbus process and use it to communicate
 # with its frontends. Connecting to it in firejail sandbox is difficult, or
 # even impossible in some configuration. Luckily, fcitx also listens to
 # session bus which allows us to sidestep the problem. Note that the fcitx
 # service name depends on X display number so we need to whitelist multiple
 # dbus services instead of a single one.
 
-ignore dbus-user none
-dbus-user filter
 dbus-user.talk org.fcitx.Fcitx-0
 dbus-user.talk org.fcitx.Fcitx-1
 dbus-user.talk org.fcitx.Fcitx-2

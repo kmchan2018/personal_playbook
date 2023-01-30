@@ -494,32 +494,33 @@ service_guest_dhcp_lower: "192.168.192.100"
 service_guest_dhcp_upper: "192.168.192.199"
 
 
+
 #
-# Firejail Settings
+# System Settings
 #
 
-software_firejail_enabled: true
-software_firejail_network_address: "192.168.193.1/24"
-software_firejail_network_partitions:
-  shared: "192.168.193.128/25"
-  kmchan: "192.168.193.16/28"
+system_firejail_enabled: true
+system_network_manager_enabled: true
 
 
 #
 # Network Manager Settings
 #
 
-software_network_manager_enabled: true
-software_network_manager_forwarding_enabled: true
-software_network_manager_forwarding_interfaces: [ "en", "wl" ]
-software_network_manager_options:
+system_network_manager_options:
   connection-ethernet:
     match-device: type:ethernet
-    ipv4.route-metric: 101
-    ipv6.route-metric: 101
-  connection-wifi:
-    match-device: type:wifi
     ipv4.route-metric: 100
     ipv6.route-metric: 100
+  connection-wifi:
+    match-device: type:wifi
+    ipv4.route-metric: 90
+    ipv6.route-metric: 90
+
+#
+# Ramdrive Settings
+#
+
+system_ramdrive_size: 24
 
 

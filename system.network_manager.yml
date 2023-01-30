@@ -1,0 +1,51 @@
+
+
+- hosts: "all"
+  become: true
+  become_user: "root"
+
+  tasks:
+
+    - name: "Setup Network Manager"
+      when: "system_network_manager_enabled|default(false)"
+      block:
+
+        - name: "Setup Network Manager: Install Packages"
+          ansible.builtin.dnf:
+            name:
+              - "NetworkManager"
+              - "NetworkManager-adsl"
+              - "NetworkManager-bluetooth"
+              - "NetworkManager-fortisslvpn"
+              - "NetworkManager-iodine"
+              - "NetworkManager-l2tp"
+              - "NetworkManager-libreswan"
+              - "NetworkManager-openconnect"
+              - "NetworkManager-openvpn"
+              - "NetworkManager-ovs"
+              - "NetworkManager-ppp"
+              - "NetworkManager-pptp"
+              - "NetworkManager-ssh"
+              - "NetworkManager-sstp"
+              - "NetworkManager-strongswan"
+              - "NetworkManager-vpnc"
+              - "NetworkManager-wifi"
+              - "NetworkManager-wwan"
+            state: "latest"
+
+        - name: "Setup Network Manager: Install Configuration File"
+          ansible.builtin.template:
+            dest: "/etc/NetworkManager/conf.d/local.conf"
+            src: "{{ playbook_dir }}/files/etc/NetworkManager/conf.d/local.conf.j2"
+            owner: "root"
+            group: "root"
+            mode: "0644"
+
+        - name: "Setup Network Manager: Enable Service"
+          ansible.builtin.systemd_service:
+            name: "NetworkManager.service"
+            state: "started"
+            enabled: true
+            daemon_reload: true
+
+

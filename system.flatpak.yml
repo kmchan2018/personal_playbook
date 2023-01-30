@@ -1,0 +1,15 @@
+
+
+- hosts: "all"
+  become: true
+  become_user: "root"
+
+  tasks:
+
+    - name: "Setup Flatpak: Enable Flathub Repository"
+      community.general.flatpak_remote:
+        name: "flathub"
+        state: "present"
+        flatpakrepo_url: "https://flathub.org/repo/flathub.flatpakrepo"
+
+

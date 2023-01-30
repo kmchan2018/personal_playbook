@@ -1,0 +1,14 @@
+
+[Unit]
+Description=Mount /mnt/ramdrive
+
+[Install]
+WantedBy=local-fs.target
+
+[Mount]
+What=tmpfs
+Where=/mnt/ramdrive
+Type=tmpfs
+Options=size={{ system_ramdrive_size|default((ansible_memtotal_mb * 3 / 4)|round) }}G
+DirectoryMode=2755
+

@@ -1,0 +1,27 @@
+
+
+- hosts: "all"
+  become: true
+  become_user: "root"
+
+  tasks:
+
+    - name: "Setup RPMFusion: Install RPM Fusion Release Package"
+      ansible.builtin.dnf:
+        name:
+          - "https://mirrors.rpmfusion.org/free/{{ family }}/rpmfusion-free-release-{{ version }}.noarch.rpm"
+          - "https://mirrors.rpmfusion.org/nonfree/{{ family }}/rpmfusion-nonfree-release-{{ version }}.noarch.rpm"
+        state: "present"
+        disable_gpg_check: "true"
+      vars:
+        family: "{{ 'fedora' if ansible_distribution == 'Fedora' else 'el' }}"
+        version: "{{ ansible_distribution_version }}"
+
+    - name: "Setup RPMFusion: Install RPM Fusion Appstream Data"
+      ansible.builtin.dnf:
+        name:
+          - "rpmfusion-free-appstream-data"
+          - "rpmfusion-nonfree-appstream-data"
+        state: "latest"
+
+

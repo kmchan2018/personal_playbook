@@ -1,6 +1,6 @@
 
-{% if software_network_manager_enabled|default(false) == true %}
-{% for section in software_network_manager_options|default({})|dict2items %}
+{% if system_network_manager_enabled|default(false) == true %}
+{% for section in system_network_manager_options|default({})|dict2items %}
 [{{ section.key }}]
 {% for tuple in section.value|dict2items %}
 {{ tuple.key }}={{ tuple.value }}

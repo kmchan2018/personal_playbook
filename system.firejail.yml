@@ -1,0 +1,33 @@
+
+
+- hosts: "all"
+  become: true
+  become_user: "root"
+
+  tasks:
+
+    - name: "Setup Firejail"
+      when: "system_firejail_enabled|default(false)"
+      block:
+
+        - name: "Setup Firejail: Install Firejail from Distribution"
+          ansible.builtin.dnf:
+            name: "firejail"
+            state: "latest"
+
+        - name: "Setup Firejail: Install Configuration Files"
+          ansible.builtin.template:
+            dest: "{{ item.path }}"
+            src: "{{ playbook_dir }}/files/{{ item.path }}.j2"
+            owner: "{{ item.owner|default('root') }}"
+            group: "{{ item.group|default('root') }}"
+            mode: "{{ item.mode|default('0644') }}"
+          loop:
+            - { path: "/etc/firejail/allow-input-method.inc" }
+            - { path: "/etc/firejail/allow-file-manager-control.inc" }
+            - { path: "/etc/firejail/allow-notification.inc" }
+            - { path: "/etc/firejail/allow-portal.inc" }
+            - { path: "/etc/firejail/allow-screensaver-inhibition.inc" }
+            - { path: "/etc/firejail/allow-sleep-inhibition.inc" }
+
+

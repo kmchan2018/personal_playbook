@@ -1,8 +1,14 @@
 
-# Most desktop environment implements dbus service to inhibit screensaver
-# activation. The following code allows sandboxes apps to access it.
-
 ignore dbus-user none
 dbus-user filter
+
+# Most desktop environments implement dbus service to inhibit screensaver
+# activation. The following code allows sandboxes apps to access it.
+
 dbus-user.talk org.freedesktop.ScreenSaver
+
+# Moreover, flatpak provides another generic inhibition API. The following
+# code allows sandboxes apps to access it.
+
+dbus-user.talk org.freedesktop.portal.Inhibit
 

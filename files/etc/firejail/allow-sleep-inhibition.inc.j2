@@ -1,13 +1,19 @@
 
+ignore dbus-user none
+dbus-user filter
+
 # Most desktop environment implements dbus service to prevent the system
 # from entering sleep mode. The following code allows sandboxes apps to
 # access these services. Note that GNOME session manager provides extra
 # operation apart from inhibition, so only the required method calls are
 # whitelisted.
 
-ignore dbus-user none
-dbus-user filter
 dbus-user.talk org.freedesktop.PowerManager.Inhibit
 dbus-user.call org.gnome.SessionManager=org.gnome.SessionManager.Inhibit
 dbus-user.call org.gnome.SessionManager=org.gnome.SessionManager.Uninhibit
+
+# Moreover, flatpak provides another generic inhibition API. The following
+# code allows sandboxes apps to access it.
+
+dbus-user.talk org.freedesktop.portal.Inhibit
 
