@@ -350,22 +350,29 @@ hardware_video_x11_driver: amdgpu
 
 network_devices:
   wg0:
-    - template: /etc/network/interfaces.d/device
+    - template: /etc/systemd/network/device.network
+      owner: root
+      group: systemd-network
+      mode: "0644"
       options:
-        auto: true
-        type: wireguard
         method: static
         address: 192.168.254.2
         netmask: 255.255.255.0
-    - template: /etc/wireguard/device.conf
-      mode: "0600"
+    - template: /etc/systemd/network/device.netdev
+      owner: root
+      group: systemd-network
+      mode: "0640"
       options:
+        kind: wireguard
         private_key: "{{ network_devices_wireguard_keypairs.home.desktop.private_key }}"
         listen_port: 51820
         peers:
           - endpoint: "kmchan-server.local:51820"
             public_key: "{{ network_devices_wireguard_keypairs.home.server.public_key }}"
             allowed_ips: 192.168.254.0/24
+    - template: /etc/NetworkManager/conf.d/device.conf
+      options:
+        unmanaged: true
 
 
 #
@@ -405,18 +412,6 @@ network_mounts:
     force_unmount: true
     mount_timeout: 30
     idle_timeout: 600
-
-
-network_initramfs_modules: []
-network_initramfs_reset_netplan: true
-
-network_modules:
-  - "br_netfilter"
-
-network_options:
-    net.bridge.bridge-nf-call-ip6tables: 0
-    net.bridge.bridge-nf-call-iptables: 0
-    net.bridge.bridge-nf-call-arptables: 0
 
 
 #

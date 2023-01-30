@@ -1,0 +1,21 @@
+
+[NetDev]
+Name={{ device }}
+{% if options.kind|default('') == 'wireguard' %}
+Kind=wireguard
+
+[WireGuard]
+ListenPort={{ options.listen_port|default(51820) }}
+PrivateKey={{ options.private_key|mandatory }}
+
+{% for peer in options.peers|default([]) %}
+[WireGuardPeer]
+{% if peer.endpoint is defined %}
+Endpoint={{ peer.endpoint }}
+{% endif %}
+PublicKey={{ peer.public_key|mandatory }}
+AllowedIPs={{ peer.allowed_ips|default('0.0.0.0/0') }}
+
+{% endfor %}
+{% endif %}
+

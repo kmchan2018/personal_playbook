@@ -7,27 +7,29 @@
   vars:
 
     network_devices_packages:
-      - { name: "bridge-utils" }
-      - { name: "wireguard" }
-      - { name: "wireguard-tools" }
+      - "bridge-utils"
+      - "wireguard-tools"
 
   tasks:
 
-    - name: "Setup Network Devices: Install Packages"
-      apt:
-        name: "{{ item.name }}"
-        state: "latest"
-        update_cache: true
-        cache_valid_time: 86400
-        default_release: "{{ item.release|default(ansible_distribution_release) }}"
-      loop: "{{ network_devices_packages|select('distribution', distro, release, attribute='requires')|list }}"
+    - name: "Setup Network Devices: Enable Networkd"
+      ansible.builtin.systemd_service:
+        name: "systemd-networkd.service"
+        state: "started"
+        enabled: true
+        daemon_reload: true
 
-    - name: "Setup Network Devices: Load Secrets"
-      include_vars:
+    - name: "Setup Network Devices: Install Helper Tools from Distribution"
+      ansible.builtin.dnf:
+        name: "{{ network_devices_packages }}"
+        state: "latest"
+
+    - name: "Setup Network Devices: Load Secrets from Vault"
+      ansible.builtin.include_vars:
         file: "secrets/network.devices.vault"
 
     - name: "Setup Network Devices: Install Configuration Files"
-      template:
+      ansible.builtin.template:
         dest: "{{ item.1.template|replace('device', item.0.device) }}"
         src: "{{ playbook_dir }}/files/{{ item.1.template }}.j2"
         owner: "{{ item.1.owner|default('root') }}"

@@ -1,0 +1,11 @@
+
+[Match]
+Name={{ device }}
+
+[Network]
+{% if options.method|default('static') == 'static' %}
+Address={{ options.address|mandatory }}/{{ (options.address|mandatory ~ '/' ~ options.netmask|mandatory)|ansible.utils.ipaddr('prefix') }}
+{% else %}
+DHCP=yes
+{% endif %}
+

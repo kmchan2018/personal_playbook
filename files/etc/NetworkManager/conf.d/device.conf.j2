@@ -1,0 +1,4 @@
+{% if options.unmanaged|default(false) == true %}
+[keyfile]
+unmanaged-devices+=interface-name:{{ device }}
+{% endif %}
