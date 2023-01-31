@@ -1,0 +1,44 @@
+
+
+- hosts: "all"
+  become: true
+  become_user: "root"
+
+  vars:
+
+    software_php_packages:
+      - "composer"
+      - "php-bcmath"
+      - "php-cli"
+      - "php-dba"
+      - "php-dbg"
+      - "php-enchant"
+      - "php-ffi"
+      - "php-gd"
+      - "php-gmp"
+      - "php-intl"
+      - "php-ldap"
+      - "php-mbstring"
+      - "php-mysqlnd"
+      - "php-opcache"
+      - "php-pdo"
+      - "php-pgsql"
+      - "php-process"
+      - "php-pspell"
+      - "php-soap"
+      - "php-sodium"
+      - "php-tidy"
+      - "php-xml"
+
+  tasks:
+
+    - name: "Setup PHP Development Tools"
+      when: "software_php_enabled|default(false)"
+      block:
+
+        - name: "Setup PHP Development Tools: Install PHP from Distribution"
+          ansible.builtin.dnf:
+            name: "{{ software_php_packages }}"
+            state: "latest"
+
+

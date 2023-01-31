@@ -1,0 +1,26 @@
+
+
+- hosts: "all"
+  become: true
+  become_user: "root"
+
+  vars:
+
+    software_python_packages:
+      - "python3"
+      - "python3-pip"
+      - "python3-setuptools"
+      - "python3-virtualenv"
+
+  tasks:
+
+    - name: "Setup Python Development Tools"
+      when: "software_python_enabled|default(false)"
+      block:
+
+        - name: "Setup Python Development Tools: Install Python from Distribution"
+          ansible.builtin.dnf:
+            name: "{{ software_python_packages }}"
+            state: "latest"
+
+

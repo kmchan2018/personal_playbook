@@ -1,0 +1,18 @@
+
+
+- hosts: "all"
+  become: true
+  become_user: "root"
+
+  tasks:
+
+    - name: "Setup Arduino"
+      when: "software_arduino_enabled|default(false)"
+      block:
+
+        - name: "Setup Arduion Development Tools: Install Arduino IDE from Flatpak"
+          community.general.flatpak:
+            name: "https://dl.flathub.org/repo/appstream/cc.arduino.IDE2.flatpakref"
+            state: "present"
+
+

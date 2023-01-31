@@ -1,0 +1,33 @@
+
+
+- hosts: "all"
+  become: true
+  become_user: "root"
+
+  vars:
+
+    software_java_packages:
+      - "java-1.8.0-openjdk"
+      - "java-1.8.0-openjdk-devel"
+      - "java-11-openjdk"
+      - "java-11-openjdk-devel"
+      - "java-17-openjdk"
+      - "java-17-openjdk-devel"
+      - "java-latest-openjdk"
+      - "java-latest-openjdk-devel"
+      - "ant"
+      - "apache-ivy"
+      - "maven"
+
+  tasks:
+
+    - name: "Setup Java Development Tools"
+      when: "software_java_enabled|default(false)"
+      block:
+
+        - name: "Install Java Development Tools: Install Java from Distribution"
+          ansible.builtin.dnf:
+            name: "{{ software_java_packages }}"
+            state: "latest"
+
+

@@ -1,0 +1,24 @@
+
+
+- hosts: "all"
+  become: true
+  become_user: "root"
+
+  vars:
+
+    software_firefox_packages:
+      - "firefox"
+      - "firefox-langpacks"
+
+  tasks:
+
+    - name: "Setup Firefox Browser"
+      when: "software_firefox_enabled|default(false)"
+      block:
+
+        - name: "Setup Firefox Browser: Install Firefox from Distribution"
+          ansible.builtin.dnf:
+            name: "{{ software_firefox_packages }}"
+            state: "latest"
+
+

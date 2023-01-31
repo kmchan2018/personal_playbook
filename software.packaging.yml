@@ -1,0 +1,28 @@
+
+
+- hosts: "all"
+  become: true
+  become_user: "root"
+
+  vars:
+
+    software_packaging_packages:
+      - "createrepo_c"
+      - "mock"
+      - "redhat-rpm-config"
+      - "rpm-build"
+      - "rpmdevtools"
+      - "rpmlint"
+
+  tasks:
+
+    - name: "Setup RPM Development Tools"
+      when: "software_packaging_enabled|default(false)"
+      block:
+
+        - name: "Setup RPM Development Tools: Install Tools from Distribution"
+          ansible.builtin.dnf:
+            name: "{{ software_packaging_packages }}"
+            state: "latest"
+
+

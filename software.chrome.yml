@@ -1,0 +1,18 @@
+
+
+- hosts: "all"
+  become: true
+  become_user: "root"
+
+  tasks:
+
+    - name: "Setup Chrome Browser"
+      when: "software_chrome_enabled|default(false)"
+      block:
+
+        - name: "Setup Chrome Browser: Install Chrome from Flatpak"
+          community.general.flatpak:
+            name: "https://dl.flathub.org/repo/appstream/com.google.Chrome.flatpakref"
+            state: "present"
+
+

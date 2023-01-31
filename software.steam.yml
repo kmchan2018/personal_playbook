@@ -1,0 +1,18 @@
+
+
+- hosts: "all"
+  become: true
+  become_user: "root"
+
+  tasks:
+
+    - name: "Setup Steam"
+      when: "software_steam_enabled|default(false)"
+      block:
+
+        - name: "Setup Steam: Install Steam from Flatpak"
+          community.general.flatpak:
+            name: "https://dl.flathub.org/repo/appstream/com.valvesoftware.Steam.flatpakref"
+            state: "present"
+
+

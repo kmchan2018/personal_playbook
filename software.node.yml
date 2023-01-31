@@ -1,0 +1,25 @@
+
+
+- hosts: "all"
+  become: true
+  become_user: "root"
+
+  vars:
+
+    software_node_packages:
+      - "nodejs"
+      - "npm"
+      - "yarnpkg"
+
+  tasks:
+
+    - name: "Setup Node Development Tools"
+      when: "software_node_enabled|default(false)"
+      block:
+
+        - name: "Setup Node Development Tools: Install Node from Distribution"
+          ansible.builtin.dnf:
+            name: "{{ software_node_packages }}"
+            state: "latest"
+
+
