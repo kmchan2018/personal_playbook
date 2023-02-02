@@ -6,16 +6,16 @@
 
   tasks:
 
-    - name: "Configuring Kernel-Based Virtual Machine: Enable Kernel Modules"
-      template:
+    - name: "Configure Kernel-Based Virtual Machine: Enable Kernel Modules at Boot"
+      ansible.builtin.template:
         dest: "/etc/modules-load.d/kvm.conf"
         src: "{{ playbook_dir }}/files/etc/modules-load.d/kvm.conf.j2"
         owner: "root"
         group: "root"
         mode: "0644"
 
-    - name: "Configuring Kernel-Based Virtual Machine: Update Kernel Module Parameters"
-      template:
+    - name: "Configure Kernel-Based Virtual Machine: Update Kernel Module Parameters"
+      ansible.builtin.template:
         dest: "/etc/modprobe.d/kvm.conf"
         src: "{{ playbook_dir }}/files/etc/modprobe.d/kvm.conf.j2"
         owner: "root"

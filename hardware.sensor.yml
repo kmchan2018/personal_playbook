@@ -6,8 +6,13 @@
 
   tasks:
 
-    - name: "Configuring Hardware Sensors: Enable Kernel Modules"
-      template:
+    - name: "Configuring Hardware Sensors: Install Tools from Distribution"
+      ansible.builtin.dnf:
+        name: "lm_sensors"
+        state: "latest"
+
+    - name: "Configuring Hardware Sensors: Enable Kernel Modules at Boot"
+      ansible.builtin.template:
         dest: "/etc/modules-load.d/sensor.conf"
         src: "{{ playbook_dir }}/files/etc/modules-load.d/sensor.conf.j2"
         owner: "root"

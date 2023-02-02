@@ -1,8 +1,0 @@
-
-#
-# Allows virtual machines to use the PCIe devices via VFIO.
-#
-
-SUBSYSTEM=="vfio", GROUP="vfio", MODE="0660"
-SUBSYSTEM=="vfio", GROUP="vfio", MODE="0660"
-

@@ -1,61 +1,45 @@
 
 
+- import_playbook: "system.rpmfusion.yml"
+
+
 - hosts: "all"
   become: true
   become_user: "root"
 
   tasks:
 
-    - name: "Configuring Video Cards: Enable Framebuffer Modules for Primary Cards"
-      template:
-        dest: "/etc/modules-load.d/video.conf"
-        src: "{{ playbook_dir }}/files/etc/modules-load.d/video.conf.j2"
-        owner: "root"
-        group: "root"
-        mode: "0644"
+    - name: "Configure Video Cards: Install Mesa VAAPI Drivers from RPM Fusion"
+      ansible.builtin.shell:
+        cmd: "dnf swap mesa-va-drivers mesa-va-drivers-freeworld"
 
-    - name: "Configuring Video Cards: Include Framebuffer Modules for Primary Cards in Initial RAM Disk"
-      lineinfile:
-        dest: "/etc/initramfs-tools/modules"
-        regexp: '^\s*#?\s*{{ hardware_video_kms_module }}.*$'
-        line: '{{ hardware_video_kms_module }}'
-      when: "hardware_video_kms_start|default('late') == 'early' and hardware_video_kms_module|default('') != ''"
-      notify: "Update Initial RAM Disk"
+    - name: "Configure Video Cards: Install Intel VAAPI Drivers from RPM Fusion"
+      ansible.builtin.dnf:
+        name:
+          - "intel-media-driver"
+          - "libva-intel-driver"
+        state: "latest"
 
-    - name: "Configuring Video Cards: Initialize Kernel Command Line"
-      lineinfile:
-        dest: "/etc/default/grub"
-        regexp: '^\s*#\s*GRUB_CMDLINE_LINUX_DEFAULT=(?:"?\s*(.*?)\s*"?)?\s*$'
-        line: 'GRUB_CMDLINE_LINUX_DEFAULT="\1"'
-        backrefs: "yes"
-      when: "hardware_video_kms_start|default('late') == 'early' and hardware_video_kms_module|default('') != ''"
-      notify: "Update GRUB Boot Loader"
-
-    - name: "Configuring Video Cards: Disable EFI/VESA Framebuffer in Kernel Command Line"
-      kernel_options_in_file:
-        dest: "/etc/default/grub"
-        region: '^GRUB_CMDLINE_LINUX_DEFAULT="(.*)"$'
-        state: 'present'
-        target: 'option'
-        option: 'video'
-        value: 'vesafb:off,efifb:off'
-      when: "hardware_video_kms_start|default('late') == 'early' and hardware_video_kms_module|default('') != ''"
-      notify: "Update GRUB Boot Loader"
+    - name: "Configure Video Cards: Install Nvidia Video Drivers from RPM Fusion"
+      ansible.builtin.dnf:
+        name:
+          - "akmod-nvidia"
+          - "kmod-nvidia"
+          - "xorg-x11-drv-nvidia"
+          - "xorg-x11-drv-nvidia-cuda"
+          - "xorg-x11-drv-nvidia-cuda-libs"
+          - "xorg-x11-drv-nvidia-libs"
+          - "xorg-x11-drv-nvidia-power"
+          - "xorg-x11-drv-nvidia-cuda-libs.i686"
+          - "xorg-x11-drv-nvidia-libs.i686"
+        state: "latest"
 
     - name: "Configuring Video Cards: Enable Primary Cards in X.org"
-      template:
+      ansible.builtin.template:
         dest: "/etc/X11/xorg.conf.d/10-devices.conf"
         src: "{{ playbook_dir }}/files/etc/X11/xorg.conf.d/10-devices.conf.j2"
         owner: "root"
         group: "root"
         mode: "0644"
-
-  handlers:
-
-    - name: "Update Initial RAM Disk"
-      command: "update-initramfs -u -k all"
-
-    - name: "Update GRUB Boot Loader"
-      command: "update-grub"
 
 

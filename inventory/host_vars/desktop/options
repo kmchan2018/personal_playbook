@@ -265,18 +265,6 @@ website_test_kmchan3_space_enabled: true
 
 
 #
-# Block Device Configuration
-#
-
-hardware_blockdev_names:
-  - { mount: "/", name: "Root" }
-  - { mount: "/boot", name: "Boot" }
-  - { mount: "/home", name: "Home" }
-  - { mount: "/mnt/backup", name: "Backup" }
-  - { mount: "/mnt/download", name: "Download" }
-
-
-#
 # Kernel-Based Virtual Machine Configuration
 #
 
@@ -318,21 +306,10 @@ hardware_usb_autosuspend: -1
 
 
 #
-# Virtual Function IO Configuration
-#
-
-hardware_vfio_devices:
-  shared-video:
-    device: shared-video
-
-
-#
 # Video Card Configuration
 #
 
 hardware_video_device: video
-hardware_video_kms_start: early
-hardware_video_kms_module: amdgpu
 hardware_video_x11_autodetect: false
 hardware_video_x11_driver: amdgpu
 

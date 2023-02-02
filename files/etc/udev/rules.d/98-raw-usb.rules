@@ -1,7 +1,0 @@
-
-#
-# Alter ownership for raw USB devices
-#
-
-SUBSYSTEM=="usb", GROUP="usbdev"
-
