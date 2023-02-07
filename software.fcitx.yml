@@ -31,6 +31,9 @@
       - "fcitx5-zhuyin"
       - "fcitx5-zhuyin-data"
       - "kcm-fcitx5"
+      - "imsettings"
+      - "imsettings-qt"
+      - "imsettings-plasma"
 
   tasks:
 
