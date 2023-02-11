@@ -34,12 +34,34 @@
           - "xorg-x11-drv-nvidia-libs.i686"
         state: "latest"
 
-    - name: "Configuring Video Cards: Enable Primary Cards in X.org"
+    - name: "Configuring Video Cards: Create Configuration Directories"
+      ansible.builtin.file:
+        dest: "{{ item.path }}"
+        state: "directory"
+        owner: "{{ item.owner|default('root') }}"
+        group: "{{ item.group|default('root') }}"
+        mode: "{{ item.mode|default('0755') }}"
+      loop:
+        - { path: "/etc/environment.d" }
+        - { path: "/etc/profile.d" }
+        - { path: "/etc/udev/rules.d" }
+        - { path: "/etc/X11" }
+        - { path: "/etc/X11/xorg.conf.d" }
+        - { path: "/opt/prime-run/" }
+        - { path: "/opt/prime-run/bin" }
+
+    - name: "Configuring Video Cards: Install Configuration Files"
       ansible.builtin.template:
-        dest: "/etc/X11/xorg.conf.d/10-devices.conf"
-        src: "{{ playbook_dir }}/files/etc/X11/xorg.conf.d/10-devices.conf.j2"
-        owner: "root"
-        group: "root"
-        mode: "0644"
+        dest: "{{ item.path }}"
+        src: "{{ playbook_dir }}/files/{{ item.path }}.j2"
+        owner: "{{ item.owner|default('root') }}"
+        group: "{{ item.group|default('root') }}"
+        mode: "{{ item.mode|default('0644') }}"
+      loop:
+        - { path: "/etc/environment.d/10-video.conf" }
+        - { path: "/etc/profile.d/video.sh" }
+        - { path: "/etc/udev/rules.d/99-video.rules" }
+        - { path: "/etc/X11/xorg.conf.d/10-devices.conf" }
+        - { path: "/opt/prime-run/bin/prime-run", mode: "0755" }
 
 

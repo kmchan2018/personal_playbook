@@ -1,0 +1,27 @@
+
+#
+# Do not assign offloading devices to any seat. Accrording to
+# sd-login(3), a device that can be attached to a seat will:
+#
+# - contain the tag "seat"
+# - may contain the tag "master-of-seat"
+# - may contain the property "ID_SEAT" (default to "seat0" if missing)
+#
+# Note that some other programs only care about the ID_SEAT property
+# and do not care about the "seat" tag.
+#
+# The logic here is that we can remove both "seat" and "master-of-seat"
+# tags from the device, and set the ID_SEAT to some dummy value.
+#
+
+{% if hardware_video_offload_device|default(false) != false -%}
+{%- for address in hardware_pci_devices[hardware_video_offload_device]['addresses']|default([]) %}
+{%- set name = '%04x:%02x:%02x.%x' % ( address.domain|default(0)|int(base=16), address.bus|int(base=16), address.device|int(base=16), address.function|int(base=16) ) %}
+{%- set vendor = '0x%04x' % address.vendor|int(base=16) -%}
+{%- set model = '0x%04x' % address.model|int(base=16) -%}
+SUBSYSTEM=="pci", KERNELS=="{{ name }}", ATTR{vendor}=="{{ vendor }}", ATTR{device}=="{{ model }}", TAG-="seat"
+SUBSYSTEM=="pci", KERNELS=="{{ name }}", ATTR{vendor}=="{{ vendor }}", ATTR{device}=="{{ model }}", TAG-="master-of-seat"
+SUBSYSTEM=="pci", KERNELS=="{{ name }}", ATTR{vendor}=="{{ vendor }}", ATTR{device}=="{{ model }}", ENV{ID_SEAT}="not-a-seat"
+{% endfor %}
+{% endif %}
+

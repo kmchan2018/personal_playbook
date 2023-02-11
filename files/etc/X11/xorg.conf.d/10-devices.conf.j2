@@ -1,21 +1,21 @@
 
+{% if hardware_video_offload_device|default(false) != false %}
 #
-# When not empty, the file stops Xorg from scanning and using all 
-# video cards on the system. It prevents cards that are configured
-# for passthrough from being locked up by X server. In such cases,
-# the video card will be configured manually.
+# Offload device exists in the system. To avoid the device from being
+# used, auto-detection is disabled and the output device is configured
+# explicitly.
 #
 
-{% if hardware_video_x11_autodetect|default(true) == false %}
 Section "ServerFlags"
   Option "AutoAddGPU" "false"
+  Option "AutoBindGPU" "false"
 EndSection
 
 Section "Device"
-  Identifier "{{ hardware_pci_devices[hardware_video_device]['name'] }}"
-  BusID "PCI:{{ hardware_pci_devices[hardware_video_device]['addresses'][0]|pciaddr('xorg') }}"
-  Driver "{{ hardware_video_x11_driver }}"
-{% if hardware_video_x11_driver == 'intel' or hardware_video_x11_driver == 'amdgpu' %}
+  Identifier "{{ hardware_pci_devices[hardware_video_output_device]['name'] }}"
+  BusID "PCI:{{ hardware_pci_devices[hardware_video_output_device]['addresses'][0]|pciaddr('xorg') }}"
+  Driver "{{ hardware_video_output_x11_driver }}"
+{% if hardware_video_output_x11_driver == 'intel' or hardware_video_output_x11_driver == 'amdgpu' %}
   Option "DRI" "3"
 {% endif %}
 EndSection

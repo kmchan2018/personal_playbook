@@ -309,9 +309,19 @@ hardware_usb_autosuspend: -1
 # Video Card Configuration
 #
 
-hardware_video_device: video
-hardware_video_x11_autodetect: false
-hardware_video_x11_driver: amdgpu
+hardware_video_output_device: video
+hardware_video_output_kernel_module: "amdgpu"
+hardware_video_output_x11_driver: "amdgpu"
+hardware_video_output_glx_vendor_library_name: "mesa"
+hardware_video_output_egl_vendor_library_filenames: [ "50_mesa.json" ]
+hardware_video_output_vk_icd_filenames: [ "radeon_icd.x86_64.json", "radeon_icd.i686.json" ]
+
+hardware_video_offload_device: shared-video
+hardware_video_offload_kernel_module: "nvidia"
+hardware_video_offload_x11_driver: "nvidia"
+hardware_video_offload_glx_vendor_library_name: "nvidia"
+hardware_video_offload_egl_vendor_library_filenames: [ "10_nvidia.json" ]
+hardware_video_offload_vk_icd_filenames: [ "nvidia_icd.json" ]
 
 
 #
@@ -466,6 +476,7 @@ service_guest_dhcp_upper: "192.168.192.199"
 
 system_firejail_enabled: true
 system_network_manager_enabled: true
+system_sddm_enabled: true
 
 
 #

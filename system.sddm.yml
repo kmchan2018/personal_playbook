@@ -1,0 +1,40 @@
+
+
+- hosts: "all"
+  become: true
+  become_user: "root"
+
+  tasks:
+
+    - name: "Setup SDDM"
+      when: "system_sddm_enabled|default(false)"
+      block:
+
+        - name: "Setup SDDM: Create Configuration Directories"
+          ansible.builtin.file:
+            dest: "{{ item.path }}"
+            state: "directory"
+            owner: "{{ item.owner|default('root') }}"
+            group: "{{ item.group|default('root') }}"
+            mode: "{{ item.mode|default('0755') }}"
+          loop:
+            - { path: "/etc/systemd/system/sddm.service.d" }
+
+        - name: "Setup SDDM: Install Configuration Files"
+          ansible.builtin.template:
+            dest: "{{ item.path }}"
+            src: "{{ playbook_dir }}/files/{{ item.path }}.j2"
+            owner: "{{ item.owner|default('root') }}"
+            group: "{{ item.group|default('root') }}"
+            mode: "{{ item.mode|default('0644') }}"
+          loop:
+            - { path: "/etc/systemd/system/sddm.service.d/video.conf" }
+
+        - name: "Setup SDDM: Enable Service"
+          ansible.builtin.systemd_service:
+            name: "sddm.service"
+            state: "started"
+            enabled: true
+            daemon_reload: true
+
+

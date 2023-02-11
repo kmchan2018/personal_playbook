@@ -1,0 +1,26 @@
+
+{% if hardware_video_offload_device|default(false) != false %}
+#
+# Offload device exists in the system. To avoid the device from being
+# used, the drivers for EGL and Vulkan will be configured explicitly.
+#
+
+__EGL_VENDOR_LIBRARY_FILENAMES={% for filename in hardware_video_output_egl_vendor_library_filenames -%}
+{%- if loop.first == false -%}:{%- endif -%}
+{%- if filename|first != "/" -%}
+/usr/share/glvnd/egl_vendor.d/{{ filename }}
+{%- else -%}
+{{ filename }}
+{%- endif -%}
+{%- endfor %}
+
+VK_ICD_FILENAMES={% for filename in hardware_video_output_vk_icd_filenames -%}
+{%- if loop.first == false -%}:{%- endif -%}
+{%- if filename|first != "/" -%}
+/usr/share/vulkan/icd.d/{{ filename }}
+{%- else -%}
+{{ filename }}
+{%- endif -%}
+{%- endfor %}
+{% endif %}
+
