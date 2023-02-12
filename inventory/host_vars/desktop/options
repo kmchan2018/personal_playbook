@@ -246,7 +246,6 @@ software_zoom_enabled: true
 #
 
 service_apache_enabled: true
-service_bumblebee_enabled: true
 service_certbot_enabled: true
 service_ddclient_enabled: true
 service_docker_enabled: true
@@ -403,13 +402,6 @@ service_apache_https_port: 443
 service_apache_http_proxy_port: 8080
 service_apache_https_proxy_port: 8443
 service_apache_default_virtual_host: "desktop.kmchan3.space"
-
-
-#
-# Bumblebee Service Settings
-#
-
-service_bumblebee_device: "shared-video"
 
 
 #

@@ -1,7 +1,6 @@
 
 
 - import_playbook: "service.apache.yml"
-- import_playbook: "service.bumblebee.yml"
 - import_playbook: "service.certbot.yml"
 - import_playbook: "service.ddclient.yml"
 - import_playbook: "service.docker.yml"

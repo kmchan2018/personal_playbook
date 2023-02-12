@@ -1,8 +1,0 @@
-
-[Unit]
-{% for key, entry in hardware_vfio_devices.items() %}
-{% if entry.device == service_bumblebee_device %}
-AssertPathExists=!/run/vfio-{{ key }}.lock
-{% endif %}
-{% endfor %}
-
