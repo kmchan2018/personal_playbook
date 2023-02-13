@@ -1,11 +1,16 @@
+#!/bin/bash
 
-{% if hardware_video_offload_device|default(false) != false %}
-#
-# Offload device exists in the system. To avoid the device from being
-# used, the drivers for EGL and Vulkan will be configured explicitly.
-#
+{% if hardware_video_output_kernel_module == "nvidia" %}
+# Nvidia driver does not support render offload for wayland applications,
+# only Xwayland ones. Therefore, force the use of Xwayland.
+unset WAYLAND_DISPLAY
 
-__EGL_VENDOR_LIBRARY_FILENAMES={% for filename in hardware_video_output_egl_vendor_library_filenames -%}
+{% endif %}
+unset DRI_PRIME
+unset __NV_PRIME_RENDER_OFFLOAD
+unset __GLX_VENDOR_LIBRARY_NAME
+
+export __EGL_VENDOR_LIBRARY_FILENAMES={% for filename in hardware_video_output_egl_vendor_library_filenames -%}
 {%- if loop.first == false -%}:{%- endif -%}
 {%- if filename|first == '/' -%}
 {{ filename }}
@@ -20,19 +25,21 @@ __EGL_VENDOR_LIBRARY_FILENAMES={% for filename in hardware_video_output_egl_vend
 {%- endif -%}
 {%- endfor %}
 
-VK_ICD_FILENAMES={% for filename in hardware_video_output_vk_icd_filenames -%}
+export VK_ICD_FILENAMES={% for filename in hardware_video_output_vk_icd_filenames -%}
 {%- if loop.first == false -%}:{%- endif -%}
-{%- if filename|first == '/' -%}
+{%- if filename|first == "/" -%}
 {{ filename }}
 {%- elif filename|ansible.builtin.regex_search('x86_64') == 'x86_64' -%}
 /usr/share/vulkan/icd.d/{{ filename }}:/usr/lib/x86_64-linux-gnu/GL/vulkan/icd.d/{{ filename }}
 {%- elif filename|ansible.builtin.regex_search('i386') == 'i386' -%}
 /usr/share/vulkan/icd.d/{{ filename }}:/usr/lib/i386-linux-gnu/GL/vulkan/icd.d/{{ filename }}
-{%- elif filename|ansible.builtin.regex_search('i686') == 'i686' -%}
+{%- elif filename|ansible.builtin.regex_search('i386') == 'i686' -%}
 /usr/share/vulkan/icd.d/{{ filename }}:/usr/lib/i386-linux-gnu/GL/vulkan/icd.d/{{ filename }}
 {%- else -%}
 /usr/share/vulkan/icd.d/{{ filename }}:/usr/lib/x86_64-linux-gnu/GL/vulkan/icd.d/{{ filename }}:/usr/lib/i386-linux-gnu/GL/vulkan/icd.d/{{ filename }}
 {%- endif -%}
 {%- endfor %}
-{% endif %}
+
+
+exec "$@"
 

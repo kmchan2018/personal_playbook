@@ -1,4 +1,45 @@
 
-PATH=${PATH}:/opt/prime-run/bin
+PATH=${PATH}:/opt/video/bin
 export PATH
+
+{% if hardware_video_offload_device|default(false) != false %}
+#
+# Offload device exists in the system. To avoid the device from being
+# used, the drivers for EGL and Vulkan will be configured explicitly.
+#
+
+__EGL_VENDOR_LIBRARY_FILENAMES={% for filename in hardware_video_output_egl_vendor_library_filenames -%}
+{%- if loop.first == false -%}:{%- endif -%}
+{%- if filename|first == '/' -%}
+{{ filename }}
+{%- elif filename|ansible.builtin.regex_search('x86_64') == 'x86_64' -%}
+/usr/share/glvnd/egl_vendor.d/{{ filename }}:/usr/lib/x86_64-linux-gnu/GL/glvnd/egl_vendor.d/{{ filename }}
+{%- elif filename|ansible.builtin.regex_search('i386') == 'i386' -%}
+/usr/share/glvnd/egl_vendor.d/{{ filename }}:/usr/lib/i386-linux-gnu/GL/glvnd/egl_vendor.d/{{ filename }}
+{%- elif filename|ansible.builtin.regex_search('i686') == 'i686' -%}
+/usr/share/glvnd/egl_vendor.d/{{ filename }}:/usr/lib/i386-linux-gnu/GL/glvnd/egl_vendor.d/{{ filename }}
+{%- else -%}
+/usr/share/glvnd/egl_vendor.d/{{ filename }}:/usr/lib/x86_64-linux-gnu/GL/glvnd/egl_vendor.d/{{ filename }}:/usr/lib/i386-linux-gnu/GL/glvnd/egl_vendor.d/{{ filename }}
+{%- endif -%}
+{%- endfor %}
+
+VK_ICD_FILENAMES={% for filename in hardware_video_output_vk_icd_filenames -%}
+{%- if loop.first == false -%}:{%- endif -%}
+{%- if filename|first == '/' -%}
+{{ filename }}
+{%- elif filename|ansible.builtin.regex_search('x86_64') == 'x86_64' -%}
+/usr/share/vulkan/icd.d/{{ filename }}:/usr/lib/x86_64-linux-gnu/GL/vulkan/icd.d/{{ filename }}
+{%- elif filename|ansible.builtin.regex_search('i386') == 'i386' -%}
+/usr/share/vulkan/icd.d/{{ filename }}:/usr/lib/i386-linux-gnu/GL/vulkan/icd.d/{{ filename }}
+{%- elif filename|ansible.builtin.regex_search('i686') == 'i686' -%}
+/usr/share/vulkan/icd.d/{{ filename }}:/usr/lib/i386-linux-gnu/GL/vulkan/icd.d/{{ filename }}
+{%- else -%}
+/usr/share/vulkan/icd.d/{{ filename }}:/usr/lib/x86_64-linux-gnu/GL/vulkan/icd.d/{{ filename }}:/usr/lib/i386-linux-gnu/GL/vulkan/icd.d/{{ filename }}
+{%- endif -%}
+{%- endfor %}
+
+
+export __EGL_VENDOR_LIBRARY_FILENAMES
+export VK_ICD_FILENAMES
+{% endif %}
 
