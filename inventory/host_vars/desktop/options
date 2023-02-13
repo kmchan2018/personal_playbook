@@ -461,6 +461,13 @@ service_guest_dhcp_lower: "192.168.192.100"
 service_guest_dhcp_upper: "192.168.192.199"
 
 
+#
+# Steam Settings
+#
+
+software_steam_directories:
+  - "/mnt/games"
+
 
 #
 # System Settings

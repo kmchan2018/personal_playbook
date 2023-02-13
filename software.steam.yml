@@ -39,4 +39,14 @@
           ansible.builtin.shell:
             cmd: "flatpak override --nofilesystem xdg-pictures --nofilesystem xdg-music --filesystem xdg-pictures/Steam --filesystem xdg-music/Steam com.valvesoftware.Steam"
 
+        - name: "Setup Steam: Enable Access to Secondary Game Directories"
+          ansible.builtin.shell:
+            cmd: "flatpak override --filesystem {{ item }} com.valvesoftware.Steam"
+          loop: "{{ software_steam_directories|default([]) }}"
+
+        - name: "Setup Steam: Enable Access to Secondary Game Directories for Protontricks"
+          ansible.builtin.shell:
+            cmd: "flatpak override --filesystem {{ item }} com.github.Matoking.protontricks"
+          loop: "{{ software_steam_directories|default([]) }}"
+
 
