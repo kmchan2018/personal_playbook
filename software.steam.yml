@@ -20,4 +20,8 @@
             name: "https://dl.flathub.org/repo/appstream/com.github.Matoking.protontricks.flatpakref"
             state: "present"
 
+        - name: "Setup Steam: Enable Access to Offload Scripts"
+          ansible.builtin.shell:
+            cmd: "flatpak override --filesystem /opt/video:ro com.valvesoftware.Steam"
+
 
