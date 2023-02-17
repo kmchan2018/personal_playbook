@@ -1,0 +1,64 @@
+#!/bin/bash
+
+set +e
+
+if [[ "x$1" == "xwindows" && "x$2" == "xprepare" ]]; then
+  # Create directory where the spice socket of the virtual
+  # machine can be found.
+
+  mkdir -p {{ service_windows_spice_path|ansible.builtin.dirname }}
+  chown qemu:qemu {{ service_windows_spice_path|ansible.builtin.dirname }}
+  chmod 0755 {{ service_windows_spice_path|ansible.builtin.dirname }}
+
+  # Compact physical memory to maximize the number of THP
+  # that can be allocated by the virtual machine.
+
+  echo 1 > /proc/sys/vm/compact_memory
+
+{% if service_windows_descriptor_conflicts|default([])|length > 0 %}
+  # Check for file descriptors that conflicts with the
+  # virtual machine and cancel the startup in case of
+  # conflicts. It can be used to check if a host device
+  # like graphic card is being used by another application
+  # and therefore cannot be detached.
+
+  DESCRIPTORS=$(ls {{ service_windows_descriptor_conflicts|join(' ') }} 2>/dev/null)
+
+  if [[ "x$DESCRIPTORS" != "x" ]]; then
+    if fuser -s $DESCRIPTORS 2>/dev/null ; then
+      echo "found open descriptor that conflicts with windows..."
+      exit 1
+    fi
+  fi
+
+{% endif %}
+{% if service_windows_module_conflicts|default([])|length > 0 %}
+  # Unload any kernel modules that conflicts with the
+  # virtual machine.
+
+  rmmod {{ service_windows_module_conflicts|join(' ') }} 2>&1 >> /dev/null
+
+{% endif %}
+elif [[ "x$1" == "xwindows" && "x$2" == "xstarted" ]]; then
+  # Update the group and permission for the looking glass
+  # and spice files so that users belonging to the windows
+  # group can use them.
+
+  chown :windows {{ service_windows_looking_glass_path }}
+  chown :windows {{ service_windows_spice_path }}
+
+  chmod g+rw {{ service_windows_looking_glass_path }}
+  chmod g+rw {{ service_windows_spice_path }}
+
+elif [[ "x$1" == "xwindows" && "x$2" == "xrelease" ]] ; then
+{% if service_windows_module_conflicts|default([])|length > 0 %}
+  # Reload any kernel modules that conflicts with the
+  # virtual machine.
+
+  modprobe {{ service_windows_module_conflicts|join(' ') }} 2>&1 >> /dev/null
+
+{% endif %}
+
+fi
+
+exit 0

@@ -1,0 +1,79 @@
+
+
+#- import_playbook: "hardware.kvm.yml"
+#- import_playbook: "hardware.vfio.yml"
+#- import_playbook: "service.libvirt.yml"
+
+
+- hosts: "all"
+  become: true
+  become_user: "root"
+
+  vars:
+
+    service_windows_title: "Windows Guest"
+    service_windows_description: "Windows Guest"
+
+    service_windows_image_path: "/var/lib/libvirt/images/windows"
+    service_windows_image_size: 256
+    service_windows_image_unit: "G"
+
+    service_windows_looking_glass_name: "windows"
+    service_windows_looking_glass_path: "/dev/shm/{{ service_windows_looking_glass_name }}"
+    service_windows_spice_path: "/run/libvirt/qemu/spice/windows"
+
+  tasks:
+
+    - name: "Setup Windows Virtual Machine"
+      when: "service_windows_enabled|default(false)"
+      block:
+
+        - name: "Setup Windows Virtual Machine: Create Dedicated Group for the Virtual Machine"
+          ansible.builtin.group:
+            name: "windows"
+            state: "present"
+            system: true
+
+        - name: "Setup Windows Virtual Machine: Create Configuration Directories"
+          ansible.builtin.file:
+            dest: "{{ item.path }}"
+            state: "directory"
+            owner: "{{ item.owner|default('root') }}"
+            group: "{{ item.group|default('root') }}"
+            mode: "{{ item.mode|default('0755') }}"
+          loop:
+            - { path: "/etc/libvirt/hooks" }
+            - { path: "/etc/libvirt/hooks/qemu.d" }
+            - { path: "/opt/windows" }
+            - { path: "/opt/windows/bin" }
+
+        - name: "Setup Windows Virtual Machine: Install Configuration Files"
+          ansible.builtin.template:
+            dest: "{{ item.path }}"
+            src: "{{ playbook_dir }}/files/{{ item.path }}.j2"
+            owner: "{{ item.owner|default('root') }}"
+            group: "{{ item.group|default('root') }}"
+            mode: "{{ item.mode|default('0644') }}"
+          loop:
+            - { path: "/etc/libvirt/hooks/qemu.d/windows", mode: "0755" }
+            - { path: "/etc/polkit-1/rules.d/10-windows.rules", mode: "0644" }
+            - { path: "/etc/profile.d/windows.sh", mode: "0644" }
+            - { path: "/opt/windows/bin/windows-eject-cdrom", mode: "0755" }
+            - { path: "/opt/windows/bin/windows-insert-cdrom", mode: "0755" }
+            - { path: "/opt/windows/bin/windows-quit", mode: "0755" }
+            - { path: "/opt/windows/bin/windows-start", mode: "0755" }
+            - { path: "/opt/windows/bin/windows-reset", mode: "0755" }
+            - { path: "/opt/windows/bin/windows-viewer", mode: "0755" }
+
+        - name: "Setup Windows Virtual Machine: Create Disk Images"
+          ansible.builtin.shell:
+            cmd: "qemu-img create -f raw -o preallocation=falloc {{ service_windows_image_path }} {{ service_windows_image_size }}{{ service_windows_image_unit }}"
+            creates: "{{ service_windows_image_path }}"
+
+        - name: "Setup Windows Virtual Machine: Define Libvirt Virtual Machine"
+          community.libvirt.virt:
+            command: "define"
+            xml: "{{ lookup('template', 'files/etc/libvirt/qemu/windows.xml.j2') }}"
+            uri: "qemu:///system"
+
+

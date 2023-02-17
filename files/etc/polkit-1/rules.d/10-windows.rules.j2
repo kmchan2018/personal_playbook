@@ -1,0 +1,82 @@
+{% raw %}
+
+//////////////////////////////////////////////////////////////////////////
+//
+// Enable users in the windows groups to operate the windows domain.
+//
+// Note that the rule also allows users in the windows group to connect
+// to libvirt management socket.
+//
+
+polkit.addRule(function(action, subject) {
+  if (action.id.indexOf("org.libvirt.") !== 0) {
+    return polkit.Result.NOT_HANDLED;
+  } else if (subject.isInGroup("windows") === false) {
+    return polkit.Result.NOT_HANDLED;
+  }
+
+  if (action.id === "org.libvirt.unix.manage") {
+    return polkit.Result.YES;
+  } else if (action.id === "org.libvirt.unix.monitor") {
+    return polkit.Result.YES;
+  }
+
+  if (action.id.indexOf("org.libvirt.api.domain.") === 0) {
+    if (action.lookup("connect_driver") !== "QEMU") {
+      return polkit.Result.NOT_HANDLED;
+    } else if (action.lookup("domain_name") !== "windows") {
+      return polkit.Result.NOT_HANDLED;
+    } else {
+      switch (action.id) {
+        case "org.libvirt.api.domain.getattr":        return polkit.Result.YES;
+        case "org.libvirt.api.domain.init-control":   return polkit.Result.YES;
+        case "org.libvirt.api.domain.open-device":    return polkit.Result.YES;
+        case "org.libvirt.api.domain.open-graphics":  return polkit.Result.YES;
+        case "org.libvirt.api.domain.read":           return polkit.Result.YES;
+        case "org.libvirt.api.domain.read-secure":    return polkit.Result.YES;
+        case "org.libvirt.api.domain.reset":          return polkit.Result.YES;
+        case "org.libvirt.api.domain.start":          return polkit.Result.YES; 
+        case "org.libvirt.api.domain.stop":           return polkit.Result.YES;
+        case "org.libvirt.api.domain.write":          return polkit.Result.YES;
+      }
+    }
+  }
+
+  if (action.id.indexOf("org.libvirt.api.network-port.") === 0) {
+    if (action.lookup("network_name") !== "default") {
+      return polkit.Result.NOT_HANDLED;
+    } else {
+      switch (action.id) {
+        case "org.libvirt.api.network-port.create":        return polkit.Result.YES;
+        case "org.libvirt.api.network-port.delete":        return polkit.Result.YES;
+        case "org.libvirt.api.network-port.read":          return polkit.Result.YES;
+        case "org.libvirt.api.network-port.write":         return polkit.Result.YES;
+      }
+    }
+  }
+
+  return polkit.Result.NOT_HANDLED;
+});
+
+
+//////////////////////////////////////////////////////////////////////////
+//
+// Prevent non-root users from updating the windows domain.
+//
+
+polkit.addRule(function(action, subject) {
+  if (action.id !== "org.libvirt.api.domain.save") {
+    return polkit.Result.NOT_HANDLED;
+  } else if (action.lookup("connect_driver") !== "QEMU") {
+    return polkit.Result.NOT_HANDLED;
+  } else if (action.lookup("domain_name") !== "windows") {
+    return polkit.Result.NOT_HANDLED;
+  } else if (subject.user === "root") {
+    return polkit.Result.NOT_HANDLED;
+  } else {
+    return polkit.Result.NO;
+  }
+});
+
+
+{% endraw %}

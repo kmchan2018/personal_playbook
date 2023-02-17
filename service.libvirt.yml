@@ -1,0 +1,61 @@
+
+
+- hosts: "all"
+  become: true
+  become_user: "root"
+
+  vars:
+
+    service_libvirt_packages:
+      - "libvirt"
+      - "python3-libvirt"
+      - "qemu"
+      - "virt-manager"
+      - "virt-viewer"
+
+  tasks:
+
+    - name: "Setup Libvirt"
+      when: "service_libvirt_enabled|default(false)"
+      block:
+
+        - name: "Setup Libvirt: Install Libvirt and Qemu from Distribution"
+          ansible.builtin.dnf:
+            name: "{{ service_libvirt_packages }}"
+            state: "latest"
+
+        - name: "Setup Libvirt: Enable Polkit Access Control on Libvirt"
+          ansible.builtin.lineinfile:
+            dest: "/etc/libvirt/{{ item }}.conf"
+            regexp: '^#?\s*access_drivers\s*=\s*.*$'
+            line: 'access_drivers = [ "polkit" ]'
+            state: 'present'
+          loop:
+            - "libvirtd"
+            - "virtinterfaced"
+            - "virtlxcd"
+            - "virtnetworkd"
+            - "virtnodedevd"
+            - "virtnwfilterd"
+            - "virtproxyd"
+            - "virtqemud"
+            - "virtsecretd"
+            - "virtstoraged"
+            - "virtvboxd"
+            - "virtxend"
+
+        - name: "Setup Libvirt: Install Polkit Access Control Rules on Libvirt"
+          ansible.builtin.copy:
+            dest: "/etc/polkit-1/rules.d/50-libvirt-acl.rules"
+            src: "{{ playbook_dir }}/files/etc/polkit-1/rules.d/50-libvirt-acl.rules"
+            owner: "root"
+            group: "root"
+            mode: "0644"
+
+        - name: "Setup Libvirt: Start Libvirt Service"
+          ansible.builtin.systemd_service:
+            name: "virtqemud.socket"
+            enabled: true
+            daemon-reload: true
+
+

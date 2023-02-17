@@ -1,0 +1,74 @@
+
+
+//////////////////////////////////////////////////////////////////////////
+//
+// Allow users only monitoring capabilities unless he/she is either root
+// or member of group libvirt.
+//
+
+polkit.addRule(function(action, subject) {
+  if (action.id.indexOf("org.libvirt.api.") !== 0) {
+    return polkit.Result.NOT_HANDLED;
+  } else if (subject.user === "root") {
+    return polkit.Result.YES;
+  } else if (subject.isInGroup("libvirt") === true) {
+    return polkit.Result.YES;
+  } else {
+    // The following are a list of permissions involved in monitor
+    // operations and are therefore safe to allow.
+
+    switch (action.id) {
+      case "org.libvirt.api.connect.getattr":                   return polkit.Result.YES;
+      case "org.libvirt.api.connect.read":                      return polkit.Result.YES;
+      case "org.libvirt.api.connect.search-domains":            return polkit.Result.YES;
+      case "org.libvirt.api.connect.search-interfaces":         return polkit.Result.YES;
+      case "org.libvirt.api.connect.search-networks":           return polkit.Result.YES;
+      case "org.libvirt.api.connect.search-node-devices":       return polkit.Result.YES;
+      case "org.libvirt.api.connect.search-nwfilter-bindings":  return polkit.Result.YES;
+      case "org.libvirt.api.connect.search-nwfilters":          return polkit.Result.YES;
+      case "org.libvirt.api.connect.search-secrets":            return polkit.Result.YES;
+      case "org.libvirt.api.connect.search-storage-pools":      return polkit.Result.YES;
+      case "org.libvirt.api.domain.getattr":                    return polkit.Result.YES;
+      case "org.libvirt.api.domain.read":                       return polkit.Result.YES;
+      case "org.libvirt.api.interface.getattr":                 return polkit.Result.YES;
+      case "org.libvirt.api.interface.read":                    return polkit.Result.YES;
+      case "org.libvirt.api.network.getattr":                   return polkit.Result.YES;
+      case "org.libvirt.api.network.read":                      return polkit.Result.YES;
+      case "org.libvirt.api.network.search-ports":              return polkit.Result.YES;
+      case "org.libvirt.api.network-port.getattr":              return polkit.Result.YES;
+      case "org.libvirt.api.network-port.read":                 return polkit.Result.YES;
+      case "org.libvirt.api.node-device.getattr":               return polkit.Result.YES;
+      case "org.libvirt.api.nwfilter.getattr":                  return polkit.Result.YES;
+      case "org.libvirt.api.nwfilter.read":                     return polkit.Result.YES;
+      case "org.libvirt.api.nwfilter-binding.getattr":          return polkit.Result.YES;
+      case "org.libvirt.api.nwfilter-binding.read":             return polkit.Result.YES;
+      case "org.libvirt.api.secret.getattr":                    return polkit.Result.YES;
+      case "org.libvirt.api.secret.read":                       return polkit.Result.YES;
+      case "org.libvirt.api.storage-pool.getattr":              return polkit.Result.YES;
+      case "org.libvirt.api.storage-pool.read":                 return polkit.Result.YES;
+      case "org.libvirt.api.storage-pool.search-storage-vols":  return polkit.Result.YES;
+      case "org.libvirt.api.storage-vol.getattr":               return polkit.Result.YES;
+      case "org.libvirt.api.storage-vol.read":                  return polkit.Result.YES;
+    }
+
+    // The refresh operation on the storage pool can lead to communication
+    // with remote system or some other OS-level changes. However, it should
+    // pose no problem for local directory pools, so it is specifically
+    // allowed on the "default" pool.
+
+    if (action.id === "org.libvirt.api.storage-pool.refresh") {
+      if (action.lookup("pool_name") === "default") {
+        return polkit.Result.YES;
+      }
+    }
+
+    // Anything else should be considered unsafe and therefore denied.
+    // Note that additional capabilities can be added by creating new
+    // rule files that are loaded before this file, like "49-foobar.rules",
+    // and add the custom rules there.
+
+    return polkit.Result.NO;
+  }
+});
+
+

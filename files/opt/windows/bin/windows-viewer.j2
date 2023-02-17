@@ -1,0 +1,17 @@
+#!/bin/bash
+
+exec looking-glass-client \
+  "app:shmFile={{ service_windows_looking_glass_path }}" \
+  "win:title={{ service_windows_title }}" \
+  "win:allowResize=no" \
+  "win:autoResize=yes" \
+  "win:autoScreensaver=yes" \
+  "win:showFPS=yes" \
+  "spice:enable=yes" \
+  "spice:host={{ service_windows_spice_path }}" \
+  "spice:port=0" \
+  "spice:input=yes" \
+  "spice:audio=yes" \
+  "spice:clipboard=yes" \
+  $@
+

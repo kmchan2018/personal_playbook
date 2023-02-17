@@ -249,9 +249,11 @@ service_apache_enabled: true
 service_certbot_enabled: true
 service_ddclient_enabled: true
 service_docker_enabled: true
+service_libvirt_enabled: true
 service_mysql_enabled: true
 service_php_fpm_enabled: true
 service_postgresql_enabled: true
+service_windows_enabled: true
 
 
 #
@@ -467,6 +469,32 @@ service_guest_dhcp_upper: "192.168.192.199"
 
 software_steam_directories:
   - "/mnt/games"
+
+
+#
+# Windows Services Settings
+#
+
+service_windows_cputhread_pin: [ 8, 9, 10, 11, 12, 13, 14, 15 ]
+service_windows_iothread_pin: [ 6, 7 ]
+service_windows_processor_cores: 4
+service_windows_processor_threads: 2
+service_windows_memory_size: 12
+service_windows_memory_unit: GiB
+service_windows_looking_glass_size: 64
+service_windows_looking_glass_unit: MiB
+service_windows_passthroughs:
+  - functions:
+      - { "bus": 0x23, "slot": 0x0, "function": 0x0 }
+      - { "bus": 0x23, "slot": 0x0, "function": 0x1 }
+service_windows_descriptor_conflicts:
+  - /dev/dri/by-path/pci-0000:23:00.0-card
+  - /dev/dri/by-path/pci-0000:23:00.0-render
+  - /dev/nvidia*
+service_windows_module_conflicts:
+  - "nvidia_drm"
+  - "nvidia_uvm"
+  - "nvidia_modeset"
 
 
 #

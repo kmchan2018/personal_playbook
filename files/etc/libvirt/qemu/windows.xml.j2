@@ -1,0 +1,202 @@
+<domain type="kvm">
+  <name>windows</name>
+  <uuid>1b6fa685-2cc6-4484-b8e7-3a09e3943f62</uuid>
+  <title>{{ service_windows_title }}</title>
+  <description>{{ service_windows_description }}</description>
+
+  <vcpu {% if service_windows_cputhread_pin|default([])|length == service_windows_processor_cores * service_windows_processor_threads -%}
+placement="static" cpuset="{{ service_windows_cputhread_pin|unique|join(',') }}"
+{% else -%}
+placement="auto"
+{% endif -%}
+>{{ service_windows_processor_cores * service_windows_processor_threads }}</vcpu>
+  <iothreads>2</iothreads>
+
+  <cputune>
+{% if service_windows_cputhread_pin|default([])|length == service_windows_processor_cores * service_windows_processor_threads %}
+{% for pin in service_windows_cputhread_pin %}
+    <vcpupin vcpu="{{ loop.index0 }}" cpuset="{{ pin }}" />
+{% endfor %}
+{% endif %}
+{% if service_windows_iothread_pin|default([])|length == 2 %}
+    <iothreadpin iothread="1" cpuset="{{ service_windows_iothread_pin[0] }}"/>
+    <iothreadpin iothread="2" cpuset="{{ service_windows_iothread_pin[1] }}"/>
+{% endif %}
+  </cputune>
+
+  <on_poweroff>destroy</on_poweroff>
+  <on_reboot>restart</on_reboot>
+  <on_crash>destroy</on_crash>
+
+  <pm>
+    <suspend-to-mem enabled="no" />
+    <suspend-to-disk enabled="no" />
+  </pm>
+
+  <cpu mode="host-passthrough" check="none" migratable="on">
+    <topology sockets="1" dies="1" cores="{{ service_windows_processor_cores }}" threads="{{ service_windows_processor_threads }}" />
+    <cache mode="passthrough" />
+{% if 'AuthenticAMD' in ansible_processor %}
+    <feature policy="require" name="topoext" />
+{% endif %}
+  </cpu>
+
+  <features>
+    <acpi />
+    <apic />
+    <hyperv mode="passthrough">
+      <relaxed state="on" />
+      <vapic state="on" />
+      <spinlocks state="on" retries="8191" />
+      <vpindex state="on" />
+      <runtime state="on" />
+      <synic state="on" />
+      <stimer state="on"><direct state="on" /></stimer>
+      <reset state="on" />
+      <vendor_id state="on" value="dummy" />
+      <frequencies state="on" />
+      <reenlightenment state="on" />
+      <tlbflush state="on" />
+      <ipi state="on" />
+      <evmcs state="off" />
+    </hyperv>
+    <kvm>
+      <hidden state="on" />
+    </kvm>
+    <ioapic driver="kvm" />
+  </features>
+
+  <memory unit="{{ service_windows_memory_unit }}">{{ service_windows_memory_size }}</memory>
+  <currentMemory unit="{{ service_windows_memory_unit }}">{{ service_windows_memory_size }}</currentMemory>
+
+  <clock offset="localtime">
+    <timer name="rtc" tickpolicy="catchup" />
+    <timer name="pit" tickpolicy="delay" />
+    <timer name="hpet" present="yes" />
+    <timer name="hypervclock" present="yes" />
+    <timer name="tsc" present="yes" mode="native" />
+  </clock>
+
+  <os>
+    <type arch="x86_64" machine="pc-q35-7.0">hvm</type>
+    <loader readonly="yes" type="pflash">/usr/share/edk2/ovmf-4m/OVMF_CODE.fd</loader>
+    <nvram template="/usr/share/edk2/ovmf-4m/OVMF_VARS.fd">/var/lib/libvirt/qemu/nvram/windows.fd</nvram>
+    <bootmenu enable="no" />
+  </os>
+
+  <devices>
+    <emulator>/usr/bin/qemu-system-x86_64</emulator>
+
+    <controller type="pci" model="pcie-root" index="0" />
+
+    <input type="keyboard" bus="virtio">
+      <address type="pci" domain="0x0000" bus="0x00" slot="0x00" function="0x00" />
+    </input>
+
+    <input type="mouse" bus="virtio">
+      <address type="pci" domain="0x0000" bus="0x00" slot="0x01" function="0x00" />
+    </input>
+
+    <video>
+      <model type="qxl" vram="131072" heads="1" />
+      <driver name="qemu" />
+      <address type="pci" domain="0x0000" bus="0x00" slot="0x02" function="0x00" />
+    </video>
+
+    <graphics type="spice">
+      <clipboard copypaste="yes" />
+      <filetransfer enable="yes" />
+      <listen type="socket" socket="{{ service_windows_spice_path }}" />
+    </graphics>
+
+    <sound model="ich9">
+      <audio id="1" />
+      <address type="pci" domain="0x0000" bus="0x00" slot="0x03" function="0x00" />
+    </sound>
+
+    <audio type="spice" id="1" />
+
+    <controller type="scsi" model="virtio-scsi">
+      <address type="pci" domain="0x0000" bus="0x00" slot="0x04" function="0x00" />
+    </controller>
+
+    <disk type="file" device="disk">
+      <driver name="qemu" type="raw" cache="none" io="threads" discard="unmap" />
+      <source file="{{ service_windows_image_path }}" />
+      <target dev="sda" bus="scsi" />
+      <boot order="1" />
+    </disk>
+
+    <controller type="sata">
+      <!-- address automatically assigned according to machine type -->
+    </controller>
+
+    <disk type="file" device="cdrom">
+      <driver name="qemu" type="raw" />
+      <target dev="hda" bus="sata" tray="closed" />
+      <readonly />
+      <boot order="2" />
+    </disk>
+
+    <disk type="file" device="cdrom">
+      <driver name="qemu" type="raw" />
+      <target dev="hdb" bus="sata" tray="closed" />
+      <readonly />
+      <boot order="3" />
+    </disk>
+
+    <controller type="usb" model="nec-xhci" ports="4">
+      <address type="pci" domain="0x0000" bus="0x00" slot="0x05" function="0x00" />
+    </controller>
+
+    <redirdev bus="usb" type="spicevmc" />
+    <redirdev bus="usb" type="spicevmc" />
+    <redirdev bus="usb" type="spicevmc" />
+    <redirdev bus="usb" type="spicevmc" />
+
+    <controller type="virtio-serial" index="0">
+      <address type="pci" domain="0x0000" bus="0x00" slot="0x06" function="0x00" />
+    </controller>
+
+    <channel type="spicevmc">
+      <target type="virtio" name="com.redhat.spice.0"/>
+      <address type="virtio-serial" controller="0" bus="0" port="1"/>
+    </channel>
+
+    <interface type="network">
+      <source network="default" />
+      <model type="virtio" />
+      <address type="pci" domain="0x0000" bus="0x00" slot="0x07" function="0x00" />
+    </interface>
+
+    <shmem name="{{ service_windows_looking_glass_name }}">
+      <model type="ivshmem-plain" />
+      <size unit="{{ service_windows_looking_glass_unit }}">{{ service_windows_looking_glass_size }}</size>
+      <address type="pci" domain="0x0000" bus="0x00" slot="0x08" function="0x00" />
+    </shmem>
+
+{% for card in service_windows_passthroughs %}
+{%- set guest_upstream_slot = 9 + loop.index0 %}
+{%- set guest_downstream_bus = 1 + loop.index0 %}
+    <controller type="pci" model="pcie-root-port" index="{{ loop.index }}">
+      <address type="pci" domain="0x0000" bus="0x00" slot="{{ "0x%02x" % guest_upstream_slot }}" function="0x0" {% if card|length > 1 %}multifunction="on" {% endif %}/>
+    </controller>
+{% for function in card.functions %}
+{%- set guest_downstream_function = 0 + loop.index0 %}
+{%- set hostdev_bus = function.bus|int(base=16) %}
+{%- set hostdev_slot = function.slot|int(base=16) %}
+{%- set hostdev_function = function.function|int(base=16) %}
+
+    <hostdev mode="subsystem" type="pci" managed="yes">
+      <source>
+        <address domain="0x0000" bus="{{ "0x%02x" % hostdev_bus }}" slot="{{ "0x%02x" % hostdev_slot }}" function="{{ "0x%02x" % hostdev_function }}"/>
+      </source>
+      <address type="pci" domain="0x0000" bus="{{ "0x%02x" % guest_downstream_bus }}" slot="0x00" function="{{ "0x%02x" % guest_downstream_function }}" {% if card|length > 1 and guest_downstream_function == 0 %}multifunction="on" {% endif %}/>
+      <driver name="vfio" />
+    </hostdev>
+{% endfor %}
+{% endfor %}
+
+    <memballoon model="none" />
+  </devices>
+</domain>
