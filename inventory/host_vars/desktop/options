@@ -418,52 +418,6 @@ service_ddclient_hosts:
 
 
 #
-# Guest Services Settings
-#
-
-service_guest_enabled: true
-
-service_guest_disks:
-  windows-root:
-    type: "lvm"
-    volume_group: "System"
-    logical_volume: "Windows"
-    account: "windows-disk"
-
-service_guest_instances:
-  windows:
-    title: "Windows"
-    account: "windows-machine"
-    groups: [ "windows-disk" ]
-    admins: [ "kmchan" ]
-    processor_socket: 1
-    processor_core: 6
-    processor_thread: 1
-    memory_size: 12
-    memory_prealloc: true
-    video_hardware: "passthrough"
-    audio_hardware: "hda"
-    disks: [ "windows-root" ]
-    passthroughs: [ "shared-video" ]
-    looking_glass_viewport: "1600x900"
-    looking_glass_audio: "scream"
-    scream_transport: "ivshmem"
-    cpuset: "8-15"
-    nice: "-5"
-    inhibition_lock: "all"
-    hpet: false
-
-service_guest_keyboard: "/dev/input/by-id/usb-Logitech_USB_Receiver-if01-event-kbd"
-service_guest_mouse: "/dev/input/by-id/usb-Logitech_USB_Receiver-if01-event-mouse"
-
-service_guest_network: "192.168.192.0"
-service_guest_netmask: "255.255.255.0"
-service_guest_gateway: "192.168.192.1"
-service_guest_dhcp_lower: "192.168.192.100"
-service_guest_dhcp_upper: "192.168.192.199"
-
-
-#
 # Steam Settings
 #
 

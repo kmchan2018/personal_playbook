@@ -1,9 +1,0 @@
-
-{% if service_guest_enabled|default(false) == true %}
-#
-# Enable IP forwarding on guest interface
-#
-
-net.ipv4.conf.guest.forwarding = 1
-{% endif %}
-
