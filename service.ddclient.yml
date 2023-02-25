@@ -4,6 +4,11 @@
   become: true
   become_user: "root"
 
+  vars:
+
+    service_ddclient_packages:
+      - "ddclient"
+
   tasks:
 
     - name: "Setup DDClient Service"
@@ -11,30 +16,26 @@
       block:
 
         - name: "Setup DDClient Service: Load Namecheap Secrets"
-          include_vars:
-            file: "secrets/namecheap"
+          ansible.builtin.include_vars:
+            file: "secrets/service.ddclient.vault"
 
         - name: "Setup DDClient Service: Install DDClient Package"
-          apt:
-            name: "ddclient"
+          ansible.builtin.dnf:
+            name: "{{ service_ddclient_packages }}"
             state: "latest"
-            update_cache: true
-            cache_valid_time: 86400
-            default_release: "{{ ansible_distribution_release }}"
 
-        - name: "Setup DDClient Service: Install Configuration Files"
-          template:
-            dest: "{{ item.path }}"
-            src: "{{ playbook_dir }}/files/{{ item.path }}.j2"
-            owner: "root"
-            group: "root"
-            mode: "{{ item.mode }}"
-          loop:
-            - { path: "/etc/ddclient.conf", mode: "0600" }
+        - name: "Setup DDClient Service: Update Default Configuration Files"
+          ansible.builtin.blockinfile:
+            dest: "/etc/ddclient.conf"
+            block: "{{ lookup('ansible.builtin.template', '{{ playbook_dir }}/files/etc/ddclient.conf.j2') }}"
+            owner: "ddclient"
+            group: "ddclient"
+            mode: "0600"
 
         - name: "Setup DDClient Service: Enable DDClient Daemon"
-          service:
+          ansible.builtin.systemd_service:
             name: "ddclient.service"
             enabled: true
+            daemon-reload: true
 
 
