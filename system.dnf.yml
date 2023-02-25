@@ -4,7 +4,17 @@
   become: true
   become_user: "root"
 
+  vars:
+
+    system_dnf_packages:
+      - "python3-dnf-plugin-post-transaction-actions"
+
   tasks:
+
+    - name: "Setup DNF: Install Extra Plugins from Distribution"
+      ansible.builtin.dnf:
+        name: "{{ system_dnf_packages }}"
+        state: "latest"
 
     - name: "Setup DNF: Change Default Option to Yes"
       community.general.ini_file:
