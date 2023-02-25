@@ -1,0 +1,52 @@
+
+
+#########################################################################
+#
+# Allows index.php to handle requests for directories.
+#
+
+DirectoryIndex index.php index.phar
+
+
+#########################################################################
+#
+# PHP-FPM allows user to override runtime configuration options via a
+# special file called ".users.ini". They should be kept private.
+#
+
+<Files ".user.ini">
+	Require all denied
+</Files>
+
+
+#########################################################################
+#
+# For PHP files, detect the owner of the file and use it to determine the
+# PHP FPM instance the request should be sent to.
+#
+
+<FilesMatch "\.(php|phar)">
+	SetEnvIfNoCase ^Authorization$ "(.+)" HTTP_AUTHORIZATION=$1
+	SSLOptions +StdEnvVars
+
+{% if service_php_fpm_users|default([])|length == 0 %}
+	SetHandler "proxy:unix:/run/php-fpm/www.sock|fcgi://localhost/"
+{% else %}
+{% for user in service_php_fpm_users|default([]) %}
+{% if loop.index0 == 0 %}
+	<If "%{SCRIPT_USER} == '{{ user.name|mandatory }}'">
+		SetHandler "proxy:unix:/run/php-fpm/{{ user.name|mandatory }}.sock|fcgi://localhost/"
+	</If>
+{% else %}
+	<ElseIf "%{SCRIPT_USER} == '{{ user.name|mandatory }}'">
+		SetHandler "proxy:unix:/run/php-fpm/{{ user.name|mandatory }}.sock|fcgi://localhost/"
+	</ElseIf>
+{% endif %}
+{% endfor %}
+	<Else>
+		SetHandler "proxy:unix:/run/php-fpm/www.sock|fcgi://localhost/"
+	</Else>
+{% endif %}
+</FilesMatch>
+
+

@@ -1,0 +1,82 @@
+
+
+{% for user in service_php_fpm_users|default([]) %}
+[{{ user.name|mandatory }}]
+
+;
+; UID/GID for the workers
+;
+
+user = {{ user.name|mandatory }}
+
+;
+; Socket the workers receive incoming requests, and the list of users that
+; can access the socket
+;
+
+listen = /run/php-fpm/{{ user.name|mandatory }}.sock
+listen.acl_users = apache,nginx
+
+;
+; Controls the number of workers in the pool
+;
+
+{% if user.pm|default('ondemand') == 'static' %}
+pm = static
+pm.max_children = {{ user.pm_max_children|default(5) }}
+{% elif user.pm|default('ondemand') == 'dynamic' %}
+pm = dynamic
+pm.max_children = {{ user.pm_max_children|default(5) }}
+pm.start_servers = {{ user.pm_start_servers|default(2) }}
+pm.min_spare_servers = {{ user.pm_min_spare_servers|default(1) }}
+pm.max_spare_servers = {{ user.pm_max_spare_servers|default(3) }}
+pm.max_spawn_rate = {{ user.pm_max_spawn_rate|default(1) }}
+{% else %}
+pm = ondemand
+pm.max_children = {{ user.pm_max_children|default(5) }}
+pm.process_idle_timeout = {{ user.pm_process_idle_timeout|default('10s') }}
+{% endif %}
+{% if user.pm_max_requests|default(0) > 0 %}
+pm.max_requests = {{ user.pm_max_requests|default(0) }}
+{% endif %}
+
+;
+; Location of log files produced by the workers
+;
+
+slowlog = /var/log/php-fpm/{{ user.name|mandatory }}-slow.log
+
+;
+; Do not report the existence of PHP by default, but allows the application
+; to override the behavior.
+;
+
+php_flag[expose_php] = Off
+
+;
+; Do not show or log any errors to files. Applications that need them can
+; override the settings themselves via .users.ini or other mechanisms.
+;
+
+php_flag[display_errors] = Off
+php_flag[log_errors] = Off
+
+;
+; Setup limits on the PHP engine.
+;
+
+php_admin_value[max_execution_time] = {{ user.max_execution_time|default(15) }}
+php_admin_value[memory_limit] = {{ user.memory_limit|default('32M') }}
+php_admin_value[upload_max_filesize] = {{ user.upload_max_filesize|default('16M') }}
+php_admin_value[max_file_uploads] = {{ user.max_file_uploads|default(20) }}
+
+;
+; Setup location of persistent data like session cache.
+;
+
+php_value[session.save_handler] = files
+php_value[session.save_path]    = /var/lib/php/{{ user.name|mandatory }}/session
+php_value[soap.wsdl_cache_dir]  = /var/lib/php/{{ user.name|mandatory }}/wsdlcache
+
+
+{% endfor %}

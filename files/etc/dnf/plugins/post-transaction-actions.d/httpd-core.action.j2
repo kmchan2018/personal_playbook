@@ -1,0 +1,13 @@
+{% raw %}
+#
+# The package httpd-core owns the /var/log/httpd directory. When it
+# is installed or upgraded, rpm will revert any ownership/permission
+# changes to the package default. This post transaction action script
+# re-applies the ownership/permission change. Reference:
+#
+# https://bugzilla.redhat.com/show_bug.cgi?id=802570
+#
+
+httpd-core:in:/bin/chmod 0755 /var/log/httpd
+
+{% endraw %}

@@ -1,0 +1,23 @@
+
+
+#########################################################################
+#
+# Alias the certbot ACME challenge URL for all virtual hosts to the
+# target directory.
+#
+
+Alias "/.well-known/acme-challenge/" "/var/www/certbot/.well-known/acme-challenge/"
+
+
+#########################################################################
+#
+# Setup the proper permissions and options for directory storing certbot
+# ACME challenges.
+#
+
+<Directory /var/www/certbot>
+	Options None
+	Require all granted
+</Directory>
+
+

@@ -1,0 +1,131 @@
+
+
+- hosts: "all"
+  become: true
+  become_user: "root"
+
+  vars:
+
+    service_httpd_packages:
+      - "httpd"
+      - "httpd-tools"
+      - "mod_ssl"
+
+  tasks:
+
+    - name: "Setup Apache Httpd Service"
+      when: "service_httpd_enabled|default(false)"
+      block:
+
+        - name: "Setup Apache Httpd Service: Fetch account group information"
+          ansible.builtin.getent:
+            database: "passwd"
+
+        - name: "Setup Apache Httpd Service: Install Httpd from Distribution"
+          ansible.builtin.dnf:
+            name: "{{ service_httpd_packages }}"
+            state: "latest"
+
+        - name: "Setup Apache Httpd Service: Backup Default Configuration Files"
+          ansible.builtin.shell:
+            cmd: "cp -a {{ item.path }} {{ item.path }}.original"
+            creates: "{{ item.path }}.original"
+          loop:
+            - { path: "/etc/httpd/conf/httpd.conf" }
+            - { path: "/etc/httpd/conf.d/ssl.conf" }
+            - { path: "/etc/httpd/conf.d/userdir.conf" }
+            - { path: "/etc/httpd/conf.d/welcome.conf" }
+
+        - name: "Setup Apache Httpd Service: Create Custom Configuration Directories"
+          ansible.builtin.file:
+            dest: "{{ item.path }}"
+            state: "directory"
+            owner: "{{ item.owner|default('root') }}"
+            group: "{{ item.group|default('root') }}"
+            mode: "{{ item.group|default('0755') }}"
+          loop:
+            - { path: "/etc/systemd/system/httpd.service.d" }
+
+        - name: "Setup Apache Httpd Service: Install Custom Configuration Files"
+          ansible.builtin.template:
+            dest: "{{ item.path }}"
+            src: "files/{{ item.path }}.j2"
+            owner: "{{ item.owner|default('root') }}"
+            group: "{{ item.group|default('root') }}"
+            mode: "{{ item.group|default('0644') }}"
+          loop:
+            - { path: "/etc/dnf/plugins/post-transaction-actions.d/httpd-core.action" }
+            - { path: "/etc/httpd/conf/httpd.conf" }
+            - { path: "/etc/httpd/conf.d/ssl.conf" }
+            - { path: "/etc/httpd/conf.d/userdir.conf" }
+            - { path: "/etc/httpd/conf.d/welcome.conf" }
+            - { path: "/etc/systemd/system/httpd.service.d/local.conf" }
+            - { path: "/var/www/html/index.html" }
+
+        - name: "Setup Apache Httpd Service: Enable Log Rotation on Extra Log Files"
+          ansible.builtin.lineinfile:
+            dest: "/etc/logrotate.d/httpd"
+            regexp: "^/var/log/httpd/\\*log.*{$"
+            line: "/var/log/httpd/*log {% for user in service_httpd_users %}/var/log/httpd/{{ user.name }}/*log {% endfor %}{"
+            state: "present"
+
+        - name: "Setup Apache Httpd Service: Create Virtual Host Document Roots"
+          ansible.builtin.file:
+            dest: "/var/www/{{ item.name }}"
+            state: "directory"
+            owner: "root"
+            group: "root"
+            mode: "0755"
+          loop: "{{ service_httpd_virtual_hosts|default([]) }}"
+
+        - name: "Setup Apache Httpd Service: Create User Document Roots"
+          ansible.builtin.file:
+            dest: "/var/www/html/{{ item.name }}"
+            state: "directory"
+            owner: "{{ item.name }}"
+            group: "{{ getent_passwd[item.name][2] }}"
+            mode: "0755"
+          loop: "{{ service_httpd_users|default([]) }}"
+
+        - name: "Setup Apache Httpd Service: Update Root Log Directory Permission"
+          ansible.builtin.file:
+            dest: "/var/log/httpd"
+            state: "directory"
+            owner: "root"
+            group: "root"
+            mode: "0755"
+
+        - name: "Setup Apache Httpd Service: Create User Log Directories"
+          ansible.builtin.file:
+            dest: "/var/log/httpd/{{ item.name }}"
+            state: "directory"
+            owner: "root"
+            group: "root"
+            mode: "0755"
+          loop: "{{ service_httpd_users|default([]) }}"
+
+        - name: "Setup Apache Httpd Service: Setup User Log Directories ACL"
+          ansible.posix.acl:
+            path: "/var/log/httpd/{{ item.0.name }}"
+            state: "present"
+            etype: "{{ 'user' if item.1 == 'target' else item.1 }}"
+            entity: "{{ item.0.name if item.1 == 'target' else '' }}"
+            permissions: "{{ 'rw' if item.1 == 'user' else 'r' if item.1 == 'target' else '-' }}"
+            default: true
+          loop: "{{ service_httpd_users|default([])|product(['user','group','other','target']) }}"
+
+        - name: "Setup Apache Httpd Service: Enable Required SELinux Booleans"
+          ansible.posix.seboolean:
+            name: "{{ item.name }}"
+            state: true
+            persistent: true
+          loop:
+            - { name: "httpd_can_network_connect" }
+
+        - name: "Setup Apache Httpd Service: Enable Httpd Daemon"
+          ansible.builtin.systemd_service:
+            name: "httpd.service"
+            enabled: true
+            daemon-reload: true
+
+

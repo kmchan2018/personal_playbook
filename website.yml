@@ -1,7 +1,0 @@
-
-
-- import_playbook: "website.demo.kmchan3.space.yml"
-- import_playbook: "website.desktop.kmchan3.space.yml"
-- import_playbook: "website.test.kmchan3.space.yml"
-
-

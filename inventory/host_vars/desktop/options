@@ -245,10 +245,10 @@ software_zoom_enabled: true
 # Service List
 #
 
-service_apache_enabled: true
 service_certbot_enabled: true
 service_ddclient_enabled: true
 service_docker_enabled: true
+service_httpd_enabled: true
 service_libvirt_enabled: true
 service_mysql_enabled: true
 service_php_fpm_enabled: true
@@ -399,11 +399,19 @@ network_mounts:
 # Apache Service Settings
 #
 
-service_apache_http_port: 80
-service_apache_https_port: 443
-service_apache_http_proxy_port: 8080
-service_apache_https_proxy_port: 8443
-service_apache_default_virtual_host: "desktop.kmchan3.space"
+service_httpd_ssl_enabled: true
+service_httpd_proxy_enabled: true
+service_httpd_http_port: 80
+service_httpd_https_port: 443
+service_httpd_http_proxy_port: 8080
+service_httpd_https_proxy_port: 8443
+
+service_httpd_users:
+  - name: "kmchan"
+
+service_httpd_default_host_name: "desktop.kmchan3.space"
+service_httpd_default_host_certificate: "/etc/letsencrypt/live/desktop.kmchan3.space/fullchain.pem"
+service_httpd_default_host_key: "/etc/letsencrypt/live/desktop.kmchan3.space/privkey.pem"
 
 
 #
@@ -415,6 +423,14 @@ service_ddclient_hosts:
   - { provider: "namecheap", domain: "kmchan3.space", host: "desktop" }
   - { provider: "namecheap", domain: "kmchan3.space", host: "firefox" }
   - { provider: "namecheap", domain: "kmchan3.space", host: "test" }
+
+
+#
+# PHP FPM Service Settings
+#
+
+service_php_fpm_users:
+  - name: "kmchan"
 
 
 #

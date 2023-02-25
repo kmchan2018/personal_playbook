@@ -11,45 +11,41 @@
       block:
 
         - name: "Setup Certbot Service: Install Certbot Package"
-          apt:
+          ansible.builtin.dnf:
             name: "certbot"
             state: "latest"
-            update_cache: true
-            cache_valid_time: 86400
-            default_release: "{{ ansible_distribution_release }}"
 
-        - name: "Setup Certbot Service: Configure Path for Webroot Authenticator"
-          lineinfile:
+        - name: "Setup Certbot Service: Update Webroot Path in Default Configuration Files"
+          ansible.builtin.lineinfile:
             path: "/etc/letsencrypt/cli.ini"
             line: "webroot-path = /var/www/certbot"
             regexp: "^\\s*#*\\s*webroot-path\\s*=\\s*.*$"
             state: "present"
 
-        - name: "Setup Certbot Service: Create Data Directoriy for Webroot Authenticator"
-          file:
-            dest: "/var/www/certbot/.well-known/acme-challenge"
+        - name: "Setup Certbot Service: Create Extra Configuration Directories"
+          ansible.builtin.file:
+            dest: "{{ item.path }}"
             state: "directory"
-            owner: "root"
-            group: "root"
-            mode: "0755"
+            owner: "{{ item.owner|default('root') }}"
+            group: "{{ item.group|default('root') }}"
+            mode: "{{ item.group|default('0755') }}"
+          loop:
+            - { path: "/var/www/certbot/.well-known/acme-challenge" }
 
-        - name: "Setup Certbot Service: Install Configuration File for Webroot Authenticator"
-          template:
-            dest: "/etc/apache2/conf-available/certbot.conf"
-            src: "files/etc/apache2/conf-available/certbot.conf.j2"
-            owner: "root"
-            group: "root"
-            mode: "0644"
+        - name: "Setup Certbot Service: Install Extra Configuration Files"
+          ansible.builtin.template:
+            dest: "{{ item.path }}"
+            src: "files/{{ item.path }}.j2"
+            owner: "{{ item.owner|default('root') }}"
+            group: "{{ item.group|default('root') }}"
+            mode: "{{ item.group|default('0644') }}"
+          loop:
+            - { path: "/etc/httpd/conf.d/certbot.conf" }
 
-        - name: "Setup Apache Service: Enable Modules"
-          shell: "a2enmod -q alias"
-
-        - name: "Setup Apache Service: Enable Configurations"
-          shell: "a2enconf -q certbot"
-
-        - name: "Setup Certbot Service: Enable Certbot Cron Job"
-          service:
-            name: "certbot.timer"
+        - name: "Setup Certbot Service: Enable Certbot Service"
+          ansible.builtin.systemd_service:
+            name: "certbot-renew.timer"
             enabled: true
+            daemon_reload: true
 
 

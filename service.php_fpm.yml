@@ -10,47 +10,74 @@
       when: "service_php_fpm_enabled|default(false)"
       block:
 
-        - name: "Setup PHP FPM Service: Install PHP FPM Packages"
-          apt:
-            name: "{{ php_component_prefix }}-fpm"
+        - name: "Setup PHP FPM Service: Fetch account group information"
+          ansible.builtin.getent:
+            database: "passwd"
+
+        - name: "Setup PHP FPM Service: Install PHP FPM from Distribution"
+          ansible.builtin.dnf:
+            name: "php-fpm"
             state: "latest"
-            update_cache: true
-            cache_valid_time: 86400
-            default_release: "{{ ansible_distribution_release }}"
 
-        - name: "Setup PHP FPM Service: Enable Custom Apache Configuration"
-          file:
-            dest: "/etc/apache2/{{ item.type }}-enabled/{{ item.name }}"
-            src: "/etc/apache2/{{ item.type }}-available/{{ item.name }}"
-            state: "{{ item.state|default('link') }}"
+        - name: "Setup PHP FPM Service: Backup Default Configuration Files"
+          ansible.builtin.shell:
+            cmd: "cp -a {{ item.path }} {{ item.path }}.original"
+            creates: "{{ item.path }}.original"
           loop:
-            - { type: "conf", name: "{{ php_component_prefix }}-fpm.conf", state: "link" }
-            - { type: "mods", name: "proxy.load", state: "link" }
-            - { type: "mods", name: "proxy_fcgi.load", state: "link" }
+            - { path: "/etc/httpd/conf.d/php.conf" }
 
-        - name: "Setup PHP FPM Service: Create Required Directories"
-          file:
+        - name: "Setup PHP FPM Service: Create Custom Configuration Directories"
+          ansible.builtin.file:
             dest: "{{ item.path }}"
             state: "directory"
             owner: "{{ item.owner|default('root') }}"
             group: "{{ item.group|default('root') }}"
             mode: "{{ item.group|default('0755') }}"
           loop:
-            - { path: "/etc/systemd/system/{{ php_fpm_service }}.d" }
+            - { path: "/etc/systemd/system/php-fpm.service.d" }
 
-        - name: "Setup PHP FPM Service: Install Configuration Files"
-          template:
+        - name: "Setup PHP FPM Service: Install Custom Configuration Files"
+          ansible.builtin.template:
             dest: "{{ item.path }}"
-            src: "files/{{ item.path }}.j2"
+            src: "{{ playbook_dir }}/files/{{ item.path }}.j2"
             owner: "{{ item.owner|default('root') }}"
             group: "{{ item.group|default('root') }}"
             mode: "{{ item.group|default('0644') }}"
           loop:
-            - { path: "/etc/systemd/system/{{ php_fpm_service }}.d/local.conf" }
+            - { path: "/etc/httpd/conf.d/php.conf" }
+            - { path: "/etc/php-fpm.d/users.conf" }
+            - { path: "/etc/systemd/system/php-fpm.service.d/local.conf" }
+
+        - name: "Setup PHP FPM Service: Create Root Backend Directory"
+          ansible.builtin.file:
+            dest: "/var/www/backend"
+            state: "directory"
+            owner: "root"
+            group: "root"
+            mode: "0755"
+
+        - name: "Setup PHP FPM Service: Create User Backend Directories"
+          ansible.builtin.file:
+            dest: "/var/www/backend/{{ item.name }}"
+            state: "directory"
+            owner: "{{ item.name|mandatory }}"
+            group: "{{ getent_passwd[item.name|mandatory][2] }}"
+            mode: "0755"
+          loop: "{{ service_php_fpm_users|default([]) }}"
+
+        - name: "Setup PHP FPM Service: Create User Runtime State Directories"
+          ansible.builtin.file:
+            dest: "/var/lib/php/{{ item.0.name|mandatory }}/{{ item.1 }}"
+            state: "directory"
+            owner: "{{ item.0.name|mandatory }}"
+            group: "{{ getent_passwd[item.0.name|mandatory][2] }}"
+            mode: "0770"
+          loop: "{{ service_php_fpm_users|default([])|product(['', 'session', 'wsdlcache' ]) }}"
 
         - name: "Setup PHP FPM Service: Enable PHP FPM Daemon"
-          service:
-            name: "{{ php_fpm_service }}"
+          ansible.builtin.systemd_service:
+            name: "php-fpm.service"
             enabled: true
+            daemon-reload: true
 
 
