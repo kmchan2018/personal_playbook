@@ -234,6 +234,7 @@ software_java_enabled: true
 software_node_enabled: true
 software_packaging_enabled: true
 software_php_enabled: true
+software_podman_enabled: true
 software_python_enabled: true
 software_skype_enabled: true
 software_steam_enabled: true
@@ -247,7 +248,6 @@ software_zoom_enabled: true
 
 service_certbot_enabled: true
 service_ddclient_enabled: true
-service_docker_enabled: true
 service_httpd_enabled: true
 service_libvirt_enabled: true
 service_mysql_enabled: true
