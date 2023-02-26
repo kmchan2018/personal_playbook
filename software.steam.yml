@@ -31,6 +31,11 @@
             name: "https://dl.flathub.org/repo/appstream/com.github.Matoking.protontricks.flatpakref"
             state: "present"
 
+        - name: "Setup Steam: Install Steam Device Udev Ruleset from Distribution"
+          ansible.builtin.dnf:
+            name: "steam-devices"
+            state: "latest"
+
         - name: "Setup Steam: Enable Access to Offload Scripts"
           ansible.builtin.shell:
             cmd: "flatpak override --filesystem /opt/video:ro com.valvesoftware.Steam"
