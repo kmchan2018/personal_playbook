@@ -15,6 +15,7 @@
       - "gimp"
       - "intel-media-driver"
       - "keepassxc"
+      - "okteta"
       - "qbittorrent"
       - "skanlite"
       - "vlc"
