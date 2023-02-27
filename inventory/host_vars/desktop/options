@@ -434,6 +434,14 @@ service_php_fpm_users:
 
 
 #
+# Arduino Settings
+#
+
+software_arduino_users:
+  - "kmchan"
+
+
+#
 # Steam Settings
 #
 

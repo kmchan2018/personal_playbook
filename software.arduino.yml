@@ -15,4 +15,11 @@
             name: "https://dl.flathub.org/repo/appstream/cc.arduino.IDE2.flatpakref"
             state: "present"
 
+        - name: "Setup Arduion Development Tools: Add Users to Dialout Group"
+          ansible.builtin.user:
+            name: "{{ item }}"
+            groups: "dialout"
+            append: true
+          loop: "{{ software_arduino_users|default([]) }}"
+
 
