@@ -1,8 +1,0 @@
-#!/bin/bash
-
-if [[ ! -d $HOME/Mounts/server ]]; then
-	mkdir -p $HOME/Mounts/server
-fi
-
-exec sshfs -o follow_symlinks,transform_symlinks 192.168.27.20:/ $HOME/Mounts/server
-

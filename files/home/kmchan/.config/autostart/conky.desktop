@@ -1,8 +1,0 @@
-[Desktop Entry]
-Exec=/usr/local/bin/conky
-Name=Conky
-NoDisplay=false
-Terminal=false
-Type=Application
-Version=1.0
-X-GNOME-Autostart-enabled=true

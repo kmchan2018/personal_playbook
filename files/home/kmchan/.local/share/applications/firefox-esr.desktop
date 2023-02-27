@@ -1,6 +1,0 @@
-[Desktop Entry]
-Encoding=UTF-8
-Name=Firefox ESR
-Exec=/usr/lib/firefox-esr/firefox-esr %u
-Type=Application
-NoDisplay=true

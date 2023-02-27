@@ -1,8 +1,0 @@
-#!/bin/bash
-
-if [[ ! -d $HOME/Mounts/torrents ]]; then
-	mkdir -p $HOME/Mounts/torrents
-fi
-
-exec sshfs -o follow_symlinks,transform_symlinks 192.168.27.25:/srv/transmission-daemon/downloads $HOME/Mounts/torrents
-
