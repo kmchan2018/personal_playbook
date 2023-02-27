@@ -1,0 +1,19 @@
+
+
+- hosts: "all"
+  become: true
+  become_user: "root"
+
+  tasks:
+
+    - name: "Setup Limits: Install Custom Configuration Files"
+      ansible.builtin.template:
+        dest: "{{ item.path }}"
+        src: "{{ playbook_dir }}/files/{{ item.path }}.j2"
+        owner: "{{ item.owner|default('root') }}"
+        group: "{{ item.group|default('root') }}"
+        mode: "{{ item.mode|default('0644') }}"
+      loop:
+        - { path: "/etc/security/limits.d/local.conf" }
+
+

@@ -1,0 +1,6 @@
+{% raw %}
+# domain                      type           item           value
+{% endraw %}
+{% for limit in system_limits_list|default([]) %}
+{{ '%-29s' % limit.domain }} {{ '%-14s' % limit.type }} {{ '%-14s' % limit.item }} {{ limit.value }}
+{% endfor %}

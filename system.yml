@@ -3,6 +3,7 @@
 - import_playbook: "system.dnf.yml"
 - import_playbook: "system.firejail.yml"
 - import_playbook: "system.flatpak.yml"
+- import_playbook: "system.limits.yml"
 - import_playbook: "system.network_manager.yml"
 - import_playbook: "system.ramdrive.yml"
 - import_playbook: "system.rpmfusion.yml"

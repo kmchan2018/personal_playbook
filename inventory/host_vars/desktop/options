@@ -477,6 +477,14 @@ system_sddm_enabled: true
 
 
 #
+# User Limit Settings
+#
+
+system_limits_list:
+  - { domain: "kmchan", type: "soft", item: "nofile", value: "8192" }
+
+
+#
 # Network Manager Settings
 #
 
