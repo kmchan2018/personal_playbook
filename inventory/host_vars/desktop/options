@@ -13,10 +13,12 @@ software_fcitx_enabled: true
 software_firefox_enabled: true
 software_golang_enabled: true
 software_java_enabled: true
+software_mysql_enabled: true
 software_node_enabled: true
 software_packaging_enabled: true
 software_php_enabled: true
 software_podman_enabled: true
+software_postgresql_enabled: true
 software_python_enabled: true
 software_skype_enabled: true
 software_steam_enabled: true
@@ -32,9 +34,7 @@ service_certbot_enabled: true
 service_ddclient_enabled: true
 service_httpd_enabled: true
 service_libvirt_enabled: true
-service_mysql_enabled: true
 service_php_fpm_enabled: true
-service_postgresql_enabled: true
 service_windows_enabled: true
 
 

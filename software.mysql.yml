@@ -1,0 +1,24 @@
+
+
+- hosts: "all"
+  become: true
+  become_user: "root"
+
+  vars:
+
+    software_mysql_packages:
+      - "mariadb"
+      - "mariadb-server"
+
+  tasks:
+
+    - name: "Setup Mysql/Mariadb Database Server"
+      when: "software_mysql_enabled|default(false)"
+      block:
+
+        - name: "Setup Mysql/Mariadb Database Server: Install Mariadb from Distribution"
+          ansible.builtin.dnf:
+            name: "{{ software_mysql_packages }}"
+            state: "latest"
+
+
