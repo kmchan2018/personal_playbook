@@ -39,15 +39,6 @@ service_windows_enabled: true
 
 
 #
-# Website List
-#
-
-website_demo_kmchan3_space_enabled: true
-website_desktop_kmchan3_space_enabled: true
-website_test_kmchan3_space_enabled: true
-
-
-#
 # Kernel-Based Virtual Machine Configuration
 #
 
@@ -79,13 +70,6 @@ hardware_pci_devices:
 
 hardware_sensor_modules:
   - "nct6775"
-
-
-#
-# USB Configuration
-#
-
-hardware_usb_autosuspend: -1
 
 
 #
