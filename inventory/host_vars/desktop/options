@@ -1,8 +1,15 @@
 
 
 #
-# Software Lists
+# Playbook Enable/Disable
 #
+
+service_certbot_enabled: true
+service_ddclient_enabled: true
+service_httpd_enabled: true
+service_libvirt_enabled: true
+service_php_fpm_enabled: true
+service_windows_enabled: true
 
 software_arduino_enabled: true
 software_chrome_enabled: true
@@ -25,17 +32,9 @@ software_steam_enabled: true
 software_wine_enabled: true
 software_zoom_enabled: true
 
-
-#
-# Service List
-#
-
-service_certbot_enabled: true
-service_ddclient_enabled: true
-service_httpd_enabled: true
-service_libvirt_enabled: true
-service_php_fpm_enabled: true
-service_windows_enabled: true
+system_firejail_enabled: true
+system_network_manager_enabled: true
+system_sddm_enabled: true
 
 
 #
@@ -162,7 +161,18 @@ network_mounts:
 
 
 #
-# Apache Service Settings
+# DDClient Service Settings
+#
+
+service_ddclient_hosts:
+  - { provider: "namecheap", domain: "kmchan3.space", host: "demo" }
+  - { provider: "namecheap", domain: "kmchan3.space", host: "desktop" }
+  - { provider: "namecheap", domain: "kmchan3.space", host: "firefox" }
+  - { provider: "namecheap", domain: "kmchan3.space", host: "test" }
+
+
+#
+# Apache Httpd Service Settings
 #
 
 service_httpd_ssl_enabled: true
@@ -181,22 +191,40 @@ service_httpd_default_host_key: "/etc/letsencrypt/live/desktop.kmchan3.space/pri
 
 
 #
-# DDClient Service Settings
-#
-
-service_ddclient_hosts:
-  - { provider: "namecheap", domain: "kmchan3.space", host: "demo" }
-  - { provider: "namecheap", domain: "kmchan3.space", host: "desktop" }
-  - { provider: "namecheap", domain: "kmchan3.space", host: "firefox" }
-  - { provider: "namecheap", domain: "kmchan3.space", host: "test" }
-
-
-#
 # PHP FPM Service Settings
 #
 
 service_php_fpm_users:
   - name: "kmchan"
+
+
+#
+# Windows Services Settings
+#
+
+service_windows_cputhread_pin: [ 8, 9, 10, 11, 12, 13, 14, 15 ]
+service_windows_iothread_pin: [ 6, 7 ]
+service_windows_processor_cores: 4
+service_windows_processor_threads: 2
+service_windows_memory_size: 12
+service_windows_memory_unit: GiB
+service_windows_looking_glass_size: 64
+service_windows_looking_glass_unit: MiB
+
+service_windows_passthroughs:
+  - functions:
+      - { "bus": 0x23, "slot": 0x0, "function": 0x0 }
+      - { "bus": 0x23, "slot": 0x0, "function": 0x1 }
+
+service_windows_descriptor_conflicts:
+  - /dev/dri/by-path/pci-0000:23:00.0-card
+  - /dev/dri/by-path/pci-0000:23:00.0-render
+  - /dev/nvidia*
+
+service_windows_module_conflicts:
+  - "nvidia_drm"
+  - "nvidia_uvm"
+  - "nvidia_modeset"
 
 
 #
@@ -213,41 +241,6 @@ software_arduino_users:
 
 software_steam_directories:
   - "/mnt/games"
-
-
-#
-# Windows Services Settings
-#
-
-service_windows_cputhread_pin: [ 8, 9, 10, 11, 12, 13, 14, 15 ]
-service_windows_iothread_pin: [ 6, 7 ]
-service_windows_processor_cores: 4
-service_windows_processor_threads: 2
-service_windows_memory_size: 12
-service_windows_memory_unit: GiB
-service_windows_looking_glass_size: 64
-service_windows_looking_glass_unit: MiB
-service_windows_passthroughs:
-  - functions:
-      - { "bus": 0x23, "slot": 0x0, "function": 0x0 }
-      - { "bus": 0x23, "slot": 0x0, "function": 0x1 }
-service_windows_descriptor_conflicts:
-  - /dev/dri/by-path/pci-0000:23:00.0-card
-  - /dev/dri/by-path/pci-0000:23:00.0-render
-  - /dev/nvidia*
-service_windows_module_conflicts:
-  - "nvidia_drm"
-  - "nvidia_uvm"
-  - "nvidia_modeset"
-
-
-#
-# System Settings
-#
-
-system_firejail_enabled: true
-system_network_manager_enabled: true
-system_sddm_enabled: true
 
 
 #
