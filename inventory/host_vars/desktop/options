@@ -20,6 +20,7 @@ software_fcitx_enabled: true
 software_firefox_enabled: true
 software_golang_enabled: true
 software_java_enabled: true
+software_lutris_enabled: true
 software_mysql_enabled: true
 software_node_enabled: true
 software_packaging_enabled: true
@@ -233,6 +234,14 @@ service_windows_module_conflicts:
 
 software_arduino_users:
   - "kmchan"
+
+
+#
+# Lutris Settings
+#
+
+software_lutris_directories:
+  - "/mnt/games"
 
 
 #

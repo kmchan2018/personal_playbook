@@ -1,0 +1,42 @@
+
+
+- hosts: "all"
+  become: true
+  become_user: "root"
+
+  tasks:
+
+    - name: "Setup Lutris"
+      when: "software_lutris_enabled|default(false)"
+      block:
+
+        - name: "Setup Lutris: Create Application Specific Directories for Home Directory Template"
+          ansible.builtin.file:
+            path: "/etc/skel/{{ item }}"
+            state: "directory"
+            owner: "root"
+            group: "root"
+            mode: "0755"
+          loop:
+            - "Music/Lutris"
+            - "Pictures/Lutris"
+
+        - name: "Setup Lutris: Install Lutris from Flatpak"
+          community.general.flatpak:
+            name: "https://dl.flathub.org/repo/appstream/net.lutris.Lutris.flatpakref"
+            state: "present"
+
+        - name: "Setup Lutris: Enable Access to Offload Scripts"
+          ansible.builtin.shell:
+            cmd: "flatpak override --filesystem /opt/video:ro net.lutris.Lutris"
+
+        - name: "Setup Lutris: Enable Access to Application Specific Directories under Home"
+          ansible.builtin.shell:
+            cmd: "flatpak override --nofilesystem home --nofilesystem /media --nofilesystem /run/media --nofilesystem xdg-data/flatpak --filesystem xdg-pictures/Lutris --filesystem xdg-music/Lutris net.lutris.Lutris"
+
+        - name: "Setup Lutris: Enable Access to Secondary Game Directories"
+          ansible.builtin.shell:
+            cmd: "flatpak override --filesystem {{ item }} net.lutris.Lutris"
+          loop: "{{ software_lutris_directories|default([]) }}"
+
+
