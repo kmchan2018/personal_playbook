@@ -50,8 +50,8 @@ elif [[ "x$1" == "xwindows" && "x$2" == "xstarted" ]]; then
   chmod g+rw {{ service_windows_looking_glass_path }}
   chmod g+rw {{ service_windows_spice_path }}
 
-elif [[ "x$1" == "xwindows" && "x$2" == "xrelease" ]] ; then
 {% if service_windows_module_conflicts|default([])|length > 0 %}
+elif [[ "x$1" == "xwindows" && "x$2" == "xrelease" ]] ; then
   # Reload any kernel modules that conflicts with the
   # virtual machine.
 
