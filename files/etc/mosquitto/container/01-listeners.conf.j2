@@ -1,0 +1,49 @@
+{% if 'mqtt_over_websocket_tls' in service_mosquitto_listeners|default({}) %}
+
+listener 8443
+protocol websockets
+certfile {{ service_mosquitto_listeners['mqtt_over_websocket_tls']['certfile']|mandatory }}
+keyfile {{ service_mosquitto_listeners['mqtt_over_websocket_tls']['keyfile']|mandatory }}
+
+{% for line in service_mosquitto_listeners['mqtt_over_websocket_tls']['options']|default([]) %}
+{% if loop.first %}
+
+{% endif %}
+{{ line }}
+{% endfor %}
+{% endif %}
+{% if 'mqtt_over_websocket' in service_mosquitto_listeners|default({}) %}
+
+listener 8080
+protocol websockets
+
+{% for line in service_mosquitto_listeners['mqtt_over_websocket']['options']|default([]) %}
+{% if loop.first %}
+
+{% endif %}
+{{ line }}
+{% endfor %}
+{% endif %}
+{% if 'mqtt_over_tls' in service_mosquitto_listeners|default({}) %}
+
+listener 8883
+protocol mqtt
+certfile {{ service_mosquitto_listeners['mqtt_over_tls']['certfile']|mandatory }}
+keyfile {{ service_mosquitto_listeners['mqtt_over_tls']['keyfile']|mandatory }}
+
+{% for line in service_mosquitto_listeners['mqtt_over_tls']['options']|default([]) %}
+{% if loop.first %}
+
+{% endif %}
+{{ line }}
+{% endfor %}
+{% endif %}
+listener 1883
+protocol mqtt
+{% if 'mqtt_only' in service_mosquitto_listeners|default({}) %}
+
+{% for line in service_mosquitto_listeners['mqtt_only']['options']|default([]) %}
+{{ line }}
+{% endfor %}
+{% endif %}
+

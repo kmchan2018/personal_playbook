@@ -1,0 +1,55 @@
+
+
+- import_playbook: "software.podman.yml"
+
+
+- hosts: "all"
+  become: true
+  become_user: "root"
+
+  tasks:
+
+    - name: "Setup Mosquitto Service"
+      when: "service_mosquitto_enabled|default(false)"
+      block:
+
+        - name: "Setup Mosquitto Service: Create Configuration Directory"
+          ansible.builtin.file:
+            dest: "{{ item.name }}"
+            state: "directory"
+            owner: "{{ item.owner|default('root') }}"
+            group: "{{ item.group|default('root') }}"
+            mode: "{{ item.group|default('0755') }}"
+          loop:
+            - { name: "/etc/mosquitto" }
+            - { name: "/etc/mosquitto/container" }
+
+        - name: "Setup Mosquitto Service: Install Basic Configuration Files"
+          ansible.builtin.template:
+            dest: "/etc/mosquitto/container/{{ item.name }}"
+            src: "{{ playbook_dir }}/files/etc/mosquitto/container/{{ item.name }}.j2"
+            owner: "{{ item.owner|default('root') }}"
+            group: "{{ item.group|default('root') }}"
+            mode: "{{ item.group|default('0644') }}"
+          loop:
+            - { name: "00-common.conf" }
+            - { name: "01-listeners.conf" }
+
+        - name: "Setup Mosquitto Service: Install Extra Configuration Files"
+          ansible.builtin.copy:
+            dest: "/etc/mosquitto/container/{{ item.name }}"
+            src: "{{ playbook_dir }}/files/etc/mosquitto/container/{{ item.name }}"
+            owner: "{{ item.owner|default('root') }}"
+            group: "{{ item.group|default('root') }}"
+            mode: "{{ item.group|default('0644') }}"
+          loop: "{{ service_mosquitto_files|default([]) }}"
+
+        - name: "Setup Mosquitto Service: Generate Systemd Container File"
+          ansible.builtin.template:
+            dest: "/etc/containers/systemd/mosquitto-container.container"
+            src: "{{ playbook_dir }}/files/etc/containers/systemd/mosquitto-container.container.j2"
+            owner: "root"
+            group: "root"
+            mode: "0644"
+
+

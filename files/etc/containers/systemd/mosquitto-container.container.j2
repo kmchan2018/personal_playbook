@@ -1,0 +1,27 @@
+
+[Unit]
+Description=Mosquitto Service Container
+After=network.target
+
+[Container]
+ContainerName=mosquitto
+Image=mosquitto:latest
+NoNewPrivileges=true
+Volume=/etc/mosquitto/container:/etc/mosquitto/container:ro,nodev,noexec,nosuid,Z
+{% if 'mqtt_over_websocket_tls' in service_mosquitto_listeners|default({}) %}
+PublishPort={{ service_mosquitto_listeners['mqtt_over_websocket_tls']['public_ip']|default('') }}:{{ service_mosquitto_listeners['mqtt_over_websocket_tls']['public_port']|mandatory }}:8443
+{% endif %}
+{% if 'mqtt_over_websocket' in service_mosquitto_listeners|default({}) %}
+PublishPort={{ service_mosquitto_listeners['mqtt_over_websocket']['public_ip']|default('') }}:{{ service_mosquitto_listeners['mqtt_over_websocket']['public_port']|mandatory }}:8080
+{% endif %}
+{% if 'mqtt_over_tls' in service_mosquitto_listeners|default({}) %}
+PublishPort={{ service_mosquitto_listeners['mqtt_over_tls']['public_ip']|default('') }}:{{ service_mosquitto_listeners['mqtt_over_tls']['public_port']|default('8883') }}:8883
+{% endif %}
+{% if 'mqtt_only' in service_mosquitto_listeners|default({}) %}
+PublishPort={{ service_mosquitto_listeners['mqtt_only']['public_ip']|default('') }}:{{ service_mosquitto_listeners['mqtt_only']['public_port']|default('1883') }}:1883
+{% endif %}
+AutoUpdate=local
+
+[Install]
+WantedBy=multi-user.target
+

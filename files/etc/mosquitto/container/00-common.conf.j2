@@ -1,0 +1,5 @@
+
+{% for line in service_mosquitto_options|default([]) %}
+{{ line }}
+{% endfor %}
+
