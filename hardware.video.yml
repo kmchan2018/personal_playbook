@@ -59,6 +59,7 @@
         mode: "{{ item.mode|default('0644') }}"
       loop:
         - { path: "/etc/environment.d/10-video.conf" }
+        - { path: "/etc/modprobe.d/amdgpu.conf" }
         - { path: "/etc/profile.d/video.sh" }
         - { path: "/etc/udev/rules.d/99-video.rules" }
         - { path: "/etc/X11/xorg.conf.d/10-devices.conf" }

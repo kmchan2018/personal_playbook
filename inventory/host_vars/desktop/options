@@ -101,6 +101,8 @@ hardware_video_offload_glx_vendor_library_name: "mesa"
 hardware_video_offload_egl_vendor_library_filenames: [ "50_mesa.json" ]
 hardware_video_offload_vk_icd_filenames: [ "radeon_icd.x86_64.json", "radeon_icd.i686.json" ]
 
+hardware_video_amdgpu_ppfeaturemask: "ffffffff"
+
 
 #
 # Network Configuration
