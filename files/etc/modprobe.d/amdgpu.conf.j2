@@ -1,0 +1,9 @@
+{% if hardware_video_amdgpu_ppfeaturemask|default('') != '' %}
+
+#
+# Enable voltage control for AMD GPUs
+#
+
+options amdgpu ppfeaturemask=0x{{ hardware_video_amdgpu_ppfeaturemask }}
+
+{% endif %}
