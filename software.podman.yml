@@ -8,6 +8,7 @@
 
     software_podman_packages:
       - "ansible-collection-containers-podman"
+      - "buildah"
       - "podman"
       - "podman-compose"
 
