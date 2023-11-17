@@ -53,26 +53,15 @@ hardware_kvm_amd_npt: true
 #
 
 hardware_pci_devices:
-  wx2100:
-    name: AMD Radeon Pro WX2100
+  tesla_p4:
+    name: Nvidia Tesla P4
     addresses:
-      - { vendor: "1002", model: "6995", bus: "22", device: "00", function: "0" }
-      - { vendor: "1002", model: "aae0", bus: "22", device: "00", function: "1" }
-  1050ti:
-    name: Nvidia GeForce GTX 1050 Ti
-    addresses:
-      - { vendor: "10de", model: "1c82", bus: "23", device: "00", function: "0" }
-      - { vendor: "10de", model: "0fb9", bus: "23", device: "00", function: "1" }
-  rx550:
-    name: AMD Radeon RX550
-    addresses:
-      - { vendor: "1002", model: "699f", bus: "22", device: "00", function: "0" }
-      - { vendor: "1002", model: "aae0", bus: "22", device: "00", function: "1" }
+      - { vendor: "10de", model: "1bb3", bus: "03", device: "00", function: "0" }
   rx5700:
     name: AMD Radeon RX5700
     addresses:
-      - { vendor: "1002", model: "731f", bus: "25", device: "00", function: "0" }
-      - { vendor: "1002", model: "ab38", bus: "25", device: "00", function: "1" }
+      - { vendor: "1002", model: "731f", bus: "0c", device: "00", function: "0" }
+      - { vendor: "1002", model: "ab38", bus: "0c", device: "00", function: "1" }
 
 
 #
@@ -87,19 +76,19 @@ hardware_sensor_modules:
 # Video Card Configuration
 #
 
-hardware_video_output_device: rx550
+hardware_video_output_device: rx5700
 hardware_video_output_kernel_module: "amdgpu"
 hardware_video_output_x11_driver: "amdgpu"
 hardware_video_output_glx_vendor_library_name: "mesa"
 hardware_video_output_egl_vendor_library_filenames: [ "50_mesa.json" ]
 hardware_video_output_vk_icd_filenames: [ "radeon_icd.x86_64.json", "radeon_icd.i686.json" ]
 
-hardware_video_offload_device: rx5700
-hardware_video_offload_kernel_module: "amdgpu"
-hardware_video_offload_x11_driver: "amdgpu"
-hardware_video_offload_glx_vendor_library_name: "mesa"
-hardware_video_offload_egl_vendor_library_filenames: [ "50_mesa.json" ]
-hardware_video_offload_vk_icd_filenames: [ "radeon_icd.x86_64.json", "radeon_icd.i686.json" ]
+hardware_video_offload_device: tesla_p4
+hardware_video_offload_kernel_module: "nvidia"
+hardware_video_offload_x11_driver: "nvidia"
+hardware_video_offload_glx_vendor_library_name: "nvidia"
+hardware_video_offload_egl_vendor_library_filenames: [ "10_nvidia.json" ]
+hardware_video_offload_vk_icd_filenames: [ "nvidia_icd.json" ]
 
 hardware_video_amdgpu_ppfeaturemask: "ffffffff"
 
@@ -232,8 +221,8 @@ service_php_fpm_users:
 # Windows Services Settings
 #
 
-service_windows_cputhread_pin: [ 8, 9, 10, 11, 12, 13, 14, 15 ]
-service_windows_iothread_pin: [ 6, 7 ]
+service_windows_cputhread_pin: [ 4, 5, 6, 7, 12, 13, 14, 15 ]
+service_windows_iothread_pin: [ 3, 11 ]
 service_windows_processor_cores: 4
 service_windows_processor_threads: 2
 service_windows_memory_size: 12
@@ -243,12 +232,11 @@ service_windows_looking_glass_unit: MiB
 
 service_windows_passthroughs:
   - functions:
-      - { "bus": 0x25, "slot": 0x0, "function": 0x0 }
-      - { "bus": 0x25, "slot": 0x0, "function": 0x1 }
+      - { "bus": 0x03, "slot": 0x0, "function": 0x0 }
 
 service_windows_descriptor_conflicts:
-  - /dev/dri/by-path/pci-0000:25:00.0-card
-  - /dev/dri/by-path/pci-0000:25:00.0-render
+  - /dev/dri/by-path/pci-0000:03:00.0-card
+  - /dev/dri/by-path/pci-0000:03:00.0-render
 
 service_windows_module_conflicts: []
 
