@@ -1,0 +1,14 @@
+
+
+- hosts: "all"
+  become: true
+  become_user: "root"
+
+  tasks:
+
+    - name: "Setup Driverctl: Install Driverctl Utility"
+      ansible.builtin.dnf:
+        name: "driverctl"
+        state: "latest"
+
+
