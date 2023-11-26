@@ -1,0 +1,25 @@
+
+set -e
+
+case "$1" in
+	srpm)
+		mock --buildsrpm --root {{ software_looking_glass_root }} --spec /opt/packages/projects/looking-glass/looking-glass.spec --sources /opt/packages/projects/looking-glass
+		cp -a /var/lib/mock/{{ software_looking_glass_root }}/result/{{ software_looking_glass_srpm }} /opt/packages/srpms/{{ software_looking_glass_srpm }}
+		;;
+
+	rpm)
+		mock --rebuild --root {{ software_looking_glass_root }} /opt/packages/srpms/{{ software_looking_glass_srpm }}
+{% for rpm in software_looking_glass_main_rpms %}
+		cp -a /var/lib/mock/{{ software_looking_glass_root }}/result/{{ rpm }} /opt/packages/rpms/{{ rpm }}
+{% endfor %}
+{% for rpm in software_looking_glass_extra_rpms %}
+		cp -a /var/lib/mock/{{ software_looking_glass_root }}/result/{{ rpm }} /opt/packages/rpms/{{ rpm }}
+{% endfor %}
+		;;
+
+	*)
+		echo "ERROR: unknown subcommand $1"
+		exit 1
+		;;
+esac
+

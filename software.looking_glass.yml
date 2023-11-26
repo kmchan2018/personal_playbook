@@ -1,0 +1,88 @@
+
+
+- hosts: "all"
+  become: true
+  become_user: "root"
+
+  vars:
+
+    software_looking_glass_version: "B6"
+    software_looking_glass_url: "https://looking-glass.io/artifact/{{ software_looking_glass_version }}/source"
+    software_looking_glass_name: "{{ software_looking_glass_version }}.tar.gz"
+    software_looking_glass_checksum: "sha256:2bb6ff902ab886171f8adf3385f606c5f73886352b14f217f64870f717e7a795"
+
+    software_looking_glass_root: "fedora-{{ ansible_distribution_version }}-{{ ansible_architecture }}"
+    software_looking_glass_build: "1"
+    software_looking_glass_tag: "fc{{ ansible_distribution_version }}"
+    software_looking_glass_srpm: "looking-glass-0~{{ software_looking_glass_version }}-{{ software_looking_glass_build }}.{{ software_looking_glass_tag }}.src.rpm"
+
+    software_looking_glass_main_rpms:
+      - "looking-glass-0~{{ software_looking_glass_version }}-{{ software_looking_glass_build }}.{{ software_looking_glass_tag }}.{{ ansible_architecture }}.rpm"
+
+    software_looking_glass_extra_rpms:
+      - "looking-glass-debuginfo-0~{{ software_looking_glass_version }}-{{ software_looking_glass_build }}.{{ software_looking_glass_tag }}.x86_64.rpm"
+
+  tasks:
+
+    - name: "Setup Looking Glass"
+      when: "software_looking_glass_enabled|default(false)"
+      block:
+
+        - name: "Setup Looking Glass: Create Required Directories"
+          ansible.builtin.file:
+            dest: "{{ item.name }}"
+            state: "directory"
+            owner: "{{ item.owner|default('root') }}"
+            group: "{{ item.group|default('root') }}"
+            mode: "{{ item.mode|default('0755') }}"
+          loop:
+            - { name: "/opt/packages" }
+            - { name: "/opt/packages/projects" }
+            - { name: "/opt/packages/projects/looking-glass" }
+            - { name: "/opt/packages/rpms" }
+            - { name: "/opt/packages/srpms" }
+
+        - name: "Setup Looking Glass: Generate Build Script Remote Host"
+          ansible.builtin.template:
+            dest: "/opt/packages/projects/looking-glass/build.sh"
+            src: "{{ playbook_dir }}/packages/looking-glass/build.sh.j2"
+            owner: "{{ item.owner|default('root') }}"
+            group: "{{ item.group|default('root') }}"
+            mode: "{{ item.mode|default('0755') }}"
+
+        - name: "Setup Looking Glass: Upload Required Files to Remote Host"
+          ansible.builtin.copy:
+            dest: "/opt/packages/projects/looking-glass/{{ item.name }}"
+            src: "{{ playbook_dir }}/packages/looking-glass/{{ item.name }}"
+            owner: "{{ item.owner|default('root') }}"
+            group: "{{ item.group|default('root') }}"
+            mode: "{{ item.mode|default('0644') }}"
+          loop:
+            - { name: "looking-glass.spec" }
+
+        - name: "Setup Looking Glass: Download Source Archive to Remote Host"
+          ansible.builtin.get_url:
+            url: "{{ software_looking_glass_url }}"
+            checksum: "{{ software_looking_glass_checksum }}"
+            dest: "/opt/packages/projects/looking-glass/{{ software_looking_glass_name }}"
+            owner: "root"
+            group: "root"
+            mode: "0644"
+
+        - name: "Setup Looking Glass: Build Source Package"
+          ansible.builtin.command:
+            cmd: "bash /opt/packages/projects/looking-glass/build.sh srpm"
+            creates: "/opt/packages/srpms/{{ software_looking_glass_srpm }}"
+
+        - name: "Setup Looking Glass: Build Binary Package(s)"
+          ansible.builtin.command:
+            cmd: "bash /opt/packages/projects/looking-glass/build.sh rpm"
+            creates: "/opt/packages/rpms/{{ software_looking_glass_main_rpms[0] }}"
+
+        - name: "Setup Looking Glass: Install Binary Package(s)"
+          ansible.builtin.dnf:
+            name: "{{ (['/opt/packages/rpms/'])|product(software_looking_glass_main_rpms)|map('join','/') }}"
+            state: "latest"
+            disable_gpg_check: true
+
+
