@@ -9,6 +9,7 @@
 - import_playbook: "software.firefox.yml"
 - import_playbook: "software.golang.yml"
 - import_playbook: "software.java.yml"
+- import_playbook: "software.lutris.yml"
 - import_playbook: "software.mysql.yml"
 - import_playbook: "software.node.yml"
 - import_playbook: "software.packaging.yml"
