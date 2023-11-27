@@ -1,0 +1,12 @@
+
+{% if hardware_vfio_disable_nvidia_pat|default(false) %}
+#
+# Fix PAT related problems between VFIO and nvidia kernel modules.
+#
+# https://github.com/Kinsteen/win10-gpu-passthrough
+# https://github.com/NVIDIA/open-gpu-kernel-modules/blob/main/kernel-open/nvidia/nv-pat.c
+#
+
+options nvidia NVreg_UsePageAttributeTable=0
+{% endif %}
+

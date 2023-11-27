@@ -14,6 +14,14 @@
         group: "root"
         mode: "0644"
 
+    - name: "Configure Virtual Function IO: Configure Kernel Module Options"
+      ansible.builtin.template:
+        dest: "/etc/modprobe.d/vfio.conf"
+        src: "{{ playbook_dir }}/files/etc/modprobe.d/vfio.conf.j2"
+        owner: "root"
+        group: "root"
+        mode: "0644"
+
     - name: "Configure Virtual Function IO: Enable IOMMU Support in Kernel Command Line"
       ansible.builtin.shell:
         cmd: "grubby --update-kernel=ALL --args=iommu=pt"

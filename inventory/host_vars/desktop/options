@@ -74,6 +74,13 @@ hardware_sensor_modules:
 
 
 #
+# VFIO Configuration
+#
+
+hardware_vfio_disable_nvidia_pat: true
+
+
+#
 # Video Card Configuration
 #
 
