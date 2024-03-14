@@ -11,10 +11,14 @@
 
     software_desktop_packages:
       - "@multimedia"
+      - "calibre"
       - "geeqie"
       - "gimp"
       - "intel-media-driver"
+      - "inkscape"
+      - "kdenlive"
       - "keepassxc"
+      - "mpv"
       - "okteta"
       - "qbittorrent"
       - "skanlite"
