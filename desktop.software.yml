@@ -1,0 +1,26 @@
+
+
+- import_playbook: "desktop.software.arduino.yml"
+- import_playbook: "desktop.software.chrome.yml"
+- import_playbook: "desktop.software.chromium.yml"
+- import_playbook: "desktop.software.console.yml"
+- import_playbook: "desktop.software.desktop.yml"
+- import_playbook: "desktop.software.fcitx.yml"
+- import_playbook: "desktop.software.firefox.yml"
+- import_playbook: "desktop.software.golang.yml"
+- import_playbook: "desktop.software.java.yml"
+- import_playbook: "desktop.software.looking_glass.yml"
+- import_playbook: "desktop.software.lutris.yml"
+- import_playbook: "desktop.software.mysql.yml"
+- import_playbook: "desktop.software.node.yml"
+- import_playbook: "desktop.software.packaging.yml"
+- import_playbook: "desktop.software.php.yml"
+- import_playbook: "desktop.software.podman.yml"
+- import_playbook: "desktop.software.postgresql.yml"
+- import_playbook: "desktop.software.python.yml"
+- import_playbook: "desktop.software.skype.yml"
+- import_playbook: "desktop.software.steam.yml"
+- import_playbook: "desktop.software.wine.yml"
+- import_playbook: "desktop.software.zoom.yml"
+
+

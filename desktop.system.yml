@@ -1,0 +1,14 @@
+
+
+- import_playbook: "desktop.system.ansible.yml"
+- import_playbook: "desktop.system.dnf.yml"
+- import_playbook: "desktop.system.driverctl.yml"
+- import_playbook: "desktop.system.firejail.yml"
+- import_playbook: "desktop.system.flatpak.yml"
+- import_playbook: "desktop.system.limits.yml"
+- import_playbook: "desktop.system.network_manager.yml"
+- import_playbook: "desktop.system.ramdrive.yml"
+- import_playbook: "desktop.system.rpmfusion.yml"
+- import_playbook: "desktop.system.sddm.yml"
+
+

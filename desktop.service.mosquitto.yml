@@ -1,6 +1,6 @@
 
 
-- import_playbook: "software.podman.yml"
+- import_playbook: "desktop.software.podman.yml"
 
 
 - hosts: "all"

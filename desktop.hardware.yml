@@ -1,0 +1,9 @@
+
+
+- import_playbook: "desktop.hardware.blockdev.yml"
+- import_playbook: "desktop.hardware.kvm.yml"
+- import_playbook: "desktop.hardware.sensor.yml"
+- import_playbook: "desktop.hardware.vfio.yml"
+- import_playbook: "desktop.hardware.video.yml"
+
+

@@ -1,8 +1,8 @@
 
 
-#- import_playbook: "hardware.kvm.yml"
-#- import_playbook: "hardware.vfio.yml"
-#- import_playbook: "service.libvirt.yml"
+- import_playbook: "desktop.hardware.kvm.yml"
+- import_playbook: "desktop.hardware.vfio.yml"
+- import_playbook: "desktop.service.libvirt.yml"
 
 
 - hosts: "all"

@@ -1,0 +1,6 @@
+
+
+- import_playbook: "desktop.network.devices.yml"
+- import_playbook: "desktop.network.mounts.yml"
+
+
