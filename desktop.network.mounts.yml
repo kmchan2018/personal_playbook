@@ -6,10 +6,6 @@
 
   vars:
 
-    network_mounts_packages:
-      - "cifs-utils"
-      - "nfs-utils"
-
     network_mounts:
       - path: /mnt/server/kmchan01
         remote: "192.168.254.1:/mnt/data/kmchan01"
@@ -48,7 +44,9 @@
 
     - name: "Setup Network Mounts: Install Helper Tools from Distribution"
       ansible.builtin.dnf:
-        name: "{{ network_mounts_packages }}"
+        name:
+          - "cifs-utils"
+          - "nfs-utils"
         state: "latest"
 
     - name: "Setup Network Mounts: Install Systemd Mount Unit for Mount Points"

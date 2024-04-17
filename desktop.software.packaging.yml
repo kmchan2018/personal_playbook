@@ -8,14 +8,6 @@
 
     software_packaging_enabled: true
 
-    software_packaging_packages:
-      - "createrepo_c"
-      - "mock"
-      - "redhat-rpm-config"
-      - "rpm-build"
-      - "rpmdevtools"
-      - "rpmlint"
-
   tasks:
 
     - name: "Setup RPM Development Tools"
@@ -24,7 +16,13 @@
 
         - name: "Setup RPM Development Tools: Install Tools from Distribution"
           ansible.builtin.dnf:
-            name: "{{ software_packaging_packages }}"
+            name:
+              - "createrepo_c"
+              - "mock"
+              - "redhat-rpm-config"
+              - "rpm-build"
+              - "rpmdevtools"
+              - "rpmlint"
             state: "latest"
 
 

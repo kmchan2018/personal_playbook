@@ -6,10 +6,6 @@
 
   vars:
 
-    network_devices_packages:
-      - "bridge-utils"
-      - "wireguard-tools"
-
     network_devices:
       wg0:
         - template: /etc/systemd/network/device.network
@@ -47,7 +43,9 @@
 
     - name: "Setup Network Devices: Install Helper Tools from Distribution"
       ansible.builtin.dnf:
-        name: "{{ network_devices_packages }}"
+        name:
+          - "bridge-utils"
+          - "wireguard-tools"
         state: "latest"
 
     - name: "Setup Network Devices: Load Secrets from Vault"

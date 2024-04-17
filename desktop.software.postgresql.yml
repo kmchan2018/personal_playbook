@@ -8,13 +8,6 @@
 
     software_postgresql_enabled: true
 
-    software_postgresql_packages:
-      - "postgresql"
-      - "postgresql-contrib"
-      - "postgresql-docs"
-      - "postgresql-server"
-      - "postgresql-upgrade"
-
   tasks:
 
     - name: "Setup PostgreSQL Database Server"
@@ -23,7 +16,12 @@
 
         - name: "Setup PostgreSQL Database Server: Install PostgreSQL from Distribution"
           ansible.builtin.dnf:
-            name: "{{ software_postgresql_packages }}"
+            name:
+              - "postgresql"
+              - "postgresql-contrib"
+              - "postgresql-docs"
+              - "postgresql-server"
+              - "postgresql-upgrade"
             state: "latest"
 
 

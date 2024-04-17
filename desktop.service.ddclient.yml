@@ -8,9 +8,6 @@
 
     service_ddclient_enabled: true
 
-    service_ddclient_packages:
-      - "ddclient"
-
     service_ddclient_hosts:
       - { provider: "namecheap", domain: "kmchan3.space", host: "demo" }
       - { provider: "namecheap", domain: "kmchan3.space", host: "desktop" }
@@ -29,7 +26,7 @@
 
         - name: "Setup DDClient Service: Install DDClient Package"
           ansible.builtin.dnf:
-            name: "{{ service_ddclient_packages }}"
+            name: "ddclient"
             state: "latest"
 
         - name: "Setup DDClient Service: Update Default Configuration Files"

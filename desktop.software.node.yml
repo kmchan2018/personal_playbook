@@ -8,11 +8,6 @@
 
     software_node_enabled: true
 
-    software_node_packages:
-      - "nodejs"
-      - "npm"
-      - "yarnpkg"
-
   tasks:
 
     - name: "Setup Node Development Tools"
@@ -21,7 +16,10 @@
 
         - name: "Setup Node Development Tools: Install Node from Distribution"
           ansible.builtin.dnf:
-            name: "{{ software_node_packages }}"
+            name:
+              - "nodejs"
+              - "npm"
+              - "yarnpkg"
             state: "latest"
 
 

@@ -11,21 +11,6 @@
 
     software_desktop_enabled: true
 
-    software_desktop_packages:
-      - "@multimedia"
-      - "calibre"
-      - "geeqie"
-      - "gimp"
-      - "intel-media-driver"
-      - "inkscape"
-      - "kdenlive"
-      - "keepassxc"
-      - "mpv"
-      - "okteta"
-      - "qbittorrent"
-      - "skanlite"
-      - "vlc"
-
   tasks:
 
     - name: "Setup Desktop Software"
@@ -34,7 +19,20 @@
 
         - name: "Setup Desktop Software: Install Desktop Software from Distribution"
           ansible.builtin.dnf:
-            name: "{{ software_desktop_packages }}"
+            name:
+              - "@multimedia"
+              - "calibre"
+              - "geeqie"
+              - "gimp"
+              - "intel-media-driver"
+              - "inkscape"
+              - "kdenlive"
+              - "keepassxc"
+              - "mpv"
+              - "okteta"
+              - "qbittorrent"
+              - "skanlite"
+              - "vlc"
             state: "latest"
 
 

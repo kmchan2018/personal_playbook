@@ -8,10 +8,6 @@
 
     software_firefox_enabled: true
 
-    software_firefox_packages:
-      - "firefox"
-      - "firefox-langpacks"
-
   tasks:
 
     - name: "Setup Firefox Browser"
@@ -20,7 +16,9 @@
 
         - name: "Setup Firefox Browser: Install Firefox from Distribution"
           ansible.builtin.dnf:
-            name: "{{ software_firefox_packages }}"
+            name:
+              - "firefox"
+              - "firefox-langpacks"
             state: "latest"
 
 

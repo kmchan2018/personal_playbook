@@ -8,31 +8,6 @@
 
     software_wine_enabled: true
 
-    software_wine_packages:
-      - "wine-core"
-      - "wine-alsa"
-      - "wine-cms"
-      - "wine-dxvk"
-      - "wine-dxvk-d3d9"
-      - "wine-dxvk-dxgi"
-      - "wine-fonts"
-      - "wine-ldap"
-      - "wine-mono"
-      - "wine-opencl"
-      - "wine-pulseaudio"
-      - "wine-twain"
-      - "wine-core.i686"
-      - "wine-alsa.i686"
-      - "wine-cms.i686"
-      - "wine-dxvk.i686"
-      - "wine-dxvk-d3d9.i686"
-      - "wine-dxvk-dxgi.i686"
-      - "wine-ldap.i686"
-      - "wine-opencl.i686"
-      - "wine-pulseaudio.i686"
-      - "wine-twain.i686"
-      - "winetricks"
-
   tasks:
 
     - name: "Setup Wine"
@@ -41,7 +16,30 @@
 
         - name: "Setup Wine: Install Wine from Distribution"
           ansible.builtin.dnf:
-            name: "{{ software_wine_packages }}"
+            name:
+              - "wine-core"
+              - "wine-alsa"
+              - "wine-cms"
+              - "wine-dxvk"
+              - "wine-dxvk-d3d9"
+              - "wine-dxvk-dxgi"
+              - "wine-fonts"
+              - "wine-ldap"
+              - "wine-mono"
+              - "wine-opencl"
+              - "wine-pulseaudio"
+              - "wine-twain"
+              - "wine-core.i686"
+              - "wine-alsa.i686"
+              - "wine-cms.i686"
+              - "wine-dxvk.i686"
+              - "wine-dxvk-d3d9.i686"
+              - "wine-dxvk-dxgi.i686"
+              - "wine-ldap.i686"
+              - "wine-opencl.i686"
+              - "wine-pulseaudio.i686"
+              - "wine-twain.i686"
+              - "winetricks"
             state: "latest"
 
 

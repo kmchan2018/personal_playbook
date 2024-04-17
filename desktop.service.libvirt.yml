@@ -8,13 +8,6 @@
 
     service_libvirt_enabled: true
 
-    service_libvirt_packages:
-      - "libvirt"
-      - "python3-libvirt"
-      - "qemu"
-      - "virt-manager"
-      - "virt-viewer"
-
   tasks:
 
     - name: "Setup Libvirt"
@@ -23,7 +16,12 @@
 
         - name: "Setup Libvirt: Install Libvirt and Qemu from Distribution"
           ansible.builtin.dnf:
-            name: "{{ service_libvirt_packages }}"
+            name:
+              - "libvirt"
+              - "python3-libvirt"
+              - "qemu"
+              - "virt-manager"
+              - "virt-viewer"
             state: "latest"
 
         - name: "Setup Libvirt: Enable Polkit Access Control on Libvirt"

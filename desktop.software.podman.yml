@@ -8,12 +8,6 @@
 
     software_podman_enabled: true
 
-    software_podman_packages:
-      - "ansible-collection-containers-podman"
-      - "buildah"
-      - "podman"
-      - "podman-compose"
-
   tasks:
 
     - name: "Setup Podman Container Runtime"
@@ -22,7 +16,11 @@
 
         - name: "Setup Podman Container Runtime: Install Podman from Distribution"
           ansible.builtin.dnf:
-            name: "{{ software_podman_packages }}"
+            name:
+              - "ansible-collection-containers-podman"
+              - "buildah"
+              - "podman"
+              - "podman-compose"
             state: "latest"
 
 

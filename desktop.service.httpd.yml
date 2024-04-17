@@ -9,9 +9,6 @@
     service_httpd_enabled: true
 
     service_httpd_packages:
-      - "httpd"
-      - "httpd-tools"
-      - "mod_ssl"
 
     service_httpd_ssl_enabled: true
     service_httpd_proxy_enabled: true
@@ -39,7 +36,10 @@
 
         - name: "Setup Apache Httpd Service: Install Httpd from Distribution"
           ansible.builtin.dnf:
-            name: "{{ service_httpd_packages }}"
+            name:
+              - "httpd"
+              - "httpd-tools"
+              - "mod_ssl"
             state: "latest"
 
         - name: "Setup Apache Httpd Service: Backup Default Configuration Files"

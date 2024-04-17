@@ -8,9 +8,6 @@
 
     software_golang_enabled: true
 
-    software_golang_packages:
-      - "golang"
-
   tasks:
 
     - name: "Setup Go Development Tools"
@@ -19,7 +16,7 @@
 
         - name: "Setup Go Development Tools: Install Go from Distribution"
           ansible.builtin.dnf:
-            name: "{{ software_golang_packages }}"
+            name: "golang"
             state: "latest"
 
 
