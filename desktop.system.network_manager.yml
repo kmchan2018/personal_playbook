@@ -4,6 +4,20 @@
   become: true
   become_user: "root"
 
+  vars:
+
+    system_network_manager_enabled: true
+
+    system_network_manager_options:
+      connection-ethernet:
+        match-device: type:ethernet
+        ipv4.route-metric: 100
+        ipv6.route-metric: 100
+      connection-wifi:
+        match-device: type:wifi
+        ipv4.route-metric: 90
+        ipv6.route-metric: 90
+
   tasks:
 
     - name: "Setup Network Manager"

@@ -6,6 +6,8 @@
 
   vars:
 
+    software_java_enabled: true
+
     software_java_packages:
       - "java-1.8.0-openjdk"
       - "java-1.8.0-openjdk-devel"

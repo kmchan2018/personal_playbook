@@ -6,6 +6,8 @@
 
   vars:
 
+    software_packaging_enabled: true
+
     software_packaging_packages:
       - "createrepo_c"
       - "mock"

@@ -6,10 +6,26 @@
 
   vars:
 
+    service_httpd_enabled: true
+
     service_httpd_packages:
       - "httpd"
       - "httpd-tools"
       - "mod_ssl"
+
+    service_httpd_ssl_enabled: true
+    service_httpd_proxy_enabled: true
+    service_httpd_http_port: 80
+    service_httpd_https_port: 443
+    service_httpd_http_proxy_port: 8080
+    service_httpd_https_proxy_port: 8443
+
+    service_httpd_users:
+      - name: "kmchan"
+
+    service_httpd_default_host_name: "desktop.kmchan3.space"
+    service_httpd_default_host_certificate: "/etc/letsencrypt/live/desktop.kmchan3.space/fullchain.pem"
+    service_httpd_default_host_key: "/etc/letsencrypt/live/desktop.kmchan3.space/privkey.pem"
 
   tasks:
 

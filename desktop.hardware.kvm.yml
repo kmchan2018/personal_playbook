@@ -4,6 +4,12 @@
   become: true
   become_user: "root"
 
+  vars:
+
+    hardware_kvm_ignore_msrs: true
+    hardware_kvm_amd_avic: true
+    hardware_kvm_amd_npt: true
+
   tasks:
 
     - name: "Configure Kernel-Based Virtual Machine: Enable Kernel Modules at Boot"

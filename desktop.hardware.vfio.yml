@@ -4,6 +4,10 @@
   become: true
   become_user: "root"
 
+  vars:
+
+    hardware_vfio_disable_nvidia_pat: true
+
   tasks:
 
     - name: "Configure Virtual Function IO: Enable Kernel Modules at Boot"

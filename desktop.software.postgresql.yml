@@ -6,6 +6,8 @@
 
   vars:
 
+    software_postgresql_enabled: true
+
     software_postgresql_packages:
       - "postgresql"
       - "postgresql-contrib"

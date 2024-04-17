@@ -6,6 +6,8 @@
 
   vars:
 
+    software_wine_enabled: true
+
     software_wine_packages:
       - "wine-core"
       - "wine-alsa"

@@ -6,6 +6,8 @@
 
   vars:
 
+    software_php_enabled: true
+
     software_php_packages:
       - "composer"
       - "php-bcmath"

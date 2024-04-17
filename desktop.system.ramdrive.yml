@@ -4,6 +4,10 @@
   become: true
   become_user: "root"
 
+  vars:
+
+    system_ramdrive_size: 24
+
   tasks:
 
     - name: "Setup Ramdrive: Install Systemd Mount Unit for Ramdrive"

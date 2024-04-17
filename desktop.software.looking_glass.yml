@@ -6,6 +6,8 @@
 
   vars:
 
+    software_looking_glass_enabled: true
+
     software_looking_glass_version: "B6"
     software_looking_glass_url: "https://looking-glass.io/artifact/{{ software_looking_glass_version }}/source"
     software_looking_glass_name: "{{ software_looking_glass_version }}.tar.gz"

@@ -4,6 +4,13 @@
   become: true
   become_user: "root"
 
+  vars:
+
+    service_php_fpm_enabled: true
+
+    service_php_fpm_users:
+      - name: "kmchan"
+
   tasks:
 
     - name: "Setup PHP FPM Service"

@@ -9,6 +9,8 @@
 
   vars:
 
+    software_console_enabled: true
+
     software_console_packages:
       - "bchunk"
       - "bsdtar"

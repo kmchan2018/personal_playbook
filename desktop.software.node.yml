@@ -6,6 +6,8 @@
 
   vars:
 
+    software_node_enabled: true
+
     software_node_packages:
       - "nodejs"
       - "npm"

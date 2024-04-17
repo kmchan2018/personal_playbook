@@ -6,8 +6,16 @@
 
   vars:
 
+    service_ddclient_enabled: true
+
     service_ddclient_packages:
       - "ddclient"
+
+    service_ddclient_hosts:
+      - { provider: "namecheap", domain: "kmchan3.space", host: "demo" }
+      - { provider: "namecheap", domain: "kmchan3.space", host: "desktop" }
+      - { provider: "namecheap", domain: "kmchan3.space", host: "firefox" }
+      - { provider: "namecheap", domain: "kmchan3.space", host: "test" }
 
   tasks:
 

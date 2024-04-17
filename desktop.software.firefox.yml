@@ -6,6 +6,8 @@
 
   vars:
 
+    software_firefox_enabled: true
+
     software_firefox_packages:
       - "firefox"
       - "firefox-langpacks"

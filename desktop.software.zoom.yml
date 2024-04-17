@@ -4,6 +4,10 @@
   become: true
   become_user: "root"
 
+  vars:
+
+    software_zoom_enabled: true
+
   tasks:
 
     - name: "Setup Zoom"

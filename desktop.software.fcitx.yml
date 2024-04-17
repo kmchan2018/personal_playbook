@@ -6,6 +6,8 @@
 
   vars:
 
+    software_fcitx_enabled: true
+
     software_fcitx_packages:
       - "fcitx5"
       - "fcitx5-gtk"

@@ -6,6 +6,8 @@
 
   vars:
 
+    service_libvirt_enabled: true
+
     service_libvirt_packages:
       - "libvirt"
       - "python3-libvirt"

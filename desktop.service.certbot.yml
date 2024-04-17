@@ -4,6 +4,10 @@
   become: true
   become_user: "root"
 
+  vars:
+
+    service_certbot_enabled: true
+
   tasks:
 
     - name: "Setup Certbot Service"

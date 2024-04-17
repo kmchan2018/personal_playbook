@@ -7,6 +7,22 @@
   become: true
   become_user: "root"
 
+  vars:
+
+    service_mosquitto_enabled: true
+
+    service_mosquitto_options:
+      - "allow_anonymous true"
+      - "log_type none"
+      - "log_type error"
+      - "log_type warning"
+      - "log_type notice"
+
+    service_mosquitto_listeners:
+      mqtt_over_websocket:
+        public_ip: "127.0.0.1"
+        public_port: 17777
+
   tasks:
 
     - name: "Setup Mosquitto Service"

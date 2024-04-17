@@ -4,6 +4,11 @@
   become: true
   become_user: "root"
 
+  vars:
+
+    system_limits_list:
+      - { domain: "kmchan", type: "soft", item: "nofile", value: "8192" }
+
   tasks:
 
     - name: "Setup Limits: Install Custom Configuration Files"

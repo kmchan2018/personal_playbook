@@ -11,6 +11,8 @@
 
   vars:
 
+    service_windows_enabled: true
+
     service_windows_title: "Windows Guest"
     service_windows_description: "Windows Guest"
 
@@ -21,6 +23,25 @@
     service_windows_looking_glass_name: "windows"
     service_windows_looking_glass_path: "/dev/shm/{{ service_windows_looking_glass_name }}"
     service_windows_spice_path: "/run/libvirt/qemu/spice/windows"
+
+    service_windows_cputhread_pin: [ 4, 5, 6, 7, 12, 13, 14, 15 ]
+    service_windows_iothread_pin: [ 3, 11 ]
+    service_windows_processor_cores: 4
+    service_windows_processor_threads: 2
+    service_windows_memory_size: 12
+    service_windows_memory_unit: GiB
+    service_windows_looking_glass_size: 64
+    service_windows_looking_glass_unit: MiB
+
+    service_windows_passthroughs:
+      - functions:
+          - { "bus": 0x03, "slot": 0x0, "function": 0x0 }
+
+    service_windows_descriptor_conflicts:
+      - /dev/dri/by-path/pci-0000:03:00.0-card
+      - /dev/dri/by-path/pci-0000:03:00.0-render
+
+    service_windows_module_conflicts: []
 
   tasks:
 

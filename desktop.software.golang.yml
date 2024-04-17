@@ -6,6 +6,8 @@
 
   vars:
 
+    software_golang_enabled: true
+
     software_golang_packages:
       - "golang"
 

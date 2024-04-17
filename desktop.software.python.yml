@@ -6,6 +6,8 @@
 
   vars:
 
+    software_python_enabled: true
+
     software_python_packages:
       - "python3"
       - "python3-pip"

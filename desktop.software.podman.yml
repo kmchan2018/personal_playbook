@@ -6,6 +6,8 @@
 
   vars:
 
+    software_podman_enabled: true
+
     software_podman_packages:
       - "ansible-collection-containers-podman"
       - "buildah"

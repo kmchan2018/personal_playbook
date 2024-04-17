@@ -9,6 +9,8 @@
 
   vars:
 
+    software_desktop_enabled: true
+
     software_desktop_packages:
       - "@multimedia"
       - "calibre"

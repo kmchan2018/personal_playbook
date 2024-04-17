@@ -10,6 +10,32 @@
       - "bridge-utils"
       - "wireguard-tools"
 
+    network_devices:
+      wg0:
+        - template: /etc/systemd/network/device.network
+          owner: root
+          group: systemd-network
+          mode: "0644"
+          options:
+            method: static
+            address: 192.168.254.2
+            netmask: 255.255.255.0
+        - template: /etc/systemd/network/device.netdev
+          owner: root
+          group: systemd-network
+          mode: "0640"
+          options:
+            kind: wireguard
+            private_key: "{{ network_devices_wireguard_keypairs.home.desktop.private_key }}"
+            listen_port: 51820
+            peers:
+              - endpoint: "kmchan-server.local:51820"
+                public_key: "{{ network_devices_wireguard_keypairs.home.server.public_key }}"
+                allowed_ips: 192.168.254.0/24
+        - template: /etc/NetworkManager/conf.d/device.conf
+          options:
+            unmanaged: true
+
   tasks:
 
     - name: "Setup Network Devices: Enable Networkd"

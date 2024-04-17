@@ -7,6 +7,24 @@
   become: true
   become_user: "root"
 
+  vars:
+
+    hardware_video_output_device: rx5700
+    hardware_video_output_kernel_module: "amdgpu"
+    hardware_video_output_x11_driver: "amdgpu"
+    hardware_video_output_glx_vendor_library_name: "mesa"
+    hardware_video_output_egl_vendor_library_filenames: [ "50_mesa.json" ]
+    hardware_video_output_vk_icd_filenames: [ "radeon_icd.x86_64.json", "radeon_icd.i686.json" ]
+
+    hardware_video_offload_device: tesla_p4
+    hardware_video_offload_kernel_module: "nvidia"
+    hardware_video_offload_x11_driver: "nvidia"
+    hardware_video_offload_glx_vendor_library_name: "nvidia"
+    hardware_video_offload_egl_vendor_library_filenames: [ "10_nvidia.json" ]
+    hardware_video_offload_vk_icd_filenames: [ "nvidia_icd.json" ]
+
+    hardware_video_amdgpu_ppfeaturemask: "ffffffff"
+
   tasks:
 
     - name: "Configure Video Cards: Install Mesa VAAPI Drivers from RPM Fusion"

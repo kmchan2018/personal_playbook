@@ -4,6 +4,11 @@
   become: true
   become_user: "root"
 
+  vars:
+
+    hardware_sensor_modules:
+      - "nct6775"
+
   tasks:
 
     - name: "Configuring Hardware Sensors: Install Tools from Distribution"

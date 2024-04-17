@@ -6,6 +6,8 @@
 
   vars:
 
+    software_mysql_enabled: true
+
     software_mysql_packages:
       - "mariadb"
       - "mariadb-server"
