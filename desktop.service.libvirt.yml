@@ -47,7 +47,7 @@
         - name: "Setup Libvirt: Install Polkit Access Control Rules on Libvirt"
           ansible.builtin.copy:
             dest: "/etc/polkit-1/rules.d/50-libvirt-acl.rules"
-            src: "{{ playbook_dir }}/files/etc/polkit-1/rules.d/50-libvirt-acl.rules"
+            src: "{{ playbook_dir }}/files/desktop/etc/polkit-1/rules.d/50-libvirt-acl.rules"
             owner: "root"
             group: "root"
             mode: "0644"

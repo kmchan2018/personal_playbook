@@ -19,7 +19,7 @@
     - name: "Configuring Block Devices: Expose SMART Temperature of Block Devices"
       ansible.builtin.copy:
         dest: "/etc/modules-load.d/blockdev.conf"
-        src: "{{ playbook_dir }}/files/etc/modules-load.d/blockdev.conf"
+        src: "{{ playbook_dir }}/files/desktop/etc/modules-load.d/blockdev.conf"
         owner: "root"
         group: "root"
         mode: "0644"

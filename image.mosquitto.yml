@@ -28,7 +28,7 @@
         - name: "Generate Mosquitto Container Image: Create Local Configuration File"
           ansible.builtin.command:
             cmd: "buildah run {{ container['stdout'] }} -- tee /etc/mosquitto/container.conf"
-            stdin: "{{ lookup('file', playbook_dir ~ '/files/etc/mosquitto/container.conf') }}"
+            stdin: "{{ lookup('file', playbook_dir ~ '/files/desktop/etc/mosquitto/container.conf') }}"
 
         - name: "Generate Mosquitto Container Image: Setup the Command Line"
           ansible.builtin.command: "buildah config --cmd '/usr/sbin/mosquitto -c /etc/mosquitto/container.conf' {{ container['stdout'] }}"

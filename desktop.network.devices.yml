@@ -55,7 +55,7 @@
     - name: "Setup Network Devices: Install Configuration Files"
       ansible.builtin.template:
         dest: "{{ item.1.template|replace('device', item.0.device) }}"
-        src: "{{ playbook_dir }}/files/{{ item.1.template }}.j2"
+        src: "{{ playbook_dir }}/files/desktop/{{ item.1.template }}.j2"
         owner: "{{ item.1.owner|default('root') }}"
         group: "{{ item.1.group|default('root') }}"
         mode: "{{ item.1.mode|default('0644') }}"

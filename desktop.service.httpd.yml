@@ -65,7 +65,7 @@
         - name: "Setup Apache Httpd Service: Install Custom Configuration Files"
           ansible.builtin.template:
             dest: "{{ item.path }}"
-            src: "files/{{ item.path }}.j2"
+            src: "{{ playbook_dir }}/files/desktop/{{ item.path }}.j2"
             owner: "{{ item.owner|default('root') }}"
             group: "{{ item.group|default('root') }}"
             mode: "{{ item.group|default('0644') }}"

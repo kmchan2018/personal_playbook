@@ -43,7 +43,7 @@
         - name: "Setup Mosquitto Service: Install Basic Configuration Files"
           ansible.builtin.template:
             dest: "/etc/mosquitto/container/{{ item.name }}"
-            src: "{{ playbook_dir }}/files/etc/mosquitto/container/{{ item.name }}.j2"
+            src: "{{ playbook_dir }}/files/desktop/etc/mosquitto/container/{{ item.name }}.j2"
             owner: "{{ item.owner|default('root') }}"
             group: "{{ item.group|default('root') }}"
             mode: "{{ item.group|default('0644') }}"
@@ -54,7 +54,7 @@
         - name: "Setup Mosquitto Service: Install Extra Configuration Files"
           ansible.builtin.copy:
             dest: "/etc/mosquitto/container/{{ item.name }}"
-            src: "{{ playbook_dir }}/files/etc/mosquitto/container/{{ item.name }}"
+            src: "{{ playbook_dir }}/files/desktop/etc/mosquitto/container/{{ item.name }}"
             owner: "{{ item.owner|default('root') }}"
             group: "{{ item.group|default('root') }}"
             mode: "{{ item.group|default('0644') }}"
@@ -63,7 +63,7 @@
         - name: "Setup Mosquitto Service: Generate Systemd Container File"
           ansible.builtin.template:
             dest: "/etc/containers/systemd/mosquitto-container.container"
-            src: "{{ playbook_dir }}/files/etc/containers/systemd/mosquitto-container.container.j2"
+            src: "{{ playbook_dir }}/files/desktop/etc/containers/systemd/mosquitto-container.container.j2"
             owner: "root"
             group: "root"
             mode: "0644"

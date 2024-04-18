@@ -52,7 +52,7 @@
     - name: "Setup Network Mounts: Install Systemd Mount Unit for Mount Points"
       ansible.builtin.template:
         dest: "/etc/systemd/system/{{ item.path|replace('/', '-')|regex_replace('^-') }}.mount"
-        src: "{{ playbook_dir }}/files/etc/systemd/system/network.mounts.mount.j2"
+        src: "{{ playbook_dir }}/files/desktop/etc/systemd/system/network.mounts.mount.j2"
         owner: "root"
         group: "root"
         mode: "0644"
@@ -73,7 +73,7 @@
     - name: "Setup Network Mounts: Install Systemd Automount Unit for Mount Points"
       ansible.builtin.template:
         dest: "/etc/systemd/system/{{ item.path|replace('/', '-')|regex_replace('^-') }}.automount"
-        src: "{{ playbook_dir }}/files/etc/systemd/system/network.mounts.automount.j2"
+        src: "{{ playbook_dir }}/files/desktop/etc/systemd/system/network.mounts.automount.j2"
         owner: "root"
         group: "root"
         mode: "0644"

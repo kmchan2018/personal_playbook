@@ -13,7 +13,7 @@
     - name: "Setup Ramdrive: Install Systemd Mount Unit for Ramdrive"
       ansible.builtin.template:
         dest: "/etc/systemd/system/mnt-ramdrive.mount"
-        src: "{{ playbook_dir }}/files/etc/systemd/system/mnt-ramdrive.mount.j2"
+        src: "{{ playbook_dir }}/files/desktop/etc/systemd/system/mnt-ramdrive.mount.j2"
         owner: "root"
         group: "root"
         mode: "0644"

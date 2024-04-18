@@ -71,7 +71,7 @@
         - name: "Setup Windows Virtual Machine: Install Configuration Files"
           ansible.builtin.template:
             dest: "{{ item.path }}"
-            src: "{{ playbook_dir }}/files/{{ item.path }}.j2"
+            src: "{{ playbook_dir }}/files/desktop/{{ item.path }}.j2"
             owner: "{{ item.owner|default('root') }}"
             group: "{{ item.group|default('root') }}"
             mode: "{{ item.mode|default('0644') }}"
@@ -94,7 +94,7 @@
         - name: "Setup Windows Virtual Machine: Define Libvirt Virtual Machine"
           community.libvirt.virt:
             command: "define"
-            xml: "{{ lookup('template', 'files/etc/libvirt/qemu/windows.xml.j2') }}"
+            xml: "{{ lookup('template', 'files/desktop/etc/libvirt/qemu/windows.xml.j2') }}"
             uri: "qemu:///system"
 
 

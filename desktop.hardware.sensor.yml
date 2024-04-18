@@ -19,7 +19,7 @@
     - name: "Configuring Hardware Sensors: Enable Kernel Modules at Boot"
       ansible.builtin.template:
         dest: "/etc/modules-load.d/sensor.conf"
-        src: "{{ playbook_dir }}/files/etc/modules-load.d/sensor.conf.j2"
+        src: "{{ playbook_dir }}/files/desktop/etc/modules-load.d/sensor.conf.j2"
         owner: "root"
         group: "root"
         mode: "0644"

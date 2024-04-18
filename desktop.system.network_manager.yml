@@ -50,7 +50,7 @@
         - name: "Setup Network Manager: Install Configuration File"
           ansible.builtin.template:
             dest: "/etc/NetworkManager/conf.d/local.conf"
-            src: "{{ playbook_dir }}/files/etc/NetworkManager/conf.d/local.conf.j2"
+            src: "{{ playbook_dir }}/files/desktop/etc/NetworkManager/conf.d/local.conf.j2"
             owner: "root"
             group: "root"
             mode: "0644"

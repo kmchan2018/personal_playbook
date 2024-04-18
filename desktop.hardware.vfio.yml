@@ -13,7 +13,7 @@
     - name: "Configure Virtual Function IO: Enable Kernel Modules at Boot"
       ansible.builtin.copy:
         dest: "/etc/modules-load.d/vfio.conf"
-        src: "{{ playbook_dir }}/files/etc/modules-load.d/vfio.conf"
+        src: "{{ playbook_dir }}/files/desktop/etc/modules-load.d/vfio.conf"
         owner: "root"
         group: "root"
         mode: "0644"
@@ -21,7 +21,7 @@
     - name: "Configure Virtual Function IO: Configure Kernel Module Options"
       ansible.builtin.template:
         dest: "/etc/modprobe.d/vfio.conf"
-        src: "{{ playbook_dir }}/files/etc/modprobe.d/vfio.conf.j2"
+        src: "{{ playbook_dir }}/files/desktop/etc/modprobe.d/vfio.conf.j2"
         owner: "root"
         group: "root"
         mode: "0644"
