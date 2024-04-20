@@ -5,7 +5,7 @@
 - import_playbook: "desktop.service.libvirt.yml"
 
 
-- hosts: "all"
+- hosts: "desktop"
   become: true
   become_user: "root"
 
