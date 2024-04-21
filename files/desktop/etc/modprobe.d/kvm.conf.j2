@@ -1,8 +1,8 @@
 {%- set kvm_options = "" -%}
 {%- set kvm_amd_options = "" -%}
-{%- set system_kvm_ignore_msrs = system_kvm_ignore_msrs|default(null) -%}
-{%- set system_kvm_amd_avic = system_kvm_amd_avic|default(null) -%}
-{%- set system_kvm_amd_npt = system_kvm_amd_npt|default(null) -%}
+{%- set system_kvm_ignore_msrs = system_kvm_ignore_msrs|default(None) -%}
+{%- set system_kvm_amd_avic = system_kvm_amd_avic|default(None) -%}
+{%- set system_kvm_amd_npt = system_kvm_amd_npt|default(None) -%}
 {%- if system_kvm_ignore_msrs == true -%}{%- set kvm_options = kvm_options ~ " ignore_msrs=1" -%}{%- endif -%}
 {%- if system_kvm_ignore_msrs == false -%}{%- set kvm_options = kvm_options ~ " ignore_msrs=0" -%}{%- endif -%}
 {%- if system_kvm_amd_avic == true -%}{%- set kvm_amd_options = kvm_amd_options ~ " avic=1" -%}{%- endif -%}
