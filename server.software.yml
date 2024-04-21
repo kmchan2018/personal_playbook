@@ -1,0 +1,12 @@
+
+
+- import_playbook: "server.software.console.yml"
+- import_playbook: "server.software.java.yml"
+- import_playbook: "server.software.mysql.yml"
+- import_playbook: "server.software.node.yml"
+- import_playbook: "server.software.php.yml"
+- import_playbook: "server.software.podman.yml"
+- import_playbook: "server.software.postgresql.yml"
+- import_playbook: "server.software.python.yml"
+
+

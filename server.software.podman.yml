@@ -1,0 +1,26 @@
+
+
+- hosts: "server"
+  become: true
+  become_user: "root"
+
+  vars:
+
+    software_podman_enabled: true
+
+  tasks:
+
+    - name: "Setup Podman Container Runtime"
+      when: "software_podman_enabled|default(false)"
+      block:
+
+        - name: "Setup Podman Container Runtime: Install Podman from Distribution"
+          ansible.builtin.dnf:
+            name:
+              - "ansible-collection-containers-podman"
+              - "buildah"
+              - "podman"
+              - "podman-compose"
+            state: "latest"
+
+

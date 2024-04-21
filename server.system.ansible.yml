@@ -1,0 +1,15 @@
+
+
+- hosts: "server"
+  become: true
+  become_user: "root"
+
+  tasks:
+
+    - name: "Setup Ansible: Install Extra Libraries"
+      ansible.builtin.dnf:
+        name:
+          - "python3-netaddr"
+        state: "latest"
+
+

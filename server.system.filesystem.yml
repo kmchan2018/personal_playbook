@@ -1,0 +1,17 @@
+
+
+- hosts: "server"
+  become: true
+  become_user: "root"
+
+  tasks:
+
+    - name: "Configure Filesystem Support: Install Tools from Distribution"
+      ansible.builtin.dnf:
+        name:
+          - "exfatprogs"
+          - "ntfs-3g"
+          - "ntfsprogs"
+        state: "latest"
+
+

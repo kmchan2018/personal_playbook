@@ -1,0 +1,26 @@
+
+
+- hosts: "server"
+  become: true
+  become_user: "root"
+
+  vars:
+
+    software_python_enabled: true
+
+  tasks:
+
+    - name: "Setup Python Runtime"
+      when: "software_python_enabled|default(false)"
+      block:
+
+        - name: "Setup Python Runtime: Install Python from Distribution"
+          ansible.builtin.dnf:
+            name:
+              - "python3"
+              - "python3-pip"
+              - "python3-setuptools"
+              - "python3-virtualenv"
+            state: "latest"
+
+

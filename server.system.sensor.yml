@@ -1,13 +1,12 @@
 
 
-- hosts: "desktop"
+- hosts: "server"
   become: true
   become_user: "root"
 
   vars:
 
     system_sensor_modules:
-      - "drivetemp"
       - "nct6775"
 
   tasks:

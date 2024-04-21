@@ -1,0 +1,50 @@
+
+
+- hosts: "server"
+  become: true
+  become_user: "root"
+
+  vars:
+
+    software_console_enabled: true
+
+  tasks:
+
+    - name: "Setup Console Software"
+      when: "software_console_enabled|default(false)"
+      block:
+
+        - name: "Setup Console Software: Install Console Software from Distribution"
+          ansible.builtin.dnf:
+            name:
+              - "cabextract"
+              - "convmv"
+              - "curl"
+              - "git"
+              - "htop"
+              - "innoextract"
+              - "inxi"
+              - "jq"
+              - "lshw"
+              - "mc"
+              - "neofetch"
+              - "nvtop"
+              - "openssh"
+              - "p7zip"
+              - "p7zip-plugins"
+              - "ripgrep"
+              - "rsync"
+              - "screen"
+              - "socat"
+              - "sqlite"
+              - "sshfs"
+              - "telnet"
+              - "tldr"
+              - "tmux"
+              - "unrar"
+              - "unrar-free"
+              - "vim"
+              - "yt-dlp"
+            state: "latest"
+
+

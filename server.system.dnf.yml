@@ -1,0 +1,47 @@
+
+
+- hosts: "server"
+  become: true
+  become_user: "root"
+
+  vars:
+
+    system_dnf_packages:
+      - "python3-dnf-plugin-post-transaction-actions"
+
+  tasks:
+
+    - name: "Setup DNF: Install Extra Plugins from Distribution"
+      ansible.builtin.dnf:
+        name: "{{ system_dnf_packages }}"
+        state: "latest"
+
+    - name: "Setup DNF: Change Default Option to Yes"
+      community.general.ini_file:
+        path: "/etc/dnf/dnf.conf"
+        section: "main"
+        option: "defaultyes"
+        value: "True"
+
+    - name: "Setup DNF: Enable Fastest Mirror"
+      community.general.ini_file:
+        path: "/etc/dnf/dnf.conf"
+        section: "main"
+        option: "fastestmirror"
+        value: "True"
+
+    - name: "Setup DNF: Cache Downloaded Files"
+      community.general.ini_file:
+        path: "/etc/dnf/dnf.conf"
+        section: "main"
+        option: "keepcache"
+        value: "True"
+
+    - name: "Setup DNF: Increase Maximum Number of Parallel Downloads"
+      community.general.ini_file:
+        path: "/etc/dnf/dnf.conf"
+        section: "main"
+        option: "max_parallel_downloads"
+        value: "10"
+
+

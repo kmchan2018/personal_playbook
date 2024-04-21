@@ -1,0 +1,10 @@
+
+
+- import_playbook: "server.system.ansible.yml"
+- import_playbook: "server.system.disk.yml"
+- import_playbook: "server.system.dnf.yml"
+- import_playbook: "server.system.driverctl.yml"
+- import_playbook: "server.system.filesystem.yml"
+- import_playbook: "server.system.sensor.yml"
+
+

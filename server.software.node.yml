@@ -1,0 +1,25 @@
+
+
+- hosts: "server"
+  become: true
+  become_user: "root"
+
+  vars:
+
+    software_node_enabled: true
+
+  tasks:
+
+    - name: "Setup Node Runtime"
+      when: "software_node_enabled|default(false)"
+      block:
+
+        - name: "Setup Node Runtime: Install Node from Distribution"
+          ansible.builtin.dnf:
+            name:
+              - "nodejs"
+              - "npm"
+              - "yarnpkg"
+            state: "latest"
+
+

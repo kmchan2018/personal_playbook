@@ -1,14 +1,8 @@
 
 
-- hosts: "desktop"
+- hosts: "server"
   become: true
   become_user: "root"
-
-  vars:
-
-    system_kvm_ignore_msrs: true
-    system_kvm_amd_avic: true
-    system_kvm_amd_npt: true
 
   tasks:
 
