@@ -6,7 +6,8 @@
 
   vars:
 
-    hardware_sensor_modules:
+    system_sensor_modules:
+      - "drivetemp"
       - "nct6775"
 
   tasks:
@@ -23,6 +24,6 @@
         owner: "root"
         group: "root"
         mode: "0644"
-      when: "hardware_sensor_modules|default([])|length > 0"
+      when: "system_sensor_modules|default([])|length > 0"
 
 

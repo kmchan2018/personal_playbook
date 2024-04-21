@@ -12,5 +12,6 @@
 - import_playbook: "desktop.system.ramdrive.yml"
 - import_playbook: "desktop.system.rpmfusion.yml"
 - import_playbook: "desktop.system.sddm.yml"
+- import_playbook: "desktop.system.sensor.yml"
 
 
