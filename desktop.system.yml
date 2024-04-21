@@ -7,11 +7,13 @@
 - import_playbook: "desktop.system.filesystem.yml"
 - import_playbook: "desktop.system.firejail.yml"
 - import_playbook: "desktop.system.flatpak.yml"
+- import_playbook: "desktop.system.kvm.yml"
 - import_playbook: "desktop.system.limits.yml"
 - import_playbook: "desktop.system.network_manager.yml"
 - import_playbook: "desktop.system.ramdrive.yml"
 - import_playbook: "desktop.system.rpmfusion.yml"
 - import_playbook: "desktop.system.sddm.yml"
 - import_playbook: "desktop.system.sensor.yml"
+- import_playbook: "desktop.system.vfio.yml"
 
 

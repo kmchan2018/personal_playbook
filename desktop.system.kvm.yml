@@ -6,9 +6,9 @@
 
   vars:
 
-    hardware_kvm_ignore_msrs: true
-    hardware_kvm_amd_avic: true
-    hardware_kvm_amd_npt: true
+    system_kvm_ignore_msrs: true
+    system_kvm_amd_avic: true
+    system_kvm_amd_npt: true
 
   tasks:
 

@@ -1,14 +1,14 @@
 {%- set kvm_options = "" -%}
 {%- set kvm_amd_options = "" -%}
-{%- set hardware_kvm_ignore_msrs = hardware_kvm_ignore_msrs|default(null) -%}
-{%- set hardware_kvm_amd_avic = hardware_kvm_amd_avic|default(null) -%}
-{%- set hardware_kvm_amd_npt = hardware_kvm_amd_npt|default(null) -%}
-{%- if hardware_kvm_ignore_msrs == true -%}{%- set kvm_options = kvm_options ~ " ignore_msrs=1" -%}{%- endif -%}
-{%- if hardware_kvm_ignore_msrs == false -%}{%- set kvm_options = kvm_options ~ " ignore_msrs=0" -%}{%- endif -%}
-{%- if hardware_kvm_amd_avic == true -%}{%- set kvm_amd_options = kvm_amd_options ~ " avic=1" -%}{%- endif -%}
-{%- if hardware_kvm_amd_avic == false -%}{%- set kvm_amd_options = kvm_amd_options ~ " avic=0" -%}{%- endif -%}
-{%- if hardware_kvm_amd_npt == true -%}{%- set kvm_amd_options = kvm_amd_options ~ " npt=1" -%}{%- endif -%}
-{%- if hardware_kvm_amd_npt == false -%}{%- set kvm_amd_options = kvm_amd_options ~ " npt=0" -%}{%- endif -%}
+{%- set system_kvm_ignore_msrs = system_kvm_ignore_msrs|default(null) -%}
+{%- set system_kvm_amd_avic = system_kvm_amd_avic|default(null) -%}
+{%- set system_kvm_amd_npt = system_kvm_amd_npt|default(null) -%}
+{%- if system_kvm_ignore_msrs == true -%}{%- set kvm_options = kvm_options ~ " ignore_msrs=1" -%}{%- endif -%}
+{%- if system_kvm_ignore_msrs == false -%}{%- set kvm_options = kvm_options ~ " ignore_msrs=0" -%}{%- endif -%}
+{%- if system_kvm_amd_avic == true -%}{%- set kvm_amd_options = kvm_amd_options ~ " avic=1" -%}{%- endif -%}
+{%- if system_kvm_amd_avic == false -%}{%- set kvm_amd_options = kvm_amd_options ~ " avic=0" -%}{%- endif -%}
+{%- if system_kvm_amd_npt == true -%}{%- set kvm_amd_options = kvm_amd_options ~ " npt=1" -%}{%- endif -%}
+{%- if system_kvm_amd_npt == false -%}{%- set kvm_amd_options = kvm_amd_options ~ " npt=0" -%}{%- endif -%}
 {%- if kvm_options != "" %}
 #
 # Configure the kvm module to support extra virtualization options.

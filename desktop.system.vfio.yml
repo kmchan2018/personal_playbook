@@ -6,7 +6,7 @@
 
   vars:
 
-    hardware_vfio_disable_nvidia_pat: true
+    system_vfio_disable_nvidia_pat: true
 
   tasks:
 
@@ -42,7 +42,7 @@
 
     - name: "Configure Virtual Function IO: Enable ACS Override in Kernel Command Line"
       ansible.builtin.shell:
-        cmd: "grubby --update-kernel=ALL --args=pcie_acs_override={{ hardware_vfio_acs_override }}"
-      when: "hardware_vfio_acs_override|default('') != ''"
+        cmd: "grubby --update-kernel=ALL --args=pcie_acs_override={{ system_vfio_acs_override }}"
+      when: "system_vfio_acs_override|default('') != ''"
 
 
