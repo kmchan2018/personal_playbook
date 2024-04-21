@@ -1,8 +1,10 @@
 
 
 - import_playbook: "desktop.system.ansible.yml"
+- import_playbook: "desktop.system.disk.yml"
 - import_playbook: "desktop.system.dnf.yml"
 - import_playbook: "desktop.system.driverctl.yml"
+- import_playbook: "desktop.system.filesystem.yml"
 - import_playbook: "desktop.system.firejail.yml"
 - import_playbook: "desktop.system.flatpak.yml"
 - import_playbook: "desktop.system.limits.yml"

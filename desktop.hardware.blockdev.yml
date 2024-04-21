@@ -6,16 +6,6 @@
 
   tasks:
 
-    - name: "Configure Block Devices: Install Tools from Distribution"
-      ansible.builtin.dnf:
-        name:
-          - "exfatprogs"
-          - "ntfs-3g"
-          - "ntfsprogs"
-          - "nvme-cli"
-          - "smartmontools"
-        state: "latest"
-
     - name: "Configuring Block Devices: Expose SMART Temperature of Block Devices"
       ansible.builtin.copy:
         dest: "/etc/modules-load.d/blockdev.conf"
