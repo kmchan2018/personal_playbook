@@ -1,0 +1,86 @@
+
+
+- hosts: "desktop"
+  become: true
+  become_user: "root"
+
+  vars:
+
+    system_networkd_networks:
+      - name: wg0
+        network:
+          method: static
+          address: 192.168.254.2
+          netmask: 255.255.255.0
+        device:
+          kind: wireguard
+          private_key:
+            service: "home"
+            machine: "desktop"
+          listen_port: 51820
+          peers:
+            - endpoint: "192.168.1.11:51820"
+              public_key:
+                service: "home"
+                machine: "server"
+              allowed_ips: 192.168.254.0/24
+
+  tasks:
+
+    - name: "Setup Networkd: Install Helper Tools from Distribution"
+      ansible.builtin.dnf:
+        name:
+          - "bridge-utils"
+          - "systemd-networkd"
+          - "wireguard-tools"
+        state: "latest"
+
+    - name: "Setup Networkd: Enable Networkd"
+      ansible.builtin.systemd_service:
+        name: "systemd-networkd.service"
+        state: "started"
+        enabled: true
+        daemon_reload: true
+
+    - name: "Setup Networkd: Load Secrets from Vault"
+      ansible.builtin.include_vars:
+        file: "secrets/system.networkd.vault"
+
+    - name: "Setup Networkd: Install Network Unit"
+      ansible.builtin.template:
+        dest: "/etc/systemd/network/{{ item.name }}.network"
+        src: "{{ playbook_dir }}/files/common/etc/systemd/network/device.network.j2"
+        owner: "root"
+        group: "systemd-network"
+        mode: "0640"
+      vars:
+        name: "{{ item.name }}"
+        options: "{{ item.network }}"
+      loop: "{{ system_networkd_networks }}"
+
+    - name: "Setup Networkd: Install Network Device Unit"
+      ansible.builtin.template:
+        dest: "/etc/systemd/network/{{ item.name }}.netdev"
+        src: "{{ playbook_dir }}/files/common/etc/systemd/network/device.netdev.j2"
+        owner: "root"
+        group: "systemd-network"
+        mode: "0640"
+      vars:
+        name: "{{ item.name }}"
+        options: "{{ item.device }}"
+      when: "item.device is defined"
+      loop: "{{ system_networkd_networks }}"
+
+    - name: "Setup Networkd: Install Network Manager Configuration to Ignore Specific Network Device"
+      ansible.builtin.template:
+        dest: "/etc/NetworkManager/conf.d/{{ item.name }}.conf"
+        src: "{{ playbook_dir }}/files/common/etc/NetworkManager/conf.d/device.conf.j2"
+        owner: "root"
+        group: "systemd-network"
+        mode: "0644"
+      vars:
+        name: "{{ item.name }}"
+      when: "item.device is defined"
+      loop: "{{ system_networkd_networks }}"
+
+

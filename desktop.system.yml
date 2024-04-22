@@ -10,6 +10,7 @@
 - import_playbook: "desktop.system.kvm.yml"
 - import_playbook: "desktop.system.limits.yml"
 - import_playbook: "desktop.system.network_manager.yml"
+- import_playbook: "desktop.system.networkd.yml"
 - import_playbook: "desktop.system.ramdrive.yml"
 - import_playbook: "desktop.system.rpmfusion.yml"
 - import_playbook: "desktop.system.sddm.yml"
