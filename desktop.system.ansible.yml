@@ -9,6 +9,18 @@
     - name: "Setup Ansible: Install Extra Libraries"
       ansible.builtin.dnf:
         name:
+          - "ansible-collection-ansible-netcommon"
+          - "ansible-collection-ansible-posix"
+          - "ansible-collection-ansible-utils"
+          - "ansible-collection-community-crypto"
+          - "ansible-collection-community-docker"
+          - "ansible-collection-community-general"
+          - "ansible-collection-community-kubernetes"
+          - "ansible-collection-community-libvirt"
+          - "ansible-collection-community-mysql"
+          - "ansible-collection-community-postgresql"
+          - "ansible-collection-containers-podman"
+          - "ansible-collection-kubernetes-core"
           - "python3-netaddr"
         state: "latest"
 
