@@ -1,0 +1,29 @@
+
+
+- hosts: "desktop"
+  become: true
+  become_user: "root"
+
+  tasks:
+
+    - name: "Setup Firewalld: Install Packages from Distribution"
+      ansible.builtin.dnf:
+        name:
+          - "firewalld"
+          - "python3-firewall"
+        state: "latest"
+
+    - name: "Setup Firewalld: Reinstate the Standard Firewalld Configuration"
+      ansible.builtin.file:
+        dest: "/etc/firewalld/firewalld.conf"
+        src: "firewalld-standard.conf"
+        state: "link"
+
+    - name: "Setup Firewalld: Enable Firewalld"
+      ansible.builtin.systemd_service:
+        name: "firewalld.service"
+        state: "started"
+        enabled: true
+        daemon_reload: true
+
+

@@ -6,6 +6,7 @@
 - import_playbook: "desktop.system.driverctl.yml"
 - import_playbook: "desktop.system.filesystem.yml"
 - import_playbook: "desktop.system.firejail.yml"
+- import_playbook: "desktop.system.firewalld.yml"
 - import_playbook: "desktop.system.flatpak.yml"
 - import_playbook: "desktop.system.kvm.yml"
 - import_playbook: "desktop.system.limits.yml"

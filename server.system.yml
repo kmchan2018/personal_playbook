@@ -5,6 +5,7 @@
 - import_playbook: "server.system.dnf.yml"
 - import_playbook: "server.system.driverctl.yml"
 - import_playbook: "server.system.filesystem.yml"
+- import_playbook: "server.system.firewalld.yml"
 - import_playbook: "server.system.networkd.yml"
 - import_playbook: "server.system.sensor.yml"
 
