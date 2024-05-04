@@ -1,0 +1,38 @@
+
+[Unit]
+Description=Caddy Container
+After=network-online.target
+
+[Service]
+TimeoutStartSec=900
+
+[Container]
+Image=docker.io/lucaslorentz/caddy-docker-proxy:{{ service_caddy_version|mandatory }}
+Volume=/etc/caddy:/data:rw,nodev,noexec,nosuid,z
+Volume=/var/cache/caddy:/config:rw,nodev,noexec,nosuid,z
+User={{ service_caddy_user.uid }}
+Group={{ service_caddy_group.gid }}
+{% if ansible_facts.packages.podman is defined and ansible_facts.packages.podman[0].version is ansible.builtin.version('4.8.0', '>=') %}
+UIDMap=0:65534:1
+UIDMap={{ service_caddy_user.uid }}:{{ service_caddy_user.uid }}:1
+GIDMap=0:65534:1
+GIDMap={{ service_caddy_group.gid }}:{{ service_caddy_group.gid }}:1
+{% else %}
+PodmanArgs=--uidmap 0:65534:1 --uidmap {{ service_caddy_user.uid }}:{{ service_caddy_user.uid }}:1 --gidmap 0:65534:1 --gidmap {{ service_caddy_group.gid }}:{{ service_caddy_group.gid }}:1
+{% endif %}
+Network=podman
+Network=caddy.network
+Network=caddy-controller.network
+PublishPort=0.0.0.0:{{ service_caddy_http_port|default(80) }}:80
+PublishPort=0.0.0.0:{{ service_caddy_https_port|default(443) }}:443
+PublishPort=0.0.0.0:{{ service_caddy_https_port|default(443) }}:443/udp
+Label=caddy_controlled_server=
+Environment=CADDY_DOCKER_MODE=server
+Environment=CADDY_CONTROLLER_NETWORK={{ service_caddy_control_network|mandatory|ansible.utils.ipaddr('0') }}
+AddCapability=CAP_NET_BIND_SERVICE
+NoNewPrivileges=yes
+AutoUpdate=local
+
+[Install]
+WantedBy=multi-user.target default.target
+

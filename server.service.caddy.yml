@@ -1,0 +1,103 @@
+
+
+- import_playbook: "server.software.podman.yml"
+
+
+- hosts: "server"
+  become: true
+  become_user: "root"
+
+  vars:
+
+    service_caddy_enabled: true
+
+    service_caddy_version: "2.8"
+    service_caddy_http_port: 80
+    service_caddy_https_port: 443
+    service_caddy_control_network: "10.98.255.0/24"
+    service_caddy_backend_network: "10.99.0.0/16"
+    service_caddy_firewall_zones: [ "home", "internal", "work" ]
+
+  tasks:
+
+    - name: "Setup Caddy Service"
+      when: "service_caddy_enabled|default(false)"
+      block:
+
+        - name: "Setup Caddy Service: Determine Podman Version"
+          ansible.builtin.package_facts:
+            manager: "rpm"
+
+        - name: "Setup Caddy Service: Create Caddy Group"
+          ansible.builtin.group:
+            name: "caddy"
+            state: "present"
+            system: true
+          register: "service_caddy_group"
+
+        - name: "Setup Caddy Service: Create Caddy Account"
+          ansible.builtin.user:
+            name: "caddy"
+            state: "present"
+            group: "caddy"
+            password: "!"
+            system: true
+            home: "/"
+            shell: "/sbin/nologin"
+            comment: "Caddy Server"
+            create_home: false
+          register: "service_caddy_user"
+
+        - name: "Setup Caddy Service: Create Configuration Directory"
+          ansible.builtin.file:
+            dest: "/etc/caddy"
+            state: "directory"
+            owner: "caddy"
+            group: "caddy"
+            mode: "0750"
+
+        - name: "Setup Caddy Service: Create Cache Directory"
+          ansible.builtin.file:
+            dest: "/var/cache/caddy"
+            state: "directory"
+            owner: "caddy"
+            group: "caddy"
+            mode: "0750"
+
+        - name: "Setup Caddy Service: Install Podman Quadlet Files"
+          ansible.builtin.template:
+            dest: "{{ item }}"
+            src: "{{ playbook_dir }}/files/common/{{ item }}.j2"
+            owner: "root"
+            group: "root"
+            mode: "0644"
+          loop:
+            - "/etc/containers/systemd/caddy.container"
+            - "/etc/containers/systemd/caddy.network"
+            - "/etc/containers/systemd/caddy-controller.container"
+            - "/etc/containers/systemd/caddy-controller.network"
+
+        - name: "Setup Caddy Service: Install Firewalld Configuration Files"
+          ansible.builtin.template:
+            dest: "{{ item }}"
+            src: "{{ playbook_dir }}/files/common/{{ item }}.j2"
+            owner: "root"
+            group: "root"
+            mode: "0644"
+          loop:
+            - "/etc/firewalld/services/caddy.xml"
+            - "/etc/firewalld/zones/caddy.xml"
+            - "/etc/firewalld/zones/caddy-controller.xml"
+
+        - name: "Setup Caddy Service: Add Service to Firewalld Zones"
+          ansible.posix.firewalld:
+            zone: "{{ item }}"
+            service: "caddy"
+            state: "enabled"
+            permanent: true
+            offline: true
+          loop: "{{ service_caddy_firewall_zones|default([]) }}"
+          retries: 3
+          delay: 5
+
+

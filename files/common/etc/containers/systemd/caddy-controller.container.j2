@@ -1,0 +1,28 @@
+
+[Unit]
+Description=Caddy Controller Container
+After=network-online.target
+Requires=podman.socket
+
+[Service]
+TimeoutStartSec=900
+
+[Container]
+Image=docker.io/lucaslorentz/caddy-docker-proxy:{{ service_caddy_version|mandatory }}
+Volume=/run/podman/podman.sock:/var/run/docker.sock:rw
+Network=podman
+Network=caddy.network
+Network=caddy-controller.network
+Environment=CADDY_DOCKER_MODE=controller
+Environment=CADDY_CONTROLLER_NETWORK={{ service_caddy_control_network|mandatory|ansible.utils.ipaddr('0') }}
+Environment=CADDY_INGRESS_NETWORKS=systemd-caddy
+Environment=CADDY_DOCKER_SOCKETS=unix:///var/run/docker.sock
+Environment=CADDY_DOCKER_APIS_VERSION=1.40
+Environment=CADDY_DOCKER_NO_SCOPE=true
+SecurityLabelDisable=true
+NoNewPrivileges=yes
+AutoUpdate=local
+
+[Install]
+WantedBy=multi-user.target default.target
+

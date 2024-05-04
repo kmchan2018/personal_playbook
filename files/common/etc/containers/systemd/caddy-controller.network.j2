@@ -1,0 +1,16 @@
+
+[Unit]
+Description=Caddy Network for Communicating with Controller
+After=network-online.target
+
+[Network]
+Driver=bridge
+Internal=true
+Options=com.docker.network.bridge.name=caddyctrl
+Options=isolate=strict
+Subnet={{ service_caddy_control_network|mandatory|ansible.utils.ipaddr('0') }}
+IPRange={{ service_caddy_control_network|mandatory|ansible.utils.ipaddr('0') }}
+
+[Install]
+WantedBy=multi-user.target default.target
+

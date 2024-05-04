@@ -1,0 +1,16 @@
+
+[Unit]
+Description=Caddy Network for Communicating with Backends
+After=network-online.target
+
+[Network]
+Driver=bridge
+Internal=true
+Options=com.docker.network.bridge.name=caddy
+Options=isolate=strict
+Subnet={{ service_caddy_backend_network|mandatory|ansible.utils.ipaddr('0') }}
+IPRange={{ service_caddy_backend_network|mandatory|ansible.utils.ipaddr('0') }}
+
+[Install]
+WantedBy=multi-user.target default.target
+

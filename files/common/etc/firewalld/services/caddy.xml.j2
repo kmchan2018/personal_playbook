@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>Caddy Service</short>
+  <description>Firewalld Service for the local caddy service.</description>
+  <port protocol="tcp" port="{{ service_caddy_http_port|default(80) }}"/>
+  <port protocol="tcp" port="{{ service_caddy_https_port|default(443) }}"/>
+  <port protocol="udp" port="{{ service_caddy_https_port|default(443) }}"/>
+</service>
