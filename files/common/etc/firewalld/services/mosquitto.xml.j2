@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>Mosquitto Service</short>
+  <description>Firewalld Service for the local mosquitto service.</description>
+  <port protocol="tcp" port="{{ service_mosquitto_listeners['mqtt']['public_port']|mandatory }}"/>
+{% if 'mqtt_over_tls' in service_mosquitto_listeners|default({}) %}
+  <port protocol="tcp" port="{{ service_mosquitto_listeners['mqtt_over_tls']['public_port']|mandatory }}"/>
+{% endif %}
+{% if 'mqtt_over_websocket' in service_mosquitto_listeners|default({}) %}
+  <port protocol="tcp" port="{{ service_mosquitto_listeners['mqtt_over_websocket']['public_port']|mandatory }}"/>
+{% endif %}
+{% if 'mqtt_over_websocket_tls' in service_mosquitto_listeners|default({}) %}
+  <port protocol="tcp" port="{{ service_mosquitto_listeners['mqtt_over_websocket_tls']['public_port']|mandatory }}"/>
+{% endif %}
+</service>

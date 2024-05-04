@@ -1,0 +1,22 @@
+{% if service_mosquitto_users.anonymous.enabled|default(false) == true %}
+
+{% for rule in service_mosquitto_users.anonymous.permissions|default([]) %}
+{% if rule.pattern is defined %}
+pattern {{ rule.access|default('readwrite') }} {{ rule.pattern }}
+{% elif rule.topic is defined %}
+topic {{ rule.access|default('readwrite') }} {{ rule.topic }}
+{% endif %}
+{% endfor %}
+{% endif %}
+{% for name, account in (service_mosquitto_users.accounts|default({})).items() %}
+
+user {{ name }}
+{% for rule in account.permissions|default([]) %}
+{% if rule.pattern is defined %}
+pattern {{ rule.access|default('readwrite') }} {{ rule.pattern }}
+{% elif rule.topic is defined %}
+topic {{ rule.access|default('readwrite') }} {{ rule.topic }}
+{% endif %}
+{% endfor %}
+{% endfor %}
+

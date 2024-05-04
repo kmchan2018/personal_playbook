@@ -1,0 +1,148 @@
+
+
+- import_playbook: "server.software.podman.yml"
+
+
+- hosts: "server"
+  become: true
+  become_user: "root"
+
+  vars:
+
+    service_mosquitto_enabled: true
+
+    service_mosquitto_listeners:
+      mqtt:
+        public_ip: "0.0.0.0"
+        public_port: 1883
+      mqtt_over_websocket:
+        public_ip: "0.0.0.0"
+        public_port: 17777
+
+    service_mosquitto_users:
+      anonymous:
+        enabled: false
+        permissions: []
+      accounts:
+        kmchan:
+          password: "{{ service_mosquitto_passwords['kmchan'] }}"
+          permissions:
+            - { topic: "#", access: "readwrite" }
+        zigbee2mqtt_bedroom:
+          password: "{{ service_mosquitto_passwords['zigbee2mqtt_bedroom'] }}"
+          permissions:
+            - { topic: "smarthome/zigbee2mqtt/bedroom/#", access: "readwrite" }
+            - { topic: "smarthome/homeassistant/discovery/#", access: "readwrite" }
+        homeassistant:
+          password: "{{ service_mosquitto_passwords['homeassistant'] }}"
+          permissions:
+            - { topic: "smarthome/#", access: "readwrite" }
+
+    service_mosquitto_options:
+      - "log_type none"
+      - "log_type error"
+      - "log_type warning"
+      - "log_type notice"
+
+    service_mosquitto_firewall_zones:
+      - "home"
+      - "internal"
+      - "work"
+
+  tasks:
+
+    - name: "Setup Mosquitto Service"
+      when: "service_mosquitto_enabled|default(false)"
+      block:
+
+        - name: "Setup Mosquitto Service: Determine Podman Version"
+          ansible.builtin.package_facts:
+            manager: "rpm"
+
+        - name: "Setup Mosquitto Service: Load Account Passwords"
+          ansible.builtin.include_vars:
+            file: "secrets/service.mosquitto.vault"
+
+        - name: "Setup Mosquitto Service: Create Mosquitto Group"
+          ansible.builtin.group:
+            name: "mosquitto"
+            state: "present"
+            system: true
+          register: "service_mosquitto_group"
+
+        - name: "Setup Mosquitto Service: Create Mosquitto Account"
+          ansible.builtin.user:
+            name: "mosquitto"
+            state: "present"
+            group: "mosquitto"
+            password: "!"
+            system: true
+            home: "/"
+            shell: "/sbin/nologin"
+            comment: "Mosquitto Broker"
+            create_home: false
+          register: "service_mosquitto_user"
+
+        - name: "Setup Mosquitto Service: Create Configuration Directory"
+          ansible.builtin.file:
+            dest: "/etc/mosquitto"
+            state: "directory"
+            owner: "mosquitto"
+            group: "mosquitto"
+            mode: "0755"
+
+        - name: "Setup Mosquitto Service: Install Configuration Files"
+          ansible.builtin.template:
+            dest: "/etc/mosquitto/{{ item.name }}"
+            src: "{{ playbook_dir }}/files/common/etc/mosquitto/{{ item.name }}.j2"
+            owner: "{{ item.owner|default('mosquitto') }}"
+            group: "{{ item.group|default('mosquitto') }}"
+            mode: "{{ item.mode|default('0644') }}"
+          loop:
+            - { name: "mosquitto.conf" }
+            - { name: "aclfile", mode: "0600" }
+            - { name: "pwfile.sh", mode: "0600" }
+
+        - name: "Setup Mosquitto Service: Install Placeholder Password File"
+          ansible.builtin.file:
+            dest: "/etc/mosquitto/pwfile"
+            state: "touch"
+            owner: "mosquitto"
+            group: "mosquitto"
+            mode: "0600"
+
+        - name: "Setup Mosquitto Service: Install Podman Quadlet Files"
+          ansible.builtin.template:
+            dest: "{{ item }}"
+            src: "{{ playbook_dir }}/files/common/{{ item }}.j2"
+            owner: "root"
+            group: "root"
+            mode: "0644"
+          loop:
+            - "/etc/containers/systemd/mosquitto.container"
+            - "/etc/containers/systemd/mosquitto.network"
+            - "/etc/containers/systemd/mosquitto-password-update.container"
+
+        - name: "Setup Mosquitto Service: Install Firewalld Configuration Files"
+          ansible.builtin.template:
+            dest: "{{ item }}"
+            src: "{{ playbook_dir }}/files/common/{{ item }}.j2"
+            owner: "root"
+            group: "root"
+            mode: "0644"
+          loop:
+            - "/etc/firewalld/services/mosquitto.xml"
+            - "/etc/firewalld/zones/mosquitto.xml"
+
+        - name: "Setup Mosquitto Service: Add Service to Firewalld Zones"
+          ansible.posix.firewalld:
+            zone: "{{ item }}"
+            service: "mosquitto"
+            state: "enabled"
+            permanent: true
+            offline: true
+          loop: "{{ service_mosquitto_firewall_zones|default([]) }}"
+          retries: 3
+          delay: 5
+
+

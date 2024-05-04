@@ -1,0 +1,14 @@
+
+[Unit]
+Description=Mosquitto Network for Zigbee2MQTT and Home Assistant
+After=network-online.target
+
+[Network]
+Driver=bridge
+Internal=true
+Options=com.docker.network.bridge.name=mosquitto
+Options=isolate=strict
+
+[Install]
+WantedBy=multi-user.target default.target
+

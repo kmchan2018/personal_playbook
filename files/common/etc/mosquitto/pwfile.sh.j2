@@ -1,0 +1,13 @@
+#!/bin/sh
+
+touch /mosquitto/config/pwfile
+chmod 600 /mosquitto/config/pwfile
+
+{% for name, account in (service_mosquitto_users.accounts|default({})).items() %}
+{% if loop.first %}
+/usr/bin/mosquitto_passwd -c -b /mosquitto/config/pwfile '{{ name }}' '{{ account.password }}'
+{% else %}
+/usr/bin/mosquitto_passwd -b /mosquitto/config/pwfile '{{ name }}' '{{ account.password }}'
+{% endif %}
+{% endfor %}
+

@@ -1,0 +1,42 @@
+
+[Unit]
+Description=Mosquitto Container
+After=network-online.target
+Requires=mosquitto-password-update.service
+
+[Service]
+TimeoutStartSec=900
+
+[Container]
+Image=docker.io/library/eclipse-mosquitto:latest
+Volume=/etc/mosquitto:/mosquitto/config:ro,nodev,noexec,nosuid,z
+User=1883
+Group=1883
+{% if ansible_facts.packages.podman is defined and ansible_facts.packages.podman[0].version is ansible.builtin.version('4.8.0', '>=') %}
+UIDMap=0:65534:1
+UIDMap=1883:{{ service_mosquitto_user.uid }}:1
+GIDMap=0:65534:1
+GIDMap=1883:{{ service_mosquitto_group.gid }}:1
+{% else %}
+PodmanArgs=--uidmap 0:65534:1 --uidmap 1883:{{ service_mosquitto_user.uid }}:1 --gidmap 0:65534:1 --gidmap 1883:{{ service_mosquitto_group.gid }}:1
+{% endif %}
+{% if 'mqtt_over_websocket_tls' in service_mosquitto_listeners|default({}) %}
+PublishPort={{ service_mosquitto_listeners['mqtt_over_websocket_tls']['public_ip']|default('') }}:{{ service_mosquitto_listeners['mqtt_over_websocket_tls']['public_port']|mandatory }}:{{ service_mosquitto_listeners['mqtt_over_websocket_tls']['public_port']|mandatory }}
+{% endif %}
+{% if 'mqtt_over_websocket' in service_mosquitto_listeners|default({}) %}
+PublishPort={{ service_mosquitto_listeners['mqtt_over_websocket']['public_ip']|default('') }}:{{ service_mosquitto_listeners['mqtt_over_websocket']['public_port']|mandatory }}:{{ service_mosquitto_listeners['mqtt_over_websocket']['public_port']|mandatory }}
+{% endif %}
+{% if 'mqtt_over_tls' in service_mosquitto_listeners|default({}) %}
+PublishPort={{ service_mosquitto_listeners['mqtt_over_tls']['public_ip']|default('') }}:{{ service_mosquitto_listeners['mqtt_over_tls']['public_port']|default('8883') }}:{{ service_mosquitto_listeners['mqtt_over_tls']['public_port']|default('8883') }}
+{% endif %}
+{% if 'mqtt' in service_mosquitto_listeners|default({}) %}
+PublishPort={{ service_mosquitto_listeners['mqtt']['public_ip']|default('') }}:{{ service_mosquitto_listeners['mqtt']['public_port']|default('1883') }}:{{ service_mosquitto_listeners['mqtt']['public_port']|default('1883') }}
+{% endif %}
+Network=podman
+Network=mosquitto.network
+NoNewPrivileges=yes
+AutoUpdate=local
+
+[Install]
+WantedBy=multi-user.target default.target
+
