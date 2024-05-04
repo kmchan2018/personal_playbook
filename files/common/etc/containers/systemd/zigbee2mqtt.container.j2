@@ -1,0 +1,35 @@
+
+[Unit]
+Description=Zigbee2Mqtt Container
+After=network-online.target
+Requires=mosquitto.service
+
+[Service]
+TimeoutStartSec=900
+
+[Container]
+Image=docker.io/koenkk/zigbee2mqtt:latest
+Volume=/var/lib/zigbee2mqtt:/app/data:rw,nodev,noexec,nosuid,z
+Volume={{ service_zigbee2mqtt_device|mandatory }}:/dev/ttyUSB0:rw,z
+User={{ service_zigbee2mqtt_user.uid }}
+Group={{ service_zigbee2mqtt_group.gid }}
+{% if ansible_facts.packages.podman is defined and ansible_facts.packages.podman[0].version is ansible.builtin.version('4.8.0', '>=') %}
+UIDMap=0:65534:1
+UIDMap={{ service_zigbee2mqtt_user.uid }}:{{ service_zigbee2mqtt_user.uid }}:1
+GIDMap=0:65534:1
+GIDMap={{ service_zigbee2mqtt_dialout_group.gid }}:{{ service_zigbee2mqtt_dialout_group.gid }}:1
+GIDMap={{ service_zigbee2mqtt_group.gid }}:{{ service_zigbee2mqtt_group.gid }}:1
+PodmanArgs=--group-add {{ service_zigbee2mqtt_dialout_group.gid }}
+{% else %}
+PodmanArgs=--uidmap 0:65534:1 --uidmap {{ service_zigbee2mqtt_user.uid }}:{{ service_zigbee2mqtt_user.uid }}:1 --gidmap 0:65534:1 --gidmap {{ service_zigbee2mqtt_dialout_group.gid }}:{{ service_zigbee2mqtt_dialout_group.gid }}:1 --gidmap {{ service_zigbee2mqtt_group.gid }}:{{ service_zigbee2mqtt_group.gid }}:1 --group-add {{ service_zigbee2mqtt_dialout_group.gid }}
+{% endif %}
+Network=podman
+Network=mosquitto.network
+PublishPort={{ service_zigbee2mqtt_port|mandatory }}:{{ service_zigbee2mqtt_port|mandatory }}
+Environment=TZ={{ service_zigbee2mqtt_timezone|default('UTC') }}
+NoNewPrivileges=yes
+AutoUpdate=local
+
+[Install]
+WantedBy=multi-user.target default.target
+

@@ -1,0 +1,91 @@
+
+
+- import_playbook: "server.software.podman.yml"
+
+
+- hosts: "server"
+  become: true
+  become_user: "root"
+
+  vars:
+
+    service_zigbee2mqtt_enabled: true
+    service_zigbee2mqtt_timezone: "Asia/Hong_Kong"
+    service_zigbee2mqtt_port: 17778
+    service_zigbee2mqtt_device: "/dev/serial/by-id/usb-1a86_USB_Serial-if00-port0"
+    service_zigbee2mqtt_firewall_zones: [ "home", "internal", "work" ]
+
+  tasks:
+
+    - name: "Setup Zigbee2MQTT Service"
+      when: "service_zigbee2mqtt_enabled|default(false)"
+      block:
+
+        - name: "Setup Zigbee2MQTT Service: Determine Podman Version"
+          ansible.builtin.package_facts:
+            manager: "rpm"
+
+        - name: "Setup Zigbee2MQTT Service: Create Dialout Group"
+          ansible.builtin.group:
+            name: "dialout"
+            state: "present"
+            system: true
+          register: "service_zigbee2mqtt_dialout_group"
+
+        - name: "Setup Zigbee2MQTT Service: Create Zigbee2MQTT Group"
+          ansible.builtin.group:
+            name: "zigbee2mqtt"
+            state: "present"
+            system: true
+          register: "service_zigbee2mqtt_group"
+
+        - name: "Setup Zigbee2MQTT Service: Create Zigbee2MQTT Account"
+          ansible.builtin.user:
+            name: "zigbee2mqtt"
+            state: "present"
+            group: "zigbee2mqtt"
+            groups: [ "dialout" ]
+            password: "!"
+            system: true
+            home: "/"
+            shell: "/sbin/nologin"
+            comment: "Zigbee to MQTT Bridge"
+            create_home: false
+          register: "service_zigbee2mqtt_user"
+
+        - name: "Setup Zigbee2MQTT Service: Create Data Directory"
+          ansible.builtin.file:
+            dest: "/var/lib/zigbee2mqtt"
+            state: "directory"
+            owner: "zigbee2mqtt"
+            group: "zigbee2mqtt"
+            mode: "0750"
+
+        - name: "Setup Zigbee2MQTT Service: Install Podman Quadlet File"
+          ansible.builtin.template:
+            dest: "/etc/containers/systemd/zigbee2mqtt.container"
+            src: "{{ playbook_dir }}/files/common/etc/containers/systemd/zigbee2mqtt.container.j2"
+            owner: "root"
+            group: "root"
+            mode: "0644"
+
+        - name: "Setup Zigbee2MQTT Service: Install Firewalld Configuration File"
+          ansible.builtin.template:
+            dest: "/etc/firewalld/services/zigbee2mqtt.xml"
+            src: "{{ playbook_dir }}/files/common/etc/firewalld/services/zigbee2mqtt.xml.j2"
+            owner: "root"
+            group: "root"
+            mode: "0644"
+
+        - name: "Setup Zigbee2MQTT Service: Add Service to Firewalld Zones"
+          ansible.posix.firewalld:
+            zone: "{{ item }}"
+            service: "zigbee2mqtt"
+            state: "enabled"
+            permanent: true
+            offline: true
+          loop: "{{ service_zigbee2mqtt_firewall_zones|default([]) }}"
+          retries: 3
+          delay: 5
+
+
