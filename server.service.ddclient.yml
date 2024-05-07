@@ -11,6 +11,7 @@
     service_ddclient_hosts:
       - { provider: "namecheap", domain: "kmchan3.space", host: "demo" }
       - { provider: "namecheap", domain: "kmchan3.space", host: "desktop" }
+      - { provider: "namecheap", domain: "kmchan3.space", host: "home" }
       - { provider: "namecheap", domain: "kmchan3.space", host: "firefox" }
       - { provider: "namecheap", domain: "kmchan3.space", host: "test" }
 
