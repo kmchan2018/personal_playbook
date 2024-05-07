@@ -1,6 +1,7 @@
 
 
 - import_playbook: "server.service.caddy.yml"
+- import_playbook: "server.service.ddclient.yml"
 - import_playbook: "server.service.home_assistant.yml"
 - import_playbook: "server.service.mosquitto.yml"
 - import_playbook: "server.service.zigbee2mqtt.yml"

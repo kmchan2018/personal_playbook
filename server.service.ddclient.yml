@@ -1,6 +1,6 @@
 
 
-- hosts: "desktop"
+- hosts: "server"
   become: true
   become_user: "root"
 
@@ -32,7 +32,7 @@
         - name: "Setup DDClient Service: Update Default Configuration Files"
           ansible.builtin.blockinfile:
             dest: "/etc/ddclient.conf"
-            block: "{{ lookup('ansible.builtin.template', '{{ playbook_dir }}/files/desktop/etc/ddclient.conf.j2') }}"
+            block: "{{ lookup('ansible.builtin.template', '{{ playbook_dir }}/files/common/etc/ddclient.conf.j2') }}"
             owner: "ddclient"
             group: "ddclient"
             mode: "0600"

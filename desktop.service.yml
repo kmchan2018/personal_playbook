@@ -1,7 +1,6 @@
 
 
 - import_playbook: "desktop.service.certbot.yml"
-- import_playbook: "desktop.service.ddclient.yml"
 - import_playbook: "desktop.service.httpd.yml"
 - import_playbook: "desktop.service.libvirt.yml"
 - import_playbook: "desktop.service.mosquitto.yml"
