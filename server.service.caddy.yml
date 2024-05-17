@@ -77,6 +77,14 @@
             - "/etc/containers/systemd/caddy-controller.container"
             - "/etc/containers/systemd/caddy-controller.network"
 
+        - name: "Setup Caddy Service: Install Network Manager Configuration File"
+          ansible.builtin.template:
+            dest: "/etc/NetworkManager/conf.d/caddy.conf"
+            src: "{{ playbook_dir }}/files/common/etc/NetworkManager/conf.d/caddy.conf.j2"
+            owner: "root"
+            group: "root"
+            mode: "0644"
+
         - name: "Setup Caddy Service: Install Firewalld Configuration Files"
           ansible.builtin.template:
             dest: "{{ item }}"
