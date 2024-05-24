@@ -123,6 +123,14 @@
             - "/etc/containers/systemd/mosquitto.network"
             - "/etc/containers/systemd/mosquitto-password-update.container"
 
+        - name: "Setup Mosquitto Service: Install Network Manager Configuration File"
+          ansible.builtin.template:
+            dest: "/etc/NetworkManager/conf.d/mosquitto.conf"
+            src: "{{ playbook_dir }}/files/common/etc/NetworkManager/conf.d/mosquitto.conf.j2"
+            owner: "root"
+            group: "root"
+            mode: "0644"
+
         - name: "Setup Mosquitto Service: Install Firewalld Configuration Files"
           ansible.builtin.template:
             dest: "{{ item }}"
