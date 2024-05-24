@@ -139,4 +139,24 @@
           retries: 3
           delay: 5
 
+        - name: "Setup Mosquitto Service: Update Avahi Configuration File"
+          ansible.builtin.lineinfile:
+            path: "/etc/avahi/avahi-daemon.conf"
+            create: false
+            state: "present"
+            regexp: "{{ item.regexp }}"
+            line: "{{ item.line }}"
+            backrefs: "{{ item.backrefs }}"
+            insertafter: '^\[server\]\s*$'
+          loop:
+            - regexp: '^[#%].*deny-interfaces\s*=.*$'
+              line: 'deny-interfaces=mosquitto'
+              backrefs: true
+            - regexp: '^\s*deny-interfaces\s*=\s*$'
+              line: 'deny-interfaces=mosquitto'
+              backrefs: true
+            - regexp: '^\s*deny-interfaces\s*=\s*((?!(\s*[A-Za-z0-9\-\_]+\s*,)*\s*mosquitto\s*(,\s*[A-Za-z0-9\-\_]+\s*)*).*)\s*$'
+              line: 'deny-interfaces=\1, mosquitto'
+              backrefs: true
+
 
