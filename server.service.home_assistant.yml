@@ -30,16 +30,16 @@
 
         - name: "Setup Home Assistant Service: Install Podman Quadlet File"
           ansible.builtin.template:
-            dest: "/etc/containers/systemd/home_assistant.container"
-            src: "{{ playbook_dir }}/files/common/etc/containers/systemd/home_assistant.container.j2"
+            dest: "/etc/containers/systemd/home-assistant.container"
+            src: "{{ playbook_dir }}/files/common/etc/containers/systemd/home-assistant.container.j2"
             owner: "root"
             group: "root"
             mode: "0644"
 
         - name: "Setup Home Assistant Service: Install Firewalld Configuration File"
           ansible.builtin.template:
-            dest: "/etc/firewalld/services/home_assistant.xml"
-            src: "{{ playbook_dir }}/files/common/etc/firewalld/services/home_assistant.xml.j2"
+            dest: "/etc/firewalld/services/home-assistant.xml"
+            src: "{{ playbook_dir }}/files/common/etc/firewalld/services/home-assistant.xml.j2"
             owner: "root"
             group: "root"
             mode: "0644"
@@ -47,7 +47,7 @@
         - name: "Setup Home Assistant Service: Enable Firewalld Service"
           ansible.posix.firewalld:
             zone: "{{ item }}"
-            service: "home_assistant"
+            service: "home-assistant"
             state: "enabled"
             permanent: true
             offline: true
