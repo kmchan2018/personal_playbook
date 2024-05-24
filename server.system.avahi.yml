@@ -1,0 +1,28 @@
+
+
+- hosts: "server"
+  become: true
+  become_user: "root"
+
+  vars:
+
+    system_avahi_interfaces: [ "enp0s31f6" ]
+
+  tasks:
+
+    - name: "Setup Avahi: Install Packages from Distribution"
+      ansible.builtin.dnf:
+        name:
+          - "avahi"
+          - "avahi-tools"
+          - "nss-mdns"
+        state: "latest"
+
+    - name: "Setup Avahi: Enable Avahi Daemon"
+      ansible.builtin.systemd_service:
+        name: "avahi-daemon.service"
+        state: "started"
+        enabled: true
+        daemon_reload: true
+
+
