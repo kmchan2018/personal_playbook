@@ -23,4 +23,12 @@
               - "podman-compose"
             state: "latest"
 
+        - name: "Setup Podman Container Runtime: Install Network Manager Configuration File"
+          ansible.builtin.template:
+            dest: "/etc/NetworkManager/conf.d/podman0.conf"
+            src: "{{ playbook_dir }}/files/desktop/etc/NetworkManager/conf.d/podman0.conf.j2"
+            owner: "root"
+            group: "root"
+            mode: "0644"
+
 
