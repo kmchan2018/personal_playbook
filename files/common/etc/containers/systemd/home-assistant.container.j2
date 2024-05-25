@@ -11,10 +11,9 @@ TimeoutStartSec=900
 [Container]
 Image=ghcr.io/home-assistant/home-assistant:stable
 Volume=/etc/home_assistant:/config:rw,nodev,noexec,nosuid,z
-Network=podman
+Network=home-assistant.network
 Network=caddy.network
 Network=mosquitto.network
-PublishPort=8123:8123
 Environment=TZ={{ service_home_assistant_timezone|default('UTC') }}
 Label="caddy={{ service_home_assistant_domain|mandatory }}"
 Label="caddy.reverse_proxy={{ '{{' }}upstreams 8123{{ '}}' }}"

@@ -1,0 +1,13 @@
+
+[Unit]
+Description=Home Assistant Network for Communicating with Outside World
+After=network-online.target
+
+[Network]
+Driver=macvlan
+IPAMDriver=dhcp
+Options=parent={{ service_home_assistant_interface|mandatory }}
+
+[Install]
+WantedBy=multi-user.target default.target
+

@@ -12,6 +12,7 @@
     service_home_assistant_enabled: true
     service_home_assistant_domain: "home.kmchan3.space"
     service_home_assistant_timezone: "Asia/Hong_Kong"
+    service_home_assistant_interface: "enp0s31f6"
     service_home_assistant_firewall_zones: [ "home", "internal", "work" ]
 
   tasks:
@@ -28,13 +29,23 @@
             group: "root"
             mode: "0750"
 
-        - name: "Setup Home Assistant Service: Install Podman Quadlet File"
+        - name: "Setup Home Assistant Service: Install Podman Quadlet Files"
           ansible.builtin.template:
-            dest: "/etc/containers/systemd/home-assistant.container"
-            src: "{{ playbook_dir }}/files/common/etc/containers/systemd/home-assistant.container.j2"
+            dest: "{{ item }}"
+            src: "{{ playbook_dir }}/files/common/{{ item }}.j2"
             owner: "root"
             group: "root"
             mode: "0644"
+          loop:
+            - "/etc/containers/systemd/home-assistant.container"
+            - "/etc/containers/systemd/home-assistant.network"
+
+        - name: "Setup Home Assistant Service: Enable DHCP Proxy for Home Assistant Network"
+          ansible.builtin.systemd_service:
+            name: "netavark-dhcp-proxy.socket"
+            state: "started"
+            enabled: true
+            daemon_reload: true
 
         - name: "Setup Home Assistant Service: Install Firewalld Configuration File"
           ansible.builtin.template:
