@@ -9,8 +9,13 @@
     - name: "Configure Disk Support: Install Tools from Distribution"
       ansible.builtin.dnf:
         name:
+          - "hddtemp"
           - "nvme-cli"
           - "smartmontools"
+          - "udisks2"
+          - "udisks2-iscsi"
+          - "udisks2-lsm"
+          - "udisks2-lvm2"
         state: "latest"
 
 
