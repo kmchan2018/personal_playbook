@@ -28,6 +28,11 @@
         filesystem: "ext4"
         options: "nofail,x-systemd.mount-timeout=5"
 
+      - device: "tmpfs"
+        mountpoint: "/mnt/ramdrive"
+        filesystem: "tmpfs"
+        options: "size=24G,mode=1777,nodev,nosuid"
+
   tasks:
 
     - name: "Configure Filesystem Support: Install Tools from Distribution"
