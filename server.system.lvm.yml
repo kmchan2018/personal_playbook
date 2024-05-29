@@ -1,0 +1,33 @@
+
+
+- hosts: "server"
+  become: true
+  become_user: "root"
+
+  vars:
+
+    system_lvm_physical_volumes:
+      - "icHlq5-maxZ-jTQL-nHBS-DFBz-wPN8-K6PJ9E"
+      - "j7gOMU-eEQW-ylCO-lAjJ-zuDh-ie6s-W4XNm8"
+      - "KV9kJ3-y3hd-A80v-L5kM-g1Qi-kWiF-LLcdah"
+      - "Vflke2-kBjO-Yn6Q-CHOE-8K2Z-JzSA-bYPgmG"
+
+  tasks:
+
+    - name: "Setup LVM Support: Install Packages"
+      ansible.builtin.dnf:
+        name:
+          - "lvm2"
+          - "lvm2-dbusd"
+          - "lvm2-lockd"
+        state: "latest"
+
+    - name: "Setup LVM Support: Enable Specified Physical Volumes"
+      ansible.builtin.command:
+        argv: [ "/sbin/lvmdevices", "-qq", "--addpvid", "{{ item }}" ]
+      register: "result"
+      changed_when: "result.rc == 0"
+      failed_when: "result.rc != 0 and 'PVID already exists' not in result.stderr"
+      loop: "{{ system_lvm_physical_volumes|default([]) }}"
+
+

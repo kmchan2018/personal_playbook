@@ -1,0 +1,26 @@
+
+
+- hosts: "server"
+  become: true
+  become_user: "root"
+
+  vars:
+
+    system_raid_speed_limit: 60000
+
+  tasks:
+
+    - name: "Setup MD RAID Support: Install Packages"
+      ansible.builtin.dnf:
+        name: "mdadm"
+        state: "latest"
+
+    - name: "Setup MD RAID Support: Setup Speed Limit for Check/Resync/Rebuild Operations"
+      ansible.builtin.template:
+        dest: "/etc/sysctl.d/99-mdraid.conf"
+        src: "{{ playbook_dir }}/files/server/etc/sysctl.d/99-mdraid.conf.j2"
+        owner: "root"
+        group: "root"
+        mode: "0644"
+
+

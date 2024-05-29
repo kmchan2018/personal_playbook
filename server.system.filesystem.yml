@@ -4,6 +4,30 @@
   become: true
   become_user: "root"
 
+  vars:
+
+    system_filesystem_mounts:
+
+      - device: "UUID=622f17b3-beb1-4fcc-ab6e-c5cad8cfaafb"
+        mountpoint: "/mnt/data/kmchan1"
+        filesystem: "ext4"
+        options: "nofail,x-systemd.mount-timeout=5"
+
+      - device: "UUID=ad2a53fd-be9c-4747-b6e1-c172463b0872"
+        mountpoint: "/mnt/data/kmchan2"
+        filesystem: "ext4"
+        options: "nofail,x-systemd.mount-timeout=5"
+
+      - device: "UUID=f2d4363d-1be1-4fb0-9ad6-b619d174a996"
+        mountpoint: "/mnt/data/kmchan3"
+        filesystem: "ext4"
+        options: "nofail,x-systemd.mount-timeout=5"
+
+      - device: "UUID=b03fc4c1-250b-4c57-ad9e-2f5acca5a521"
+        mountpoint: "/mnt/data/kmchan4"
+        filesystem: "ext4"
+        options: "nofail,x-systemd.mount-timeout=5"
+
   tasks:
 
     - name: "Configure Filesystem Support: Install Tools from Distribution"
@@ -13,5 +37,25 @@
           - "ntfs-3g"
           - "ntfsprogs"
         state: "latest"
+
+    - name: "Configure Filesystem Support: Create Directory for Extra Mount Points"
+      ansible.builtin.file:
+        dest: "{{ item.mountpoint }}"
+        state: "directory"
+      loop: "{{ system_filesystem_mounts|default([]) }}"
+
+    - name: "Configure Filesystem Support: Update Fstab for Extra Mount Points"
+      ansible.builtin.blockinfile:
+        dest: "/etc/fstab"
+        block: |
+          {% for mount in system_filesystem_mounts|default([]) %}
+          {{ mount.device }} {{ mount.mountpoint }} {{ mount.filesystem|default('ext4') }} {{ mount.options|default('default') }} 1 2
+          {% endfor %}
+        prepend_newline: true
+        append_newline : true
+        owner: "root"
+        group: "root"
+        mode: "0644"
+        create: true
 
 

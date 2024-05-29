@@ -6,6 +6,9 @@
 - import_playbook: "server.system.driverctl.yml"
 - import_playbook: "server.system.filesystem.yml"
 - import_playbook: "server.system.firewalld.yml"
+- import_playbook: "server.system.luks.yml"
+- import_playbook: "server.system.lvm.yml"
+- import_playbook: "server.system.mdraid.yml"
 - import_playbook: "server.system.networkd.yml"
 - import_playbook: "server.system.sensor.yml"
 

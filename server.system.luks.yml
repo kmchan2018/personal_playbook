@@ -1,0 +1,52 @@
+
+
+- hosts: "server"
+  become: true
+  become_user: "root"
+
+  vars:
+
+    system_luks_devices:
+
+      - device: "UUID=232b2256-7374-4c55-a1e1-efd9426780b9"
+        volume: "Data-Kmchan1-Decrypted"
+        keyfile: "/etc/cryptsetup-keys.d/kmchan1.key"
+        options: "nofail"
+
+      - device: "UUID=1bf0c33b-9774-49e6-8368-1994033cb4b4"
+        volume: "Data-Kmchan2-Decrypted"
+        keyfile: "/etc/cryptsetup-keys.d/kmchan2.key"
+        options: "nofail"
+
+      - device: "UUID=73001849-3de8-44fd-925a-bb61060c1aa2"
+        volume: "Data-Kmchan3-Decrypted"
+        keyfile: "/etc/cryptsetup-keys.d/kmchan3.key"
+        options: "nofail"
+
+      - device: "UUID=30cf779d-3289-4b78-8740-5da9e43ca848"
+        volume: "Data-Kmchan4-Decrypted"
+        keyfile: "/etc/cryptsetup-keys.d/kmchan4.key"
+        options: "nofail"
+
+  tasks:
+
+    - name: "Configure LUKS Support: Install Tools from Distribution"
+      ansible.builtin.dnf:
+        name: "cryptsetup"
+        state: "latest"
+
+    - name: "Configure LUKS Support: Update Crypttab for Extra Encrypted Devices"
+      ansible.builtin.blockinfile:
+        dest: "/etc/crypttab"
+        block: |
+          {% for device in system_luks_devices|default([]) %}
+          {{ device.volume }} {{ device.device }} {{ device.keyfile|default('none') }} {{ device.options|default('') }}
+          {% endfor %}
+        prepend_newline: true
+        append_newline : true
+        owner: "root"
+        group: "root"
+        mode: "0600"
+        create: true
+
+
