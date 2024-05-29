@@ -1,0 +1,23 @@
+
+networks:
+    intranet:
+        network: "192.168.1.0/24"
+        netmask: "255.255.255.0"
+        gateway: "192.168.1.1"
+        devices:
+            kmchan-server: "192.168.1.10"
+            kmchan-desktop: "192.168.1.11"
+    backhaul:
+        network: "192.168.253.0/24"
+        netmask: "255.255.255.0"
+        devices:
+            kmchan-server: "192.168.253.1"
+            kmchan-desktop: "192.168.253.2"
+    wireguard:
+        network: "192.168.254.0/24"
+        netmask: "255.255.255.0"
+        gateway: "192.168.254.1"
+        devices:
+            kmchan-server: "192.168.254.1"
+
+
