@@ -10,6 +10,7 @@
 - import_playbook: "server.system.lvm.yml"
 - import_playbook: "server.system.mdraid.yml"
 - import_playbook: "server.system.networkd.yml"
+- import_playbook: "server.system.nfs.yml"
 - import_playbook: "server.system.sensor.yml"
 
 

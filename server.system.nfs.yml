@@ -1,0 +1,127 @@
+
+
+- hosts: "server"
+  become: true
+  become_user: "root"
+
+  vars:
+
+    system_nfs_exports:
+      - path: "/mnt/data"
+        permissions:
+          - network: "{{ networks.intranet.devices['kmchan-desktop'] }}/32"
+            options: "rw,root_squash"
+          - network: "{{ networks.backhaul.network }}"
+            options: "rw,root_squash"
+      - path: "/mnt/ramdrive"
+        permissions:
+          - network: "{{ networks.intranet.devices['kmchan-desktop'] }}/32"
+            options: "rw,root_squash"
+          - network: "{{ networks.backhaul.network }}"
+            options: "rw,root_squash"
+
+    system_nfs_40_support: false
+    system_nfs_41_support: false
+    system_nfs_42_support: true
+    system_nfs_firewall_zones: [ "home", "internal", "work" ]
+
+  tasks:
+
+    - name: "Setup Network File System: Install Packages from Distribution"
+      ansible.builtin.dnf:
+        name: "nfs-utils"
+        state: "latest"
+
+    - name: "Setup Network File System: Disable NFS Version 3"
+      community.general.ini_file:
+        dest: "/etc/nfs.conf"
+        section: "nfsd"
+        option: "vers3"
+        value: "n"
+        no_extra_spaces: true
+        owner: "root"
+        group: "root"
+        mode: "0644"
+        create: false
+
+    - name: "Setup Network File System: Configure NFS Version 4.0"
+      community.general.ini_file:
+        dest: "/etc/nfs.conf"
+        section: "nfsd"
+        option: "vers4.0"
+        value: "{{ 'y' if system_nfs_40_support|default(true) else 'n' }}"
+        no_extra_spaces: true
+        owner: "root"
+        group: "root"
+        mode: "0644"
+        create: false
+
+    - name: "Setup Network File System: Configure NFS Version 4.1"
+      community.general.ini_file:
+        dest: "/etc/nfs.conf"
+        section: "nfsd"
+        option: "vers4.1"
+        value: "{{ 'y' if system_nfs_41_support|default(true) else 'n' }}"
+        no_extra_spaces: true
+        owner: "root"
+        group: "root"
+        mode: "0644"
+        create: false
+
+    - name: "Setup Network File System: Configure NFS Version 4.2"
+      community.general.ini_file:
+        dest: "/etc/nfs.conf"
+        section: "nfsd"
+        option: "vers4.2"
+        value: "{{ 'y' if system_nfs_42_support|default(true) else 'n' }}"
+        no_extra_spaces: true
+        owner: "root"
+        group: "root"
+        mode: "0644"
+        create: false
+
+    - name: "Setup Network File System: Update Export File"
+      ansible.builtin.blockinfile:
+        dest: "/etc/exports"
+        block: |
+          {% for export in system_nfs_exports|default([]) %}
+          {{ export.path }}{% for permission in export.permissions|default([]) %} {{ permission.network }}({{ permission.options }}){% endfor %}
+
+          {% endfor %}
+        prepend_newline: true
+        append_newline : true
+        owner: "root"
+        group: "root"
+        mode: "0644"
+        create: true
+
+    - name: "Setup Network File System: Mask NFS Version 3 Only Services"
+      ansible.builtin.systemd_service:
+        name: "{{ item }}"
+        state: "started"
+        enabled: true
+        daemon_reload: true
+      loop:
+        - "rpc-statd.service"
+        - "rpcbind.service"
+        - "rpcbind.socket"
+
+    - name: "Setup Mosquitto Service: Add Service to Firewalld Zones"
+      ansible.posix.firewalld:
+        zone: "{{ item }}"
+        service: "nfs"
+        state: "enabled"
+        permanent: true
+        offline: true
+      loop: "{{ system_nfs_firewall_zones|default([]) }}"
+      retries: 3
+      delay: 5
+
+    - name: "Setup Network File System: Enable NFS Server Service"
+      ansible.builtin.systemd_service:
+        name: "nfs-server.service"
+        state: "started"
+        enabled: true
+        daemon_reload: true
+
+
