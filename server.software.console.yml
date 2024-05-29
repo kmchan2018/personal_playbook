@@ -27,6 +27,7 @@
               - "jq"
               - "lshw"
               - "mc"
+              - "net-tools"
               - "neofetch"
               - "nvtop"
               - "openssh"
@@ -44,6 +45,7 @@
               - "unrar"
               - "unrar-free"
               - "vim"
+              - "wget"
               - "yt-dlp"
             state: "latest"
 
